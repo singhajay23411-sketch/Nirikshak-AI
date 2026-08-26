@@ -1,0 +1,231 @@
+/* Five Pathways Authentic Design System & Theme */
+
+:root {
+  /* Font Families */
+  --font-serif-primary: 'Playfair Display', Georgia, serif;
+  --font-serif-secondary: 'Cormorant Garamond', Garamond, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-handwritten: 'Caveat', cursive;
+
+  /* Color Palette - Five Pathways Light Warm Cream Theme */
+  --color-bg-light: #FAF8F3;
+  --color-bg-cream-alt: #F3EFE6;
+  --color-bg-card: #FFFFFF;
+  --color-bg-card-sand: #F7F4EC;
+
+  --color-text-primary: #1D1E22;
+  --color-text-secondary: #4A4D55;
+  --color-text-muted: #727682;
+  --color-text-bright: #FFFFFF;
+
+  --color-accent-teal: #52B79A;
+  --color-accent-teal-hover: #43A086;
+  --color-accent-gold: #E5B842;
+  --color-accent-red: #D9534F;
+
+  --color-border-dark: #1D1E22;
+  --color-border-subtle: rgba(29, 30, 34, 0.12);
+
+  /* Spacing & Radii */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-button: 2px 3px 0px #1D1E22;
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg-light);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-light);
+}
+::-webkit-scrollbar-thumb {
+  background: #C8C3B8;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-teal);
+}
+
+/* Typography Hierarchy */
+h1, h2, h3, h4, .font-serif {
+  font-family: var(--font-serif-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 700;
+}
+
+h2 {
+  font-size: clamp(2rem, 3.5vw, 3.2rem);
+  font-weight: 600;
+}
+
+h3 {
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
+  font-weight: 600;
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-accent-teal-hover);
+  margin-bottom: 0.75rem;
+  display: inline-block;
+}
+
+p.lead {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+/* Handwritten Signature Accent */
+.handwritten {
+  font-family: var(--font-handwritten);
+  font-size: 2.2rem;
+  color: var(--color-text-primary);
+  line-height: 1.1;
+}
+
+/* Authentic Tactile Buttons (Hover Lift & Press-Down Interaction) */
+button, .btn-teal, .btn-outline-dark, .btn-pill-action {
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, color 0.2s ease;
+}
+
+button:hover, .btn-teal:hover, .btn-outline-dark:hover {
+  transform: translate(-1.5px, -2px);
+}
+
+button:active, .btn-teal:active, .btn-outline-dark:active {
+  transform: translate(2px, 3px) !important;
+  box-shadow: 0px 0px 0px #1D1E22 !important;
+}
+
+.btn-teal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.8rem;
+  background-color: var(--color-accent-teal);
+  color: #1D1E22;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border-dark);
+  box-shadow: var(--shadow-button);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-teal:hover {
+  background-color: var(--color-accent-teal-hover);
+  box-shadow: 3.5px 5px 0px #1D1E22;
+}
+
+.btn-outline-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.8rem;
+  background-color: transparent;
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border-dark);
+  box-shadow: 1.5px 2px 0px #1D1E22;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-outline-dark:hover {
+  background-color: var(--color-border-dark);
+  color: #FFFFFF;
+  box-shadow: 3px 4px 0px #1D1E22;
+}
+
+/* Scroll Reveal Animations Across Website */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Authentic Underline Links */
+.link-underline {
+  color: var(--color-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1.5px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.link-underline:hover {
+  color: var(--color-accent-teal-hover);
+}
+
+/* Card Styling */
+.card-light {
+  background: var(--color-bg-card);
+  border: 1.5px solid var(--color-border-dark);
+  border-radius: var(--radius-lg);
+  padding: 2.2rem;
+  box-shadow: var(--shadow-card);
+}
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.section-padding {
+  padding: 6rem 0;
+}
