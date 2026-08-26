@@ -1,0 +1,6 @@
+requests
+psycopg2-binary
+pandas
+python-dotenv
+tenacity
+tqdm

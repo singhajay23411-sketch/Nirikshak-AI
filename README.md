@@ -1,105 +1,100 @@
-# Nirakshak AI
+# Nirikshak AI
 
-> **AI-Powered MPLADS Integrity and Monitoring Platform**
+> **AI-Powered MPLADS Integrity & Monitoring Platform**
 > *From thousands of projects to the ones that need attention.*
 
 ## Smart India Hackathon 2026
 
-**Problem Statement ID:** SIH26-26102
-**Organisation:** Ministry of Statistics and Programme Implementation (MoSPI)
-**Problem Statement:** Development of an AI-powered system to detect anomalies, fraud, and inefficiencies in MPLAD Scheme implementation.
+* **Problem Statement ID:** SIH26-26102
+* **Organisation:** Ministry of Statistics and Programme Implementation (MoSPI)
+* **Category:** Software
+* **Problem Statement:** Development of an AI-powered system to detect anomalies, fraud, and inefficiencies in MPLAD Scheme implementation.
 
 ---
 
-## What are we building?
+## About the Project
 
-**Nirakshak AI** is an AI-powered decision-support platform for monitoring MPLADS works and fund utilisation.
+**Nirikshak AI** is an AI-powered decision-support platform for monitoring MPLADS works and fund utilisation.
 
-MPLADS involves thousands of development works across India, including roads, schools, community assets, water facilities and civic infrastructure. Officials must monitor recommendations, sanctions, expenditure, payments, work progress and completion across a large number of projects.
+MPLADS involves thousands of development works across India, such as roads, schools, water facilities, community halls and other civic assets. Monitoring every project manually is difficult because authorities must track recommendations, sanctions, expenditure, progress, payments and completion across many districts.
 
-Nirakshak AI helps authorities identify **which projects require attention first** by detecting unusual patterns, delays, probable duplicate works, cost deviations and expenditure-progress mismatches.
+Nirikshak AI helps officials identify **which works require attention first**. It detects unusual financial patterns, cost deviations, delayed works, expenditure-progress mismatches and probable duplicate projects, then presents them through clear risk alerts and evidence-backed dashboards.
 
-It is **not an accusation engine**. The system only identifies anomalies and generates evidence-backed risk alerts. Final verification and action remain with authorised human officers.
+> Nirikshak AI is **not an accusation engine**. It identifies anomalies that require verification. Every final decision remains with authorised human officials.
 
 ---
 
 ## Problem We Are Solving
 
-Existing MPLADS/eSAKSHI systems are designed mainly for recording, tracking and reporting project information.
+Existing MPLADS/eSAKSHI systems are mainly designed for data entry, project tracking and reporting. They can show what is happening, but officials still need to manually compare thousands of works to identify suspicious patterns.
 
-However, manually comparing thousands of works to identify issues such as these is difficult:
+Examples of issues that are hard to detect manually:
 
-* A project has spent 90% of its sanctioned amount but shows only 40% physical progress.
-* A road project costs much more than similar projects in the same region.
-* A work has missed its completion deadline by several months.
-* Two projects have very similar descriptions, costs and nearby locations.
-* An implementing agency repeatedly appears in delayed or high-risk projects.
-* Payment records show unusual bursts, repeated amounts or suspicious patterns.
-
-**Nirakshak AI adds an intelligence layer on top of MPLADS data.** It compares projects, detects risks, explains the reasons and creates a prioritised investigation queue.
+* A project has spent 90% of its sanctioned amount but has only 40% physical progress.
+* A work costs much more than similar works in the same region.
+* A project is delayed for several months beyond its expected completion date.
+* Two projects have very similar titles, costs and nearby locations.
+* An implementing agency repeatedly appears in delayed or high-risk works.
+* Payment records contain unusual bursts or repeated patterns.
 
 ---
 
-## Core Solution
+## Our Solution
 
 ```text
 MPLADS / eSAKSHI Data
         ↓
 Data Cleaning and Standardisation
         ↓
-AI and Rule-Based Risk Analysis
+AI + Rule-Based Risk Analysis
         ↓
 Explainable Unified Risk Score (0-100)
         ↓
 Alerts, Investigation Workflow and Reports
 ```
 
-Each project receives:
+For every project, Nirikshak AI will provide:
 
-* A risk score from **0 to 100**
+* Risk score from **0 to 100**
 * Risk band: Low, Medium, High or Critical
-* Confidence score based on data availability
-* Clear reasons behind the score
+* Confidence score based on available data
+* Reasons behind the risk score
 * Supporting evidence
 * Recommended verification action
 
-Example:
+### Example Alert
 
 ```text
 Risk Score: 87/100 - Critical
 
 Reasons:
-- 90% of sanctioned amount spent but only 40% physical progress reported
+- 90% of sanctioned amount spent, but only 40% physical progress reported
 - Cost is 48% above comparable nearby projects
-- Expected completion date exceeded by 11 months
+- Work is delayed by 11 months
 - Implementing agency has multiple prior delay flags
 
-Recommended Action:
-Physical inspection and verification of bills, measurements and project photographs.
+Recommended action:
+Conduct physical inspection and verify bills, measurements and progress records.
 ```
 
 ---
 
-## Key Modules
+## Core Modules
 
 ### 1. FinGuard - Financial Intelligence
 
 Detects financial and cost-related anomalies.
 
-Features:
-
 * Cost-overrun detection
-* Cost benchmarking against similar works
+* Cost benchmarking against comparable works
 * Expenditure-versus-progress mismatch
 * Budget utilisation analysis
-* Payment-pattern anomaly detection
 * Fund-release and expenditure tracking
+* Payment-pattern anomaly detection
 
 ### 2. GeoIntel - Geospatial Intelligence
 
-Uses project locations to identify spatial patterns and possible overlaps.
-
-Features:
+Uses location data to identify spatial patterns.
 
 * Project geo-mapping
 * Risk heatmaps
@@ -110,47 +105,41 @@ Features:
 
 ### 3. Duplicate Project Detection
 
-Identifies potentially duplicate or highly similar projects using:
+Identifies potentially duplicate or highly similar works using:
 
-* Project title and description similarity
+* Title and description similarity
 * Work category
-* Sanctioned amount
+* Sanctioned cost
 * Implementing agency
 * Geographic proximity
-* Project dates
+* Project timelines
 
-The system does not mark a project as duplicate based on text similarity alone. It requires multiple supporting signals.
+A project will not be marked as duplicate on text similarity alone. Multiple signals must support the alert.
 
-### 4. Delay Risk Prediction
+### 4. Delay Risk Detection
 
-Identifies projects likely to be delayed or already delayed.
+Identifies completed-late, currently delayed and likely-to-be-delayed works using:
 
-Signals include:
-
-* Time elapsed since sanction
+* Sanction date
 * Expected completion date
-* Progress percentage
-* Expenditure level
+* Physical progress
+* Expenditure percentage
 * Work category
 * Implementing agency history
 
 ### 5. EvidenceAI - Image and Document Verification
 
-This is an advanced module for future/authorised-data integration.
+Advanced module for authorised data integration.
 
-Planned features:
-
-* Duplicate photo detection
-* Before-after image comparison
+* Duplicate-image detection
 * Project-photo relevance checks
+* Before-after progress comparison
 * Metadata verification
 * Document consistency checks
 
 ### 6. Investigation Hub
 
-Enables authorised officials to review alerts and document action.
-
-Workflow:
+A structured workflow for authorised officials.
 
 ```text
 Alert
@@ -164,81 +153,83 @@ Alert
 
 ### 7. Reports and Audit Trail
 
-The platform can generate investigation-ready reports containing:
+Nirikshak AI can generate investigation-ready reports containing:
 
 * Project summary
-* Risk score and reasons
+* Risk score and explanations
 * Financial and progress evidence
-* Similar/duplicate project evidence
-* Location information
+* Similar-project evidence
+* Location data
 * Officer notes
 * Investigation status
-* Full audit trail
+* Audit trail
 
 ---
 
 ## Intended Users
 
-| User                             | Access                                             |
-| -------------------------------- | -------------------------------------------------- |
-| MoSPI / Ministry Official        | National-level monitoring, analytics and reports   |
-| State Nodal Authority            | State-level projects, alerts and assignments       |
-| District Authority               | District projects, investigation and verification  |
-| MP / Constituency Representative | Read-only constituency project monitoring          |
-| Implementing Agency              | Its own project updates and alerts                 |
-| Investigation / Audit Officer    | Assigned cases, evidence, notes and reports        |
-| Citizen                          | Public project information and feedback/complaints |
+| User                             | Access                                            |
+| -------------------------------- | ------------------------------------------------- |
+| MoSPI / Ministry Official        | National monitoring, analytics and reports        |
+| State Nodal Authority            | State-level alerts and project analysis           |
+| District Authority               | District projects, investigation and verification |
+| MP / Constituency Representative | Read-only constituency monitoring                 |
+| Implementing Agency              | Own-project updates and alerts                    |
+| Investigation / Audit Officer    | Assigned cases, evidence and reports              |
+| Citizen                          | Public project information and feedback           |
 
 ---
 
 ## Data Strategy
 
-Nirakshak AI follows a strict data-provenance approach.
+Nirikshak AI maintains strict data provenance.
 
-### Official Public Data
+### Official Public MPLADS Data
 
 Public MPLADS dashboard data will be used for:
 
 * Real aggregate statistics
 * State, MP and constituency-level insights
-* Real-world distribution/reference patterns
-* Validation of dashboard metrics
+* Reference patterns for costs, utilisation and project trends
+* Dashboard validation
 
-### Project-Level Data
+### Individual Work Data
 
-We are currently identifying the relevant public dashboard XHR/API calls for individual MPLADS works.
+We are currently identifying the public dashboard XHR/API calls that provide individual MPLADS work records.
 
-Once available and permissible, project-level records may include:
+Target fields include:
 
-* Work ID
-* Project title and description
-* Location
-* Category
-* Sanctioned amount
-* Expenditure
-* Physical progress
-* Project status
-* Dates
-* Implementing agency
-* Supporting documents/images, where authorised
+```text
+Work ID
+Project title and description
+Work category
+State, district and constituency
+MP and implementing agency
+Sanctioned amount and expenditure
+Physical progress
+Project dates and status
+Location coordinates
+Project images and documents, where permitted
+```
 
 ### Synthetic Demonstration Data
 
-For SIH model development and controlled testing, we may use clearly labelled synthetic project-level data.
+For controlled SIH testing, synthetic work-level records may be used where authorised project-level data is unavailable.
 
-Synthetic records will:
+Rules:
 
-* Never be presented as real government records
-* Be marked with `is_synthetic = true`
-* Preserve realistic MPLADS-like cost, category, timeline and location patterns
-* Include labelled anomalies to evaluate model performance
+* Synthetic records are never presented as real government records.
+* Every synthetic record uses `is_synthetic = true`.
+* Every record identifies its `data_source`.
+* Synthetic data follows MPLADS-like patterns for cost, category, geography and timelines.
+* Known anomalies are deliberately injected to test the AI models.
 
-Example injected anomalies:
+Injected anomaly types:
 
 * Cost inflation
-* High expenditure with low work progress
+* High expenditure with low physical progress
 * Delayed completion
-* Duplicate project descriptions and locations
+* Duplicate descriptions and nearby locations
 * Suspicious payment patterns
 * High-risk agency clusters
 * Missing/incomplete data
@@ -247,18 +238,18 @@ Example injected anomalies:
 
 ## AI and Analytics Approach
 
-Nirakshak AI uses a hybrid approach: **rules + machine learning**.
+Nirikshak AI combines **rule-based checks** with **machine-learning models**.
 
-| Risk Area                     | Initial Method                            |
-| ----------------------------- | ----------------------------------------- |
-| Financial anomaly detection   | Isolation Forest + rules                  |
-| Cost benchmarking             | Z-score / peer comparison                 |
-| Expenditure-progress mismatch | Rule-based thresholds                     |
-| Delay risk                    | Rule-based model, later XGBoost           |
-| Duplicate descriptions        | NLP embeddings + cosine similarity        |
-| Location comparison           | PostGIS / Haversine distance              |
-| Photo reuse                   | Perceptual hash, later CLIP embeddings    |
-| Explainability                | Rule explanations + feature contributions |
+| Risk Area                     | Method                                          |
+| ----------------------------- | ----------------------------------------------- |
+| Financial anomaly detection   | Isolation Forest + rules                        |
+| Cost benchmarking             | Z-score and peer comparison                     |
+| Expenditure-progress mismatch | Rule-based thresholds                           |
+| Delay risk                    | Rules initially, XGBoost later                  |
+| Duplicate descriptions        | NLP embeddings + cosine similarity              |
+| Location comparison           | PostGIS / Haversine distance                    |
+| Photo reuse                   | Perceptual hash, later CLIP                     |
+| Explainability                | Rules, feature contributions and evidence links |
 
 ### Unified Risk Score
 
@@ -275,11 +266,11 @@ Payment Risk                    5%
 Final Risk Score              100%
 ```
 
-The final score is confidence-adjusted based on data completeness.
+The final score is adjusted according to data completeness and model confidence.
 
 ---
 
-## Planned Technology Stack
+## Technology Stack
 
 ### Frontend
 
@@ -288,23 +279,23 @@ The final score is confidence-adjusted based on data completeness.
 * TypeScript
 * Tailwind CSS
 * Recharts
-* Leaflet for maps
+* Leaflet
 
 ### Backend
 
 * Python
 * FastAPI
-* JWT authentication
+* JWT Authentication
 * Role-Based Access Control
 
 ### Database and Storage
 
 * PostgreSQL
-* PostGIS for location-based intelligence
+* PostGIS
 * Object storage for documents and images
-* Redis/Celery for background analysis jobs, if required
+* Redis/Celery for background processing if needed
 
-### AI/ML
+### AI / ML
 
 * Pandas
 * Scikit-learn
@@ -312,62 +303,61 @@ The final score is confidence-adjusted based on data completeness.
 * Sentence Transformers
 * SHAP
 * OpenCV / Pillow
-* PostGIS
-* NetworkX, as future scope
+* NetworkX for future graph analysis
 
 ---
 
 ## MVP Scope
 
-The first working MVP will include:
+The first working version will include:
 
-* Project database and data ingestion pipeline
+* Project database and data pipeline
 * Financial anomaly detection
 * Cost benchmarking
 * Expenditure-progress mismatch detection
 * Delay detection
-* Duplicate project detection using text, cost and location
-* Explainable risk score
+* Duplicate project detection using title, cost and location
+* Explainable unified risk score
 * Risk dashboard
 * Project detail page
 * Alert and investigation workflow
-* Generated investigation report
+* Downloadable investigation report
 
 ### Future Scope
 
-* Image/photo reuse detection
-* Document OCR and consistency checks
+* Photo reuse detection
+* OCR and document consistency checks
 * Advanced payment analytics
 * Vendor/agency network analysis
 * Multilingual complaint intelligence
-* Cross-scheme expansion to PMAY, PMGSY, Jal Jeevan Mission and Smart Cities projects
-* Authorised integration with eSAKSHI APIs/exports
+* Cross-scheme expansion to PMAY, PMGSY, Jal Jeevan Mission and Smart Cities
+* Authorised eSAKSHI API/export integration
 
 ---
 
 ## Project Principles
 
-1. **Human-in-the-loop:** AI recommends; authorised officers decide.
-2. **Explainability-first:** Every risk score must show the reasons and evidence.
-3. **No false accusations:** Use terms such as “anomaly detected” and “requires verification,” never “fraud confirmed.”
+1. **Human-in-the-loop:** AI recommends; officials decide.
+2. **Explainability-first:** Every risk score must show reasons and evidence.
+3. **No false accusations:** Use “anomaly detected” and “requires verification,” never “fraud confirmed.”
 4. **Data provenance:** Every record must identify its source.
-5. **Privacy and security:** Role-based access, audit logs, secure storage and controlled data access.
-6. **No replacement claim:** Nirakshak AI complements existing MPLADS/eSAKSHI monitoring systems; it does not replace them.
+5. **Privacy and security:** Role-based access, audit logs and secure storage.
+6. **Integration layer:** Nirikshak AI complements existing MPLADS/eSAKSHI systems; it does not replace them.
 
 ---
 
 ## Current Status
 
-* [x] Problem statement analysed
-* [x] Product vision finalised
-* [x] Name finalised: **Nirakshak AI**
+* [x] SIH problem statement analysed
+* [x] Product vision defined
+* [x] Project name finalised: **Nirikshak AI**
 * [x] Public MPLADS dashboard endpoints identified
-* [ ] Individual-work XHR/API contract discovery
+* [ ] Individual-work XHR/API request capture
 * [ ] Database schema
 * [ ] Synthetic project-data generator
-* [ ] Risk engine
+* [ ] AI risk engine
 * [ ] Backend APIs
-* [ ] Dashboard frontend
+* [ ] Frontend dashboard
 * [ ] Investigation workflow
 * [ ] SIH demo and presentation
 
@@ -375,4 +365,4 @@ The first working MVP will include:
 
 ## One-Line Pitch
 
-> **Nirakshak AI transforms MPLADS data into explainable, evidence-backed risk intelligence—helping authorities identify which development works need attention first.**
+> **Nirikshak AI transforms MPLADS data into explainable, evidence-backed risk intelligence, helping authorities identify which development works need attention first.**
