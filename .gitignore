@@ -4,3 +4,7 @@ __pycache__/
 data/
 *.zip
 nirikshak_ml_dataset.zip
+node_modules/
+frontend/node_modules/
+dist/
+build/
