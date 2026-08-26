@@ -12,6 +12,7 @@ from .rules import (
     compute_cost_overrun
 )
 from .benchmarkers import benchmark_costs
+from .dq_engine import DataQualityEngine
 from .scoring import (
     FinGuardScoringEngine,
     RiskSignal,
