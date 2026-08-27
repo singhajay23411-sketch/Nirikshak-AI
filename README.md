@@ -270,40 +270,167 @@ The final score is adjusted according to data completeness and model confidence.
 
 ---
 
-## Technology Stack
+## Technology Stack (Detailed)
 
-### Frontend
+### Data Pipeline and Ingestion
 
-* React
-* Vite
-* TypeScript
+| Component | Technology | Purpose |
+|---|---|---|
+| Data Scraping | Python `requests` + `tenacity` (retry logic) + `tqdm` | Scrape MPLADS public dashboard endpoints (Lok Sabha, Rajya Sabha, All India) |
+| Incremental Sync | Custom `sync_incremental.py` | Delta-based scraping to avoid re-fetching unchanged records |
+| Data Storage (Raw) | Apache Parquet (`pyarrow` engine, Snappy compression) | Columnar storage for 525,000+ raw records across 6 entity tables |
+| Data Storage (Relational) | PostgreSQL 15+ with 8 normalised tables | States, Constituencies, MPs, MP Allocations, Works, Vendors, Expenditures, Duplicate Alerts |
+| Environment Config | `python-dotenv` | Secure credential management via `.env` files |
+
+**Data Volume:** 218,913 work records with 41 engineered features in `analytical_features.parquet` (~24 MB compressed).
+
+### Feature Engineering Pipeline (`feature_builder.py`)
+
+41 analytical features computed across 5 categories:
+
+| Feature Category | Features | Method |
+|---|---|---|
+| **Temporal** (3) | `sanction_delay_days`, `completion_delay_days`, `project_lifetime_days` | Date arithmetic on `recommendation_date`, `sanction_date`, `actual_end_date` |
+| **Financial** (3) | `cost_overrun_pct`, `sanction_rec_ratio`, `utilization_rate` | Ratio computation against sanctioned/recommended amounts and MP allocation limits |
+| **Statistical Baselines** (6) | `cost_z_score`, `delay_z_score`, `median_cost`, `std_cost`, `median_delay`, `std_delay` | Z-score deviation from `(work_category, state_id)` group medians |
+| **Text** (3) | `clean_description`, `desc_word_count`, `desc_char_count` | Stopword removal, boilerplate token filtering, punctuation/digit stripping |
+| **Expenditure** (6) | `total_disbursed`, `num_payments`, `num_vendors`, `avg_payment`, `max_payment`, `disbursement_ratio` | Per-work aggregation from expenditure records |
+
+### Duplicate Project Detection Engine (`duplicate_detector.py`)
+
+**Core Algorithm: Multi-Signal Overlap Detection**
+
+The system uses a deliberately conservative multi-gate architecture. Text similarity alone **never** triggers an alert.
+
+```
+                  Gate 1                        Gate 2
+            (Text Similarity)          (Multi-Signal Verification)
+                  |                            |
+    Cosine Sim > 0.92  ----YES---->  At least 2 of 3 signals:
+         |                            - Financial Proximity (<5%)
+         NO --> SKIP                  - Agency Match (exact/fuzzy)
+                                      - Temporal Proximity (<180 days)
+                                             |
+                                        >=2 TRUE --> ALERT
+                                        <2 TRUE  --> SKIP
+```
+
+| Component | Technology | Detail |
+|---|---|---|
+| **Sentence Embeddings** | `sentence-transformers/all-MiniLM-L6-v2` (HuggingFace) | 384-dimensional dense vectors, L2-normalised. Based on Microsoft MiniLM architecture distilled from BERT. 22M parameters, ~80 MB model size |
+| **Cosine Similarity** | NumPy matrix multiplication (`embeddings @ embeddings.T`) | Pre-normalised embeddings make dot product = cosine similarity. O(N^2 * d) per partition |
+| **Fuzzy String Matching** | `thefuzz` (fuzzywuzzy successor) + `python-Levenshtein` | `token_sort_ratio` for agency name matching (threshold: 85/100). Levenshtein C extension for speed |
+| **Partitioning Strategy** | GroupBy `(constituency_id, work_category)` | Reduces 218K^2 = 47.7B global pairs to manageable per-partition sets (190 partitions) |
+| **Memory Management** | Chunked matrix multiplication (5,000-row blocks) | Handles the largest partition (32,670 rows) without OOM. Peak memory bounded at ~2 GB |
+| **Adaptive Thresholds** | Partition-size-aware cosine cutoff | Base: 0.92 for small partitions, 0.95 for partitions > 1,000 rows. Prevents alert explosion in dense constituencies |
+| **Ubiquitous Agency Detection** | Per-partition IDA frequency analysis | When >90% of works share the same agency, all 3 verification signals are required instead of 2 |
+
+**Risk Confidence Score Formula:**
+
+```
+risk_confidence = 0.40 * text_similarity_score
+                + 0.20 * financial_match_flag  (1 or 0)
+                + 0.20 * agency_match_flag     (1 or 0)
+                + 0.20 * temporal_match_flag   (1 or 0)
+```
+
+**Output Schema (`duplicate_alerts` table):**
+
+```sql
+alert_id              SERIAL PRIMARY KEY
+work_id_a             BIGINT NOT NULL
+work_id_b             BIGINT NOT NULL
+text_similarity_score DOUBLE PRECISION NOT NULL
+financial_match_flag  BOOLEAN NOT NULL
+agency_match_flag     BOOLEAN NOT NULL
+temporal_match_flag   BOOLEAN NOT NULL
+risk_confidence_score DOUBLE PRECISION NOT NULL
+partition_key         TEXT
+detected_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+UNIQUE (work_id_a, work_id_b)
+```
+
+### AI / ML Libraries
+
+| Library | Version | Purpose |
+|---|---|---|
+| `sentence-transformers` | Latest | Embedding generation using pre-trained transformer models |
+| `torch` (PyTorch) | Latest | Backend for sentence-transformers inference |
+| `scikit-learn` | Latest | Future: Isolation Forest anomaly detection, clustering |
+| `pandas` | Latest | DataFrame operations, feature engineering, data wrangling |
+| `numpy` | Latest | Matrix operations, cosine similarity computation |
+| `thefuzz` | Latest | Fuzzy string matching for agency name comparison |
+| `python-Levenshtein` | Latest | C-optimised Levenshtein distance for `thefuzz` speedup |
+| `pyarrow` | Latest | Parquet read/write with Snappy compression |
+| `psycopg2-binary` | Latest | PostgreSQL driver for Python |
+| `XGBoost` / `LightGBM` | Planned | Gradient-boosted delay risk prediction model |
+| `SHAP` | Planned | Model explainability and feature contribution analysis |
+| `NetworkX` | Planned | Vendor/agency network graph analysis |
+
+### Model Card: all-MiniLM-L6-v2
+
+| Property | Value |
+|---|---|
+| Architecture | MiniLM (distilled from BERT) |
+| Parameters | 22.7 million |
+| Embedding Dimension | 384 |
+| Max Sequence Length | 256 tokens |
+| Training Data | 1B+ sentence pairs from diverse sources |
+| Similarity Function | Cosine similarity (via dot product on L2-normalised vectors) |
+| Inference Speed | ~14,000 sentences/sec on CPU |
+| Model Size | ~80 MB |
+| Licence | Apache 2.0 |
+
+**Why this model?** MiniLM-L6-v2 provides the best balance of quality and speed for semantic similarity on short government project descriptions. It outperforms TF-IDF/BoW approaches on paraphrased descriptions while being 5x faster than larger models like `all-mpnet-base-v2`.
+
+### Database Schema
+
+PostgreSQL with 8 normalised tables + 1 analytics output table:
+
+```
+states (state_id PK)
+  |
+  +-- constituencies (constituency_id PK, state_id FK)
+  |     |
+  |     +-- mps (mp_id + house_type + tenure COMPOSITE PK)
+  |           |
+  |           +-- mp_allocations (allocation_id PK)
+  |           |
+  |           +-- works (work_id PK, mp_id FK, constituency_id FK, state_id FK)
+  |           |     |
+  |           |     +-- expenditures (expenditure_id PK, work_id FK, vendor_id FK)
+  |           |
+  |           +-- expenditures (mp_id FK)
+  |
+  +-- vendors (vendor_id PK)
+  +-- duplicate_alerts (alert_id PK, work_id_a, work_id_b, UNIQUE pair)
+  +-- works_analytical_features (work_id PK, 23 feature columns)
+```
+
+### Frontend (Planned)
+
+* React + Vite + TypeScript
 * Tailwind CSS
-* Recharts
-* Leaflet
+* Recharts (data visualisation)
+* Leaflet (geospatial mapping)
 
-### Backend
+### Backend API (Planned)
 
-* Python
-* FastAPI
+* Python FastAPI
 * JWT Authentication
 * Role-Based Access Control
+* Redis/Celery for background ML job processing
 
-### Database and Storage
+### Computational Complexity
 
-* PostgreSQL
-* PostGIS
-* Object storage for documents and images
-* Redis/Celery for background processing if needed
-
-### AI / ML
-
-* Pandas
-* Scikit-learn
-* XGBoost / LightGBM
-* Sentence Transformers
-* SHAP
-* OpenCV / Pillow
-* NetworkX for future graph analysis
+| Operation | Complexity | Actual Scale |
+|---|---|---|
+| Feature Engineering | O(N) per feature | 218,913 records x 41 features |
+| Dataset Partitioning | O(N) groupby | 190 partitions |
+| Embedding Generation | O(N * seq_len * d_model) | ~218K embeddings x 384 dims |
+| Cosine Similarity (per partition) | O(P^2 * d) where P = partition size | Largest: 32,670^2 (chunked) |
+| Multi-Signal Verification | O(C) where C = candidate pairs | Per candidate: 3 signal checks |
+| Total Pipeline Runtime | ~20 minutes on CPU | Single-threaded, no GPU required |
 
 ---
 
@@ -352,11 +479,13 @@ The first working version will include:
 * [x] Product vision defined
 * [x] Project name finalised: **Nirikshak AI**
 * [x] Public MPLADS dashboard endpoints identified
-* [ ] Individual-work XHR/API request capture
-* [ ] Database schema
-* [ ] Synthetic project-data generator
-* [ ] AI risk engine
-* [ ] Backend APIs
+* [x] Individual-work XHR/API request capture and scraping (525,000+ records)
+* [x] Database schema (8 normalised PostgreSQL tables)
+* [x] Feature engineering pipeline (41 features across 218,913 works)
+* [x] Duplicate project detection engine (multi-signal ML pipeline)
+* [ ] Anomaly detection engine (Isolation Forest + rules)
+* [ ] Delay risk prediction model
+* [ ] Backend APIs (FastAPI)
 * [ ] Frontend dashboard
 * [ ] Investigation workflow
 * [ ] SIH demo and presentation

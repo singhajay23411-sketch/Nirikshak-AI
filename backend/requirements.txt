@@ -4,3 +4,9 @@ pandas
 python-dotenv
 tenacity
 tqdm
+sentence-transformers
+scikit-learn
+thefuzz
+python-Levenshtein
+pyarrow
+numpy
