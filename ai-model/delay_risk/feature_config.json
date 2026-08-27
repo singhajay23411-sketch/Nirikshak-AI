@@ -1,0 +1,43 @@
+{
+  "feature_names": [
+    "recom_to_sanc_days",
+    "sanction_year",
+    "sanction_month",
+    "sanction_quarter",
+    "sanction_dayofweek",
+    "log_sanction_amount",
+    "log_recommended_amount",
+    "recom_sanc_amount_diff",
+    "recom_sanc_amount_ratio",
+    "category_code",
+    "house_type_code",
+    "tenure_code",
+    "state_id_code",
+    "constituency_id_code",
+    "exp_count_90d",
+    "disbursed_amount_90d",
+    "disbursed_ratio_90d"
+  ],
+  "feature_count": 17,
+  "target": "is_delayed",
+  "threshold_days": 365,
+  "risk_weight": 0.15,
+  "tiers": {
+    "LOW": [
+      0.0,
+      29.99
+    ],
+    "MODERATE": [
+      30.0,
+      49.99
+    ],
+    "HIGH": [
+      50.0,
+      69.99
+    ],
+    "CRITICAL": [
+      70.0,
+      100.0
+    ]
+  }
+}
