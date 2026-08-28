@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import IndiaMapSVG from '@svg-maps/india';
 import stateRiskData, { RISK_COLORS } from '../data/IndiaMapData';
 import { useLanguage } from '../context/LanguageContext';
@@ -9,6 +9,51 @@ const IndiaMap = () => {
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
   const [selectedState, setSelectedState] = useState(null); // for touch devices
   const containerRef = useRef(null);
+
+  const [mapData, setMapData] = useState(stateRiskData);
+
+  useEffect(() => {
+    fetch('/data/Ministry_View.json')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.state_wise_benchmarks) {
+          const updated = { ...stateRiskData };
+          const stateNameToId = {
+            'Andhra Pradesh': 'ap', 'Arunachal Pradesh': 'ar', 'Assam': 'as', 'Bihar': 'br',
+            'Chhattisgarh': 'ct', 'Goa': 'ga', 'Gujarat': 'gj', 'Haryana': 'hr',
+            'Himachal Pradesh': 'hp', 'Jammu and Kashmir': 'jk', 'Jharkhand': 'jh',
+            'Karnataka': 'ka', 'Kerala': 'kl', 'Madhya Pradesh': 'mp', 'Maharashtra': 'mh',
+            'Manipur': 'mn', 'Meghalaya': 'ml', 'Mizoram': 'mz', 'Nagaland': 'nl',
+            'Odisha': 'or', 'Punjab': 'pb', 'Rajasthan': 'rj', 'Sikkim': 'sk',
+            'Tamil Nadu': 'tn', 'Telangana': 'tg', 'Tripura': 'tr', 'Uttar Pradesh': 'up',
+            'Uttarakhand': 'ut', 'West Bengal': 'wb', 'Andaman and Nicobar': 'an',
+            'Chandigarh': 'ch', 'Dadra and Nagar Haveli': 'dn', 'Daman and Diu': 'dd',
+            'Delhi': 'dl', 'Lakshadweep': 'ld', 'Puducherry': 'py', 'Ladakh': 'la'
+          };
+          data.state_wise_benchmarks.forEach(item => {
+            const id = stateNameToId[item.state_name];
+            if (id && updated[id]) {
+              const score = Math.round(item.avg_risk || 0);
+              let level = 'Low';
+              if (score >= 75) level = 'Critical';
+              else if (score >= 50) level = 'High';
+              else if (score >= 25) level = 'Medium';
+              
+              updated[id] = {
+                ...updated[id],
+                riskLevel: level,
+                riskScore: score,
+                projects: item.total_projects || updated[id].projects,
+                sanctionedAmount: `₹${Math.round(item.total_sanctioned / 10000000).toFixed(1)} Cr`,
+                anomalies: Math.round((item.total_projects || 0) * (score / 100)) || 0
+              };
+            }
+          });
+          setMapData(updated);
+        }
+      })
+      .catch(err => console.error("Error loading map data:", err));
+  }, []);
 
   const handleMouseEnter = useCallback((stateId) => {
     setHoveredState(stateId);
@@ -33,7 +78,7 @@ const IndiaMap = () => {
 
   // Get fill color for a state based on risk level and hover status
   const getStateFill = useCallback((stateId) => {
-    const data = stateRiskData[stateId];
+    const data = mapData[stateId];
     if (!data) return { fill: '#E8E4DA', opacity: 0.6 };
 
     const colors = RISK_COLORS[data.riskLevel];
@@ -43,11 +88,11 @@ const IndiaMap = () => {
       fill: colors.fill,
       opacity: isActive ? colors.hoverOpacity : colors.fillOpacity,
     };
-  }, [hoveredState, selectedState]);
+  }, [hoveredState, selectedState, mapData]);
 
   // Determine active state for tooltip
   const activeStateId = hoveredState || selectedState;
-  const activeData = activeStateId ? stateRiskData[activeStateId] : null;
+  const activeData = activeStateId ? mapData[activeStateId] : null;
 
   // Tooltip positioning with boundary clamping
   const tooltipStyle = useMemo(() => {
@@ -120,7 +165,7 @@ const IndiaMap = () => {
         {IndiaMapSVG.locations.map((location) => {
           const { fill, opacity } = getStateFill(location.id);
           const isActive = hoveredState === location.id || selectedState === location.id;
-          const localizedName = t(`indiaMap.states.${location.id}`, stateRiskData[location.id]?.name || location.name);
+          const localizedName = t(`indiaMap.states.${location.id}`, mapData[location.id]?.name || location.name);
 
           return (
             <path

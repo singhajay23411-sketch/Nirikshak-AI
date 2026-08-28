@@ -334,6 +334,37 @@ def export_finguard(df: pd.DataFrame) -> Dict[str, Any]:
     n_risky = int((df_fg['financial_risk_score'] > 30).sum())
     return {"records_exported": n_risky, "file": "finguard_anomalies.json"}
 
+@register_export_pipeline("unified_risk")
+def export_unified_risk(df: pd.DataFrame) -> Dict[str, Any]:
+    """Export fully hydrated metadata for the top high-risk projects."""
+    log.info("Exporting unified risk evaluations...")
+    conn = get_db_connection()
+    try:
+        df_evals = pd.read_sql("SELECT * FROM project_risk_evaluations", conn)
+        df_merged = df.merge(df_evals, on="work_id", how="inner")
+        
+        # Take top 1000 highest risk for lightweight JSON
+        df_top = df_merged.nlargest(1000, 'final_risk_score').copy()
+        
+        # Parse JSONB columns
+        import json
+        for col in ['top_risk_drivers', 'recommended_actions']:
+            df_top[col] = df_top[col].apply(lambda x: x if isinstance(x, (list, dict)) else (json.loads(x) if pd.notna(x) and isinstance(x, str) else []))
+            
+        out_path = os.path.join(LIVE_EXPORTS_DIR, "unified_project_evaluations.json")
+        records = df_top.to_dict(orient="records")
+        records_clean = [{k: clean_val(v) for k, v in r.items()} for r in records]
+            
+        with open(out_path, "w") as f:
+            json.dump(records_clean, f, indent=2)
+            
+        return {"records_exported": len(records_clean), "file": "unified_project_evaluations.json"}
+    except Exception as e:
+        log.error(f"Failed to export unified risk: {e}")
+        return {"records_exported": 0, "file": "unified_project_evaluations.json"}
+    finally:
+        conn.close()
+
 @register_export_pipeline("rbac_tiered_views")
 def export_rbac_views(df: pd.DataFrame) -> Dict[str, Any]:
     """Generate pre-sliced views for Ministry, District Authority, and MP roles."""
@@ -341,24 +372,32 @@ def export_rbac_views(df: pd.DataFrame) -> Dict[str, Any]:
     
     conn = get_db_connection()
     try:
-        df_fg = pd.read_sql("SELECT * FROM finguard_financial_anomalies", conn)
-        df_merged = df.merge(df_fg, on="work_id", how="left")
+        df_eval = pd.read_sql("SELECT work_id, final_risk_score, risk_tier, top_risk_drivers as anomaly_reasons, project_summary, recommended_actions FROM project_risk_evaluations", conn)
+        df_merged = df.merge(df_eval, on="work_id", how="left")
+        df_merged['final_risk_score'] = df_merged['final_risk_score'].fillna(0.0)
     except Exception:
-        log.warning("finguard_financial_anomalies table not found or query failed. Performing fallback.")
+        log.warning("project_risk_evaluations table not found or query failed. Performing fallback.")
         df_merged = df.copy()
-        df_merged['financial_risk_score'] = 0.0
+        df_merged['final_risk_score'] = 0.0
+        df_merged['risk_tier'] = 'LOW'
         df_merged['stall_probability'] = 0.0
         df_merged['anomaly_reasons'] = "[]"
         df_merged['recommended_actions'] = "[]"
+        df_merged['project_summary'] = ""
     finally:
         conn.close()
 
     import json
     def parse_json_col(val):
-        if not val or pd.isna(val):
+        try:
+            if pd.isna(val).all() if isinstance(val, (np.ndarray, pd.Series, list)) else pd.isna(val):
+                return []
+        except:
+            pass
+        if isinstance(val, (list, np.ndarray)):
+            return list(val)
+        if not val:
             return []
-        if isinstance(val, list):
-            return val
         try:
             return json.loads(val)
         except Exception:
@@ -378,15 +417,15 @@ def export_rbac_views(df: pd.DataFrame) -> Dict[str, Any]:
     state_stats = df_merged.groupby('state_name').agg(
         total_sanctioned=('sanction_amount', 'sum'),
         total_spent=('total_disbursed', 'sum'),
-        avg_risk=('financial_risk_score', 'mean'),
+        avg_risk=('final_risk_score', 'mean'),
         total_projects=('work_id', 'count')
     ).reset_index()
     state_stats['avg_risk'] = state_stats['avg_risk'].round(2)
     state_stats['utilization_rate'] = (state_stats['total_spent'] / state_stats['total_sanctioned'].replace(0, 1)).round(4)
     
-    top_national_anomalies = df_merged.nlargest(200, 'financial_risk_score')[
-        ['work_id', 'activity_name', 'state_name', 'const_name', 'mp_name', 'sanction_amount', 'total_disbursed', 'financial_risk_score', 'stall_probability', 'anomaly_reasons', 'recommended_actions', 'agency_risk_score', 'agency_risk_tier']
-    ]
+    cols_to_extract = ['work_id', 'activity_name', 'state_name', 'const_name', 'mp_name', 'sanction_amount', 'total_disbursed', 'final_risk_score', 'risk_tier', 'project_summary', 'anomaly_reasons', 'recommended_actions', 'agency_risk_score', 'agency_risk_tier']
+    existing_cols = [c for c in cols_to_extract if c in df_merged.columns]
+    top_national_anomalies = df_merged.nlargest(200, 'final_risk_score')[existing_cols]
     
     ministry_payload = {
         "view_type": "Ministry / Central Nodal Authority",
@@ -394,7 +433,7 @@ def export_rbac_views(df: pd.DataFrame) -> Dict[str, Any]:
             "total_sanctioned": float(df_merged['sanction_amount'].sum()),
             "total_disbursed": float(df_merged['total_disbursed'].sum()),
             "total_projects": int(df_merged['work_id'].count()),
-            "avg_national_risk": float(df_merged['financial_risk_score'].mean() if 'financial_risk_score' in df_merged.columns else 0.0)
+            "avg_national_risk": float(df_merged['final_risk_score'].mean() if 'final_risk_score' in df_merged.columns else 0.0)
         },
         "state_wise_benchmarks": state_stats.to_dict(orient="records"),
         "top_national_risk_alerts": top_national_anomalies.to_dict(orient="records")
@@ -403,17 +442,19 @@ def export_rbac_views(df: pd.DataFrame) -> Dict[str, Any]:
     # 2. District Authority / Implementing Agency View
     const_groups = df_merged.groupby(['constituency_id', 'const_name', 'state_name'])
     district_payloads = []
+    
+    cols_to_extract_da = ['work_id', 'activity_name', 'sanction_amount', 'total_disbursed', 'final_risk_score', 'risk_tier', 'project_summary', 'anomaly_reasons', 'recommended_actions', 'agency_risk_score', 'agency_risk_tier']
+    existing_cols_da = [c for c in cols_to_extract_da if c in df_merged.columns]
+    
     for (const_id, const_name, state_name), grp in const_groups:
-        top_local_risks = grp.nlargest(10, 'financial_risk_score')[
-            ['work_id', 'activity_name', 'sanction_amount', 'total_disbursed', 'financial_risk_score', 'stall_probability', 'anomaly_reasons', 'recommended_actions', 'agency_risk_score', 'agency_risk_tier']
-        ]
+        top_local_risks = grp.nlargest(10, 'final_risk_score')[existing_cols_da]
         district_payloads.append({
             "constituency_id": int(const_id),
             "constituency_name": const_name,
             "state_name": state_name,
             "total_projects": int(len(grp)),
-            "high_risk_count": int((grp['financial_risk_score'].fillna(0) > 40).sum()),
-            "avg_risk": float(grp['financial_risk_score'].mean() if 'financial_risk_score' in grp.columns else 0.0),
+            "high_risk_count": int((grp['final_risk_score'].fillna(0) > 40).sum()),
+            "avg_risk": float(grp['final_risk_score'].mean() if 'final_risk_score' in grp.columns else 0.0),
             "top_local_alerts": top_local_risks.to_dict(orient="records")
         })
 
@@ -510,6 +551,17 @@ def main():
             log.error(f"Pipeline {name} failed: {e}")
             
     generate_manifest(df_hydrated, results)
+    
+    import shutil
+    frontend_data_dir = os.path.join(PROJECT_ROOT, "frontend", "public", "data")
+    if os.path.exists(os.path.join(PROJECT_ROOT, "frontend")):
+        os.makedirs(frontend_data_dir, exist_ok=True)
+        log.info("Copying live exports to frontend public directory...")
+        for filename in os.listdir(LIVE_EXPORTS_DIR):
+            src_file = os.path.join(LIVE_EXPORTS_DIR, filename)
+            if os.path.isfile(src_file):
+                shutil.copy(src_file, os.path.join(frontend_data_dir, filename))
+                
     log.info("All live exports generated successfully.")
 
 if __name__ == "__main__":

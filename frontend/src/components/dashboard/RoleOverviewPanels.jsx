@@ -75,6 +75,44 @@ const RoleOverviewPanels = ({ role, activeTab, user }) => {
   const { language } = useLanguage();
   const isHi = language === 'hi';
 
+  const [highRiskProjects, setHighRiskProjects] = React.useState(MOCK_HIGH_RISK);
+
+  React.useEffect(() => {
+    fetch('/data/unified_project_evaluations.json')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const formatted = data.slice(0, 5).map(item => {
+            let factor = "General risk factors";
+            if (item.top_risk_drivers) {
+              const drivers = typeof item.top_risk_drivers === 'string' ? JSON.parse(item.top_risk_drivers) : item.top_risk_drivers;
+              if (drivers && drivers.length > 0) {
+                const pillars = {
+                  'financial_risk_score': 'Financial over-disbursements',
+                  'progress_risk_score': 'High project stall probability',
+                  'cost_risk_score': 'Severe cost escalation',
+                  'delay_risk_score': 'Chronic completion delays',
+                  'duplicate_risk_score': 'Duplicate/split-work alerts',
+                  'evidence_risk_score': 'Prohibited guidelines violation',
+                  'agency_risk_score': 'Poor executing agency track record',
+                  'payment_risk_score': 'High cartel or payment fragmentation'
+                };
+                factor = pillars[drivers[0].pillar] || factor;
+              }
+            }
+            return {
+              id: `MPLADS-${item.work_id}`,
+              constituency: item.const_name || item.state_name || 'N/A',
+              score: Math.round(item.final_risk_score),
+              factor: factor
+            };
+          });
+          setHighRiskProjects(formatted);
+        }
+      })
+      .catch(err => console.error("Error loading high risk overview:", err));
+  }, []);
+
   const scopeLabel = user?.district && user?.state
     ? `${user.district}, ${user.state}`
     : user?.state || (isHi ? 'राष्ट्रीय' : 'National');
@@ -83,15 +121,15 @@ const RoleOverviewPanels = ({ role, activeTab, user }) => {
     const configs = {
       ADMIN: [
         { icon: Users, label: isHi ? 'कुल उपयोगकर्ता' : 'Total Users', value: '7', color: '#0A2458' },
-        { icon: Database, label: isHi ? 'कुल परियोजनाएं' : 'Total Projects', value: '14,238', color: 'var(--color-accent-teal)' },
-        { icon: AlertTriangle, label: isHi ? 'उच्च जोखिम' : 'High Risk', value: '342', trend: 8, color: '#D9534F' },
+        { icon: Database, label: isHi ? 'कुल परियोजनाएं' : 'Total Projects', value: '2,18,913', color: 'var(--color-accent-teal)' },
+        { icon: AlertTriangle, label: isHi ? 'उच्च जोखिम' : 'High Risk', value: '667', trend: 8, color: '#D9534F' },
         { icon: Shield, label: isHi ? 'जांच सक्रिय' : 'Active Investigations', value: '28', color: '#E5B842' },
       ],
       MOSPI_OFFICER: [
-        { icon: Database, label: isHi ? 'राष्ट्रीय परियोजनाएं' : 'National Projects', value: '14,238', color: 'var(--color-accent-teal)' },
-        { icon: AlertTriangle, label: isHi ? 'उच्च जोखिम' : 'High Risk', value: '342', trend: 8, color: '#D9534F' },
-        { icon: TrendingUp, label: isHi ? 'वित्तीय विसंगतियां' : 'Financial Anomalies', value: '89', trend: -3, color: '#E5B842' },
-        { icon: CheckCircle, label: isHi ? 'सत्यापित' : 'Verified', value: '8,421', color: '#52B79A' },
+        { icon: Database, label: isHi ? 'राष्ट्रीय परियोजनाएं' : 'National Projects', value: '2,18,913', color: 'var(--color-accent-teal)' },
+        { icon: AlertTriangle, label: isHi ? 'उच्च जोखिम' : 'High Risk', value: '667', trend: 8, color: '#D9534F' },
+        { icon: TrendingUp, label: isHi ? 'वित्तीय विसंगतियां' : 'Financial Anomalies', value: '1,420', trend: -3, color: '#E5B842' },
+        { icon: CheckCircle, label: isHi ? 'सत्यापित' : 'Verified', value: '1,94,210', color: '#52B79A' },
       ],
       STATE_OFFICER: [
         { icon: Database, label: isHi ? 'राज्य परियोजनाएं' : 'State Projects', value: '1,847', color: 'var(--color-accent-teal)' },
@@ -112,14 +150,14 @@ const RoleOverviewPanels = ({ role, activeTab, user }) => {
         { icon: BarChart3, label: isHi ? 'प्रगति में' : 'In Progress', value: '1', color: '#0A2458' },
       ],
       ANALYST: [
-        { icon: Shield, label: isHi ? 'विसंगतियां ज्ञात' : 'Anomalies Detected', value: '156', color: '#D9534F' },
-        { icon: Database, label: isHi ? 'डुप्लिकेट संदिग्ध' : 'Duplicate Suspects', value: '34', color: '#E5B842' },
+        { icon: Shield, label: isHi ? 'विसंगतियां ज्ञात' : 'Anomalies Detected', value: '1,420', color: '#D9534F' },
+        { icon: Database, label: isHi ? 'डुप्लिकेट संदिग्ध' : 'Duplicate Suspects', value: '482', color: '#E5B842' },
         { icon: TrendingUp, label: isHi ? 'लागत विचलन' : 'Cost Deviations', value: '89', trend: -12, color: 'var(--color-accent-teal)' },
         { icon: BarChart3, label: isHi ? 'मॉडल सटीकता' : 'Model Accuracy', value: '94.2%', color: '#52B79A' },
       ],
       VIEWER: [
-        { icon: Database, label: isHi ? 'कुल परियोजनाएं' : 'Total Projects', value: '14,238', color: 'var(--color-accent-teal)' },
-        { icon: AlertTriangle, label: isHi ? 'जोखिम चिह्नित' : 'Risk Flagged', value: '342', color: '#D9534F' },
+        { icon: Database, label: isHi ? 'कुल परियोजनाएं' : 'Total Projects', value: '2,18,913', color: 'var(--color-accent-teal)' },
+        { icon: AlertTriangle, label: isHi ? 'जोखिम चिह्नित' : 'Risk Flagged', value: '667', color: '#D9534F' },
         { icon: Map, label: isHi ? 'राज्य कवर' : 'States Covered', value: '28', color: '#0A2458' },
         { icon: FileText, label: isHi ? 'रिपोर्ट उपलब्ध' : 'Reports Available', value: '47', color: '#E5B842' },
       ],
@@ -180,7 +218,7 @@ const RoleOverviewPanels = ({ role, activeTab, user }) => {
       )}
 
       {/* High Risk Projects Table */}
-      <ProjectTable projects={MOCK_HIGH_RISK} isHi={isHi} />
+      <ProjectTable projects={highRiskProjects} isHi={isHi} />
     </div>
   );
 };

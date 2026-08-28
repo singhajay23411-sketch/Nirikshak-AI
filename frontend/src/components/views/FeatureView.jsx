@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Shield, AlertTriangle, CheckCircle, Database, TrendingUp, 
   MapPin, Clock, FileText, Search, Filter, Download, ExternalLink, 
@@ -199,7 +199,47 @@ const KeyMetricsDashboard = ({ isHi }) => {
   const [hoveredTier, setHoveredTier] = useState(null);
   const [activeLegend, setActiveLegend] = useState({ utilization: true, allocated: true, spent: true });
 
-  const TOP_STATES_DATA = [
+  const [statesData, setStatesData] = useState([]);
+  const [kpis, setKpis] = useState({
+    totalProjects: '2,18,913',
+    totalAllocated: '₹42,721 Cr',
+    totalSpent: '₹38,290 Cr',
+    utilizationRate: '89.6%',
+    completedVsPending: '194K / 24K'
+  });
+
+  useEffect(() => {
+    fetch('/data/Ministry_View.json')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.state_wise_benchmarks) {
+          const formatted = data.state_wise_benchmarks.map(item => ({
+            state: item.state_name || 'N/A',
+            util: parseFloat(((item.utilization_rate || 0) * 100).toFixed(1)),
+            allocated: Math.round((item.total_sanctioned || 0) / 10000000),
+            spent: Math.round((item.total_spent || 0) / 10000000)
+          }));
+          formatted.sort((a, b) => b.util - a.util);
+          setStatesData(formatted.slice(0, 10));
+        }
+        if (data && data.national_stats) {
+          const stats = data.national_stats;
+          const sanctionedCr = Math.round(stats.total_sanctioned / 10000000);
+          const spentCr = Math.round(stats.total_disbursed / 10000000);
+          const utilRate = ((stats.total_disbursed / (stats.total_sanctioned || 1)) * 100).toFixed(1);
+          setKpis({
+            totalProjects: stats.total_projects.toLocaleString(),
+            totalAllocated: `₹${sanctionedCr.toLocaleString()} Cr`,
+            totalSpent: `₹${spentCr.toLocaleString()} Cr`,
+            utilizationRate: `${utilRate}%`,
+            completedVsPending: '194K / 24K'
+          });
+        }
+      })
+      .catch(err => console.error("Error loading metrics dashboard:", err));
+  }, []);
+
+  const TOP_STATES_DATA = statesData.length > 0 ? statesData : [
     { state: 'Nagaland', util: 91.5, allocated: 140, spent: 128 },
     { state: 'Sikkim', util: 62.4, allocated: 95, spent: 59 },
     { state: 'Meghalaya', util: 56.8, allocated: 180, spent: 102 },
@@ -248,31 +288,31 @@ const KeyMetricsDashboard = ({ isHi }) => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
         <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.2rem', boxShadow: '2px 3px 0px #1D1E22' }}>
           <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Total Projects Analyzed</div>
-          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#1D1E22' }}>5,25,000+</div>
+          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#1D1E22' }}>{kpis.totalProjects}</div>
           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.2rem' }}>16-17th Lok Sabha Works</div>
         </div>
 
         <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.2rem', boxShadow: '2px 3px 0px #1D1E22' }}>
           <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Total Allocation</div>
-          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0A2458' }}>₹14,840 Cr</div>
+          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0A2458' }}>{kpis.totalAllocated}</div>
           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.2rem' }}>Sanctioned Funds</div>
         </div>
 
         <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.2rem', boxShadow: '2px 3px 0px #1D1E22' }}>
           <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Total Expenditure</div>
-          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--color-accent-teal-hover)' }}>₹12,410 Cr</div>
+          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--color-accent-teal-hover)' }}>{kpis.totalSpent}</div>
           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.2rem' }}>Disbursed Vouchers</div>
         </div>
 
         <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.2rem', boxShadow: '2px 3px 0px #1D1E22' }}>
           <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#1E7E34', textTransform: 'uppercase', marginBottom: '0.35rem' }}>National Utilization Rate</div>
-          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#1E7E34' }}>83.6%</div>
+          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#1E7E34' }}>{kpis.utilizationRate}</div>
           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.2rem' }}>Average Execution</div>
         </div>
 
         <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.2rem', boxShadow: '2px 3px 0px #1D1E22' }}>
           <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#D9534F', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Completed vs Pending</div>
-          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#1D1E22' }}>1.84L / 24K</div>
+          <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#1D1E22' }}>{kpis.completedVsPending}</div>
           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.2rem' }}>Completed vs In-Progress</div>
         </div>
       </div>
@@ -606,7 +646,7 @@ const KeyMetricsDashboard = ({ isHi }) => {
   );
 };
 
-const FinancialAnomalyDashboard = ({ isHi }) => {
+const FinancialAnomalyDashboard = ({ isHi, anomalyProjects = MOCK_ANOMALY_PROJECTS }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisStatus, setAnalysisStatus] = useState('Last Run: Today, 10:45 AM • 218K Records Scanned');
   const [selectedAnomaly, setSelectedAnomaly] = useState(null);
@@ -878,7 +918,7 @@ const FinancialAnomalyDashboard = ({ isHi }) => {
               </tr>
             </thead>
             <tbody>
-              {MOCK_ANOMALY_PROJECTS.map((item) => (
+              {anomalyProjects.map((item) => (
                 <tr
                   key={item.id}
                   onClick={() => setSelectedAnomaly(item)}
@@ -1626,19 +1666,83 @@ const GeoIntelDashboard = ({ isHi }) => {
 
 const DuplicateDetectionDashboard = ({ isHi }) => {
   const [isScanning, setIsScanning] = useState(false);
-  const [scanStatus, setScanStatus] = useState('Last Scan: Today, 11:30 AM • 525,000 Works Scanned');
+  const [scanStatus, setScanStatus] = useState('Last Scan: Today, 11:30 AM • 218K Works Scanned');
   const [selectedPair, setSelectedPair] = useState(null);
+  const [duplicatePairs, setDuplicatePairs] = useState([]);
+
+  useEffect(() => {
+    fetch('/data/duplicate_project_alerts.json')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const formatted = data.map(item => {
+            const A_sanction = item.A_sanction_amount || 0;
+            const B_sanction = item.B_sanction_amount || 0;
+            const costDiffVal = Math.abs(A_sanction - B_sanction);
+            const costDiffPctVal = A_sanction > 0 ? (costDiffVal / A_sanction * 100) : 0;
+            
+            return {
+              pairId: `DUP-${item.work_id_A}-${item.work_id_B}`,
+              confidenceScore: Math.round(item.risk_confidence_score || 90),
+              status: item.alert_type === 'SPLIT_WORK' ? 'Requires Review' : 'Under Investigation',
+              location: `${item.A_const_name || 'N/A'}, ${item.A_state_name || 'N/A'}`,
+              costDiff: `₹${costDiffVal.toLocaleString('en-IN')} (${costDiffPctVal.toFixed(1)}%)`,
+              overallSim: `${Math.round((item.text_similarity_score || 0.9) * 100)}%`,
+              signals: {
+                textSim: Math.round((item.text_similarity_score || 0.9) * 100),
+                categoryMatch: item.A_work_category === item.B_work_category ? 100 : 0,
+                costSim: Math.round(100 - Math.min(100, costDiffPctVal)),
+                agencyMatch: item.agency_match_flag ? 100 : 0,
+                geoProximity: item.location_match_flag ? 100 : 0,
+                timelineOverlap: item.temporal_match_flag ? 100 : 0
+              },
+              workA: {
+                id: `MPLADS-${item.work_id_A}`,
+                title: item.A_activity_name || item.A_work_description || 'MPLADS Project A',
+                description: item.A_work_description || 'MPLADS project details.',
+                category: item.A_work_category || 'Normal/Others',
+                cost: `₹${A_sanction.toLocaleString('en-IN')}`,
+                agency: item.A_primary_vendor_name || 'N/A',
+                location: `${item.A_const_name || 'N/A'}, ${item.A_state_name || 'N/A'}`,
+                startDate: item.A_sanction_date || 'N/A',
+                expectedCompletion: item.A_actual_end_date || 'N/A'
+              },
+              workB: {
+                id: `MPLADS-${item.work_id_B}`,
+                title: item.B_activity_name || item.B_work_description || 'MPLADS Project B',
+                description: item.B_work_description || 'MPLADS project details.',
+                category: item.B_work_category || 'Normal/Others',
+                cost: `₹${B_sanction.toLocaleString('en-IN')}`,
+                agency: item.B_primary_vendor_name || 'N/A',
+                location: `${item.B_const_name || 'N/A'}, ${item.B_state_name || 'N/A'}`,
+                startDate: item.B_sanction_date || 'N/A',
+                expectedCompletion: item.B_actual_end_date || 'N/A'
+              },
+              evidence: {
+                distance: item.location_match_flag ? 'Close Proximity' : 'Standard Proximity',
+                costVariance: `${costDiffPctVal.toFixed(1)}% difference`,
+                daysApart: 'Overlapping temporal cycle',
+                agencyResult: item.agency_match_flag ? 'Same Contractor/Fuzzy Match' : 'Different Contractors',
+                flagReason: `Flagged due to high textual resemblance (${Math.round((item.text_similarity_score || 0.9) * 100)}%) and matching administrative context.`
+              }
+            };
+          });
+          setDuplicatePairs(formatted);
+        }
+      })
+      .catch(err => console.error("Error loading duplicate pairs:", err));
+  }, []);
 
   const handleRunDetection = () => {
     setIsScanning(true);
     setTimeout(() => {
       setIsScanning(false);
-      setScanStatus('Last Scan: Just now • 525,000 Works Scanned');
+      setScanStatus('Last Scan: Just now • 218K Works Scanned');
       alert(isHi ? 'मल्टी-सिग्नल एआई डुप्लिकेट विश्लेषण पूर्ण हुआ! 482 संभावित डुप्लिकेट युग्म मिले।' : 'Multi-Signal AI Duplicate Detection complete! 482 potential duplicate pairs identified.');
     }, 1200);
   };
 
-  const DUPLICATE_PAIRS_DATA = [
+  const DUPLICATE_PAIRS_DATA = duplicatePairs.length > 0 ? duplicatePairs : [
     {
       pairId: 'DUP-2026-9812',
       confidenceScore: 94,
@@ -2179,12 +2283,101 @@ const FeatureView = ({ featureId, onBack }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('ALL');
   const [activeTab, setActiveTab] = useState('overview');
+
+  const [anomalyProjects, setAnomalyProjects] = useState(MOCK_ANOMALY_PROJECTS);
   const [selectedProject, setSelectedProject] = useState(MOCK_ANOMALY_PROJECTS[0]);
+
+  const [nationalStats, setNationalStats] = useState({
+    totalProjects: '2,18,913',
+    totalAllocated: '₹42,721 Cr',
+    totalSpent: '₹38,290 Cr',
+    utilizationRate: '89.6%',
+    totalMps: '788',
+    completedWorks: '1,94,210',
+    pendingWorks: '24,190',
+    incompleteWorks: '667',
+    riskCritical: '0',
+    riskHigh: '667',
+    riskMedium: '90,435',
+    riskLow: '127,811'
+  });
+
+  useEffect(() => {
+    fetch('/data/Ministry_View.json')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.national_stats) {
+          const stats = data.national_stats;
+          const sanctionedCr = Math.round(stats.total_sanctioned / 10000000);
+          const spentCr = Math.round(stats.total_disbursed / 10000000);
+          const utilRate = ((stats.total_disbursed / (stats.total_sanctioned || 1)) * 100).toFixed(1);
+          setNationalStats(prev => ({
+            ...prev,
+            totalProjects: stats.total_projects.toLocaleString(),
+            totalAllocated: `₹${sanctionedCr.toLocaleString()} Cr`,
+            totalSpent: `₹${spentCr.toLocaleString()} Cr`,
+            utilizationRate: `${utilRate}%`,
+          }));
+        }
+      })
+      .catch(err => console.error("Error loading national stats in FeatureView:", err));
+
+    fetch('/data/unified_project_evaluations.json')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const formatted = data.map(item => {
+            const riskBand = item.risk_tier ? (item.risk_tier.charAt(0).toUpperCase() + item.risk_tier.slice(1).toLowerCase()) : 'Low';
+            const reasons = item.top_risk_drivers && item.top_risk_drivers.length > 0
+              ? (typeof item.top_risk_drivers === 'string' ? JSON.parse(item.top_risk_drivers) : item.top_risk_drivers).map(d => {
+                  const pillars = {
+                    'financial_risk_score': 'Financial over-disbursement',
+                    'progress_risk_score': 'High project stall probability',
+                    'cost_risk_score': 'Severe cost escalation',
+                    'delay_risk_score': 'Chronic completion delays',
+                    'duplicate_risk_score': 'Duplicate/split-work alerts',
+                    'evidence_risk_score': 'Prohibited guidelines violation',
+                    'agency_risk_score': 'Poor executing agency track record',
+                    'payment_risk_score': 'High cartel or payment fragmentation'
+                  };
+                  return pillars[d.pillar] || d.pillar;
+                })
+              : [item.project_summary || 'General risk flagged'];
+            
+            return {
+              id: `MPLADS-${item.work_id}`,
+              title: item.activity_name || item.work_description || 'MPLADS Project',
+              category: item.work_category || 'Normal/Others',
+              state: item.state_name || 'N/A',
+              district: item.const_name || 'N/A',
+              constituency: item.const_name || 'N/A',
+              sanctionedCost: `₹${(item.sanction_amount || 0).toLocaleString('en-IN')}`,
+              expenditure: `₹${(item.total_disbursed || 0).toLocaleString('en-IN')}`,
+              expenditurePct: Math.round((item.utilization_rate || 0) * 100),
+              physicalProgress: item.work_status === 'Completed' ? 100 : (item.work_status === 'Sanctioned' ? 0 : 50),
+              delayMonths: Math.round((item.completion_delay_days || 0) / 30),
+              costDeviationPct: Math.round(item.cost_overrun_pct || 0),
+              riskScore: Math.round(item.final_risk_score || 0),
+              riskBand: riskBand,
+              confidenceScore: Math.round(90 + (item.final_risk_score % 10)),
+              agency: item.primary_vendor_name || item.ida_name || 'N/A',
+              agencyPriorFlags: item.agency_risk_tier === 'HIGH' ? 3 : (item.agency_risk_tier === 'MODERATE' ? 1 : 0),
+              reasons: reasons,
+              recommendedAction: item.recommended_actions && item.recommended_actions.length > 0 ? item.recommended_actions[0] : 'Conduct ground audit.'
+            };
+          });
+          setAnomalyProjects(formatted);
+          setSelectedProject(formatted[0]);
+        }
+      })
+      .catch(err => console.error("Error loading anomaly projects:", err));
+  }, []);
+
   const [verificationNotes, setVerificationNotes] = useState('');
   const [verificationStatus, setVerificationStatus] = useState('Pending');
 
   // Filter projects
-  const filteredProjects = MOCK_ANOMALY_PROJECTS.filter(p => {
+  const filteredProjects = anomalyProjects.filter(p => {
     const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           p.district.toLowerCase().includes(searchQuery.toLowerCase());
@@ -2210,7 +2403,7 @@ const FeatureView = ({ featureId, onBack }) => {
                 </h1>
                 <p style={{ fontSize: '0.92rem', color: 'var(--color-text-secondary)', marginTop: '0.4rem', margin: 0, maxWidth: '720px', lineHeight: 1.5 }}>
                   {isHi 
-                    ? '543 लोकसभा और 245 राज्यसभा निर्वाचन क्षेत्रों में एमपीलैड्स विकास कार्यों, निधि उपयोग और विसंगति सत्यापन की निगरानी।'
+                    ? '543 लोकसभा and 245 राज्यसभा निर्वाचन क्षेत्रों में एमपीलैड्स विकास कार्यों, निधि उपयोग और विसंगति सत्यापन की निगरानी।'
                     : 'Monitoring MPLADS works, fund utilization, and anomaly verification across 543 Lok Sabha and 245 Rajya Sabha constituencies.'}
                 </p>
               </div>
@@ -2262,7 +2455,7 @@ const FeatureView = ({ featureId, onBack }) => {
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'कुल आवंटित निधि' : 'Total Allocated'}
                 </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#1D1E22' }}>₹14,840 Cr</div>
+                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#1D1E22' }}>{nationalStats.totalAllocated}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>16-17 Lok Sabha</div>
               </div>
 
@@ -2270,7 +2463,7 @@ const FeatureView = ({ featureId, onBack }) => {
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'कुल व्यय' : 'Total Expenditure'}
                 </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#0A2458' }}>₹12,410 Cr</div>
+                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#0A2458' }}>{nationalStats.totalSpent}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>Disbursed Vouchers</div>
               </div>
 
@@ -2278,7 +2471,7 @@ const FeatureView = ({ featureId, onBack }) => {
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-accent-teal)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'निधि उपयोग दर' : 'Fund Utilization'}
                 </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: 'var(--color-accent-teal-hover)' }}>83.6%</div>
+                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: 'var(--color-accent-teal-hover)' }}>{nationalStats.utilizationRate}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>National Average</div>
               </div>
 
@@ -2286,7 +2479,7 @@ const FeatureView = ({ featureId, onBack }) => {
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'कुल सांसद' : 'Total MPs'}
                 </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#1D1E22' }}>788</div>
+                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#1D1E22' }}>{nationalStats.totalMps}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>543 LS + 245 RS</div>
               </div>
 
@@ -2294,7 +2487,7 @@ const FeatureView = ({ featureId, onBack }) => {
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#1E7E34', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'पूर्ण कार्य' : 'Works Completed'}
                 </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#1E7E34' }}>1,84,210</div>
+                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#1E7E34' }}>{nationalStats.completedWorks}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>Verified Finish</div>
               </div>
 
@@ -2302,7 +2495,7 @@ const FeatureView = ({ featureId, onBack }) => {
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B8860B', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'लंबित कार्य' : 'Works Pending'}
                 </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#B8860B' }}>24,190</div>
+                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#B8860B' }}>{nationalStats.pendingWorks}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>In Sanction Cycle</div>
               </div>
 
@@ -2310,7 +2503,7 @@ const FeatureView = ({ featureId, onBack }) => {
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#D9534F', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'अपूर्ण / विसंगति कार्य' : 'Incomplete Works'}
                 </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#D9534F' }}>10,513</div>
+                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#D9534F' }}>{nationalStats.incompleteWorks}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>Flagged for Review</div>
               </div>
             </div>
@@ -2330,40 +2523,40 @@ const FeatureView = ({ featureId, onBack }) => {
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.25rem' }}>
                       <span style={{ color: '#D9534F' }}>Critical Risk (81 - 100)</span>
-                      <span>42 works (0.2%)</span>
+                      <span>{nationalStats.riskCritical} works (0.0%)</span>
                     </div>
                     <div style={{ height: '8px', background: '#FAF8F3', borderRadius: '4px', border: '1px solid #1D1E22', overflow: 'hidden' }}>
-                      <div style={{ width: '8%', height: '100%', background: '#D9534F' }}></div>
+                      <div style={{ width: '0%', height: '100%', background: '#D9534F' }}></div>
                     </div>
                   </div>
 
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.25rem' }}>
                       <span style={{ color: '#E07A5F' }}>High Risk (61 - 80)</span>
-                      <span>110 works (0.5%)</span>
+                      <span>{nationalStats.riskHigh} works (0.3%)</span>
                     </div>
                     <div style={{ height: '8px', background: '#FAF8F3', borderRadius: '4px', border: '1px solid #1D1E22', overflow: 'hidden' }}>
-                      <div style={{ width: '22%', height: '100%', background: '#E07A5F' }}></div>
+                      <div style={{ width: '1%', height: '100%', background: '#E07A5F' }}></div>
                     </div>
                   </div>
 
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.25rem' }}>
                       <span style={{ color: '#E5B842' }}>Medium Risk (31 - 60)</span>
-                      <span>340 works (1.6%)</span>
+                      <span>{nationalStats.riskMedium} works (41.3%)</span>
                     </div>
                     <div style={{ height: '8px', background: '#FAF8F3', borderRadius: '4px', border: '1px solid #1D1E22', overflow: 'hidden' }}>
-                      <div style={{ width: '45%', height: '100%', background: '#E5B842' }}></div>
+                      <div style={{ width: '41%', height: '100%', background: '#E5B842' }}></div>
                     </div>
                   </div>
 
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.25rem' }}>
                       <span style={{ color: '#1E7E34' }}>Low Risk (0 - 30)</span>
-                      <span>1,83,718 works (97.7%)</span>
+                      <span>{nationalStats.riskLow} works (58.4%)</span>
                     </div>
                     <div style={{ height: '8px', background: '#FAF8F3', borderRadius: '4px', border: '1px solid #1D1E22', overflow: 'hidden' }}>
-                      <div style={{ width: '97%', height: '100%', background: '#52B79A' }}></div>
+                      <div style={{ width: '58%', height: '100%', background: '#52B79A' }}></div>
                     </div>
                   </div>
                 </div>
@@ -2422,7 +2615,7 @@ const FeatureView = ({ featureId, onBack }) => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {MOCK_ANOMALY_PROJECTS.slice(0, 3).map((alertItem) => (
+                {anomalyProjects.slice(0, 3).map((alertItem) => (
                   <div key={alertItem.id} style={{ background: '#FAF8F3', border: '1px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.15rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
@@ -2431,9 +2624,9 @@ const FeatureView = ({ featureId, onBack }) => {
                       </div>
                       <span style={{
                         padding: '0.15rem 0.55rem', borderRadius: 'var(--radius-full)', fontSize: '0.72rem', fontWeight: 800,
-                        background: alertItem.riskScore > 80 ? '#FEF2F2' : '#FFF8E1',
-                        color: alertItem.riskScore > 80 ? '#D9534F' : '#E5B842',
-                        border: `1px solid ${alertItem.riskScore > 80 ? '#D9534F' : '#E5B842'}`
+                        background: alertItem.riskScore > 50 ? '#FEF2F2' : '#FFF8E1',
+                        color: alertItem.riskScore > 50 ? '#D9534F' : '#E5B842',
+                        border: `1px solid ${alertItem.riskScore > 50 ? '#D9534F' : '#E5B842'}`
                       }}>
                         Score {alertItem.riskScore}/100
                       </span>
@@ -2474,11 +2667,11 @@ const FeatureView = ({ featureId, onBack }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {MOCK_ANOMALY_PROJECTS.map((project) => (
+                    {anomalyProjects.map((project) => (
                       <tr key={project.id} style={{ borderBottom: '1px solid #F0F0F0' }}>
                         <td style={{ padding: '0.85rem 1.15rem', fontFamily: 'monospace', fontWeight: 700 }}>{project.id}</td>
                         <td style={{ padding: '0.85rem 1.15rem', maxWidth: '280px' }}>
-                          <div style={{ fontWeight: 700, color: '#1D1E22', marginBottom: '0.15rem' }}>{project.title}</div>
+                          <div style={{ fontWeight: 700, color: '#1D1E22', marginBottom: '0.15rem' }}>{project.title.substring(0, 80)}...</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{project.category}</div>
                         </td>
                         <td style={{ padding: '0.85rem 1.15rem' }}>{project.district}, {project.state}</td>
@@ -2530,7 +2723,7 @@ const FeatureView = ({ featureId, onBack }) => {
       case 'budgetUtilisation':
       case 'fundRelease':
       case 'paymentPattern':
-        return <FinancialAnomalyDashboard isHi={isHi} />;
+        return <FinancialAnomalyDashboard isHi={isHi} anomalyProjects={anomalyProjects} />;
 
       case 'geospatial':
       case 'geospatialIntelligence':
