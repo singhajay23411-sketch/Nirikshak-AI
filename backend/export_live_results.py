@@ -28,6 +28,26 @@ LIVE_EXPORTS_DIR = os.path.join(DATA_DIR, "live_exports")
 
 os.makedirs(LIVE_EXPORTS_DIR, exist_ok=True)
 
+import numpy as np
+
+def clean_val(v):
+    if isinstance(v, np.ndarray):
+        return v.tolist()
+    if isinstance(v, list):
+        return [clean_val(x) for x in v]
+    if isinstance(v, dict):
+        return {k: clean_val(val) for k, val in v.items()}
+    if pd.isna(v):
+        return None
+    if isinstance(v, (pd.Timestamp, datetime)):
+        return v.isoformat()
+    if isinstance(v, (np.integer,)):
+        return int(v)
+    if isinstance(v, (np.floating,)):
+        return float(v)
+    return v
+
+
 # ---------------------------------------------------------------------------
 # Plugin Registry
 # ---------------------------------------------------------------------------
@@ -137,18 +157,7 @@ def export_mp_scorecards(df: pd.DataFrame) -> Dict[str, Any]:
     out_path = os.path.join(LIVE_EXPORTS_DIR, "mp_scorecard_summary.json")
     records = grouped.to_dict(orient="records")
     
-    # Handle NaN values explicitly before JSON export
-    records_clean = []
-    for r in records:
-        clean_r = {}
-        for k, v in r.items():
-            if pd.isna(v):
-                clean_r[k] = None
-            elif isinstance(v, (pd.Timestamp, datetime)):
-                clean_r[k] = v.isoformat()
-            else:
-                clean_r[k] = v
-        records_clean.append(clean_r)
+    records_clean = [{k: clean_val(v) for k, v in r.items()} for r in records]
         
     with open(out_path, "w") as f:
         json.dump(records_clean, f, indent=2)
@@ -180,17 +189,7 @@ def export_constituency_heatmap(df: pd.DataFrame) -> Dict[str, Any]:
     out_path = os.path.join(LIVE_EXPORTS_DIR, "constituency_risk_heatmap.json")
     records = grouped.to_dict(orient="records")
     
-    records_clean = []
-    for r in records:
-        clean_r = {}
-        for k, v in r.items():
-            if pd.isna(v):
-                clean_r[k] = None
-            elif isinstance(v, (pd.Timestamp, datetime)):
-                clean_r[k] = v.isoformat()
-            else:
-                clean_r[k] = v
-        records_clean.append(clean_r)
+    records_clean = [{k: clean_val(v) for k, v in r.items()} for r in records]
         
     with open(out_path, "w") as f:
         json.dump(records_clean, f, indent=2)
@@ -220,17 +219,7 @@ def export_duplicate_alerts(df: pd.DataFrame) -> Dict[str, Any]:
     out_path = os.path.join(LIVE_EXPORTS_DIR, "duplicate_project_alerts.json")
     records = df_dupes.to_dict(orient="records")
     
-    records_clean = []
-    for r in records:
-        clean_r = {}
-        for k, v in r.items():
-            if pd.isna(v):
-                clean_r[k] = None
-            elif isinstance(v, (pd.Timestamp, datetime)):
-                clean_r[k] = v.isoformat()
-            else:
-                clean_r[k] = v
-        records_clean.append(clean_r)
+    records_clean = [{k: clean_val(v) for k, v in r.items()} for r in records]
         
     with open(out_path, "w") as f:
         json.dump(records_clean, f, indent=2)
@@ -277,17 +266,7 @@ def export_cost_delay_anomalies(df: pd.DataFrame) -> Dict[str, Any]:
     out_path = os.path.join(LIVE_EXPORTS_DIR, "cost_and_delay_anomalies.json")
     records = anomalies.to_dict(orient="records")
     
-    records_clean = []
-    for r in records:
-        clean_r = {}
-        for k, v in r.items():
-            if pd.isna(v):
-                clean_r[k] = None
-            elif isinstance(v, (pd.Timestamp, datetime)):
-                clean_r[k] = v.isoformat()
-            else:
-                clean_r[k] = v
-        records_clean.append(clean_r)
+    records_clean = [{k: clean_val(v) for k, v in r.items()} for r in records]
         
     with open(out_path, "w") as f:
         json.dump(records_clean, f, indent=2)
@@ -311,7 +290,7 @@ def export_geointel_heatmap(df: pd.DataFrame) -> Dict[str, Any]:
 def export_contractor_cartel_network(df: pd.DataFrame) -> Dict[str, Any]:
     from ai_models.vendor_network import run_full_analysis
     
-    hhi_records, cartels = run_full_analysis()
+    hhi_records, cartels, cartel_cliques = run_full_analysis()
     
     # Save HHI
     out_hhi = os.path.join(LIVE_EXPORTS_DIR, "constituency_hhi.json")
@@ -323,7 +302,12 @@ def export_contractor_cartel_network(df: pd.DataFrame) -> Dict[str, Any]:
     with open(out_cartels, "w") as f:
         json.dump(cartels, f, indent=2)
         
-    return {"records_exported": len(cartels), "file": "vendor_risk_network.json"}
+    # Save Cartel Cliques
+    out_cliques = os.path.join(LIVE_EXPORTS_DIR, "vendor_cartel_groups.json")
+    with open(out_cliques, "w") as f:
+        json.dump(cartel_cliques, f, indent=2)
+        
+    return {"records_exported": len(cartels) + len(cartel_cliques), "file": "vendor_risk_network.json & vendor_cartel_groups.json"}
 
 @register_export_pipeline("finguard")
 def export_finguard(df: pd.DataFrame) -> Dict[str, Any]:
@@ -349,6 +333,131 @@ def export_finguard(df: pd.DataFrame) -> Dict[str, Any]:
 
     n_risky = int((df_fg['financial_risk_score'] > 30).sum())
     return {"records_exported": n_risky, "file": "finguard_anomalies.json"}
+
+@register_export_pipeline("rbac_tiered_views")
+def export_rbac_views(df: pd.DataFrame) -> Dict[str, Any]:
+    """Generate pre-sliced views for Ministry, District Authority, and MP roles."""
+    log.info("Generating RBAC tiered view payloads...")
+    
+    conn = get_db_connection()
+    try:
+        df_fg = pd.read_sql("SELECT * FROM finguard_financial_anomalies", conn)
+        df_merged = df.merge(df_fg, on="work_id", how="left")
+    except Exception:
+        log.warning("finguard_financial_anomalies table not found or query failed. Performing fallback.")
+        df_merged = df.copy()
+        df_merged['financial_risk_score'] = 0.0
+        df_merged['stall_probability'] = 0.0
+        df_merged['anomaly_reasons'] = "[]"
+        df_merged['recommended_actions'] = "[]"
+    finally:
+        conn.close()
+
+    import json
+    def parse_json_col(val):
+        if not val or pd.isna(val):
+            return []
+        if isinstance(val, list):
+            return val
+        try:
+            return json.loads(val)
+        except Exception:
+            return []
+
+    if 'anomaly_reasons' in df_merged.columns:
+        df_merged['anomaly_reasons'] = df_merged['anomaly_reasons'].apply(parse_json_col)
+    else:
+        df_merged['anomaly_reasons'] = [[] for _ in range(len(df_merged))]
+
+    if 'recommended_actions' in df_merged.columns:
+        df_merged['recommended_actions'] = df_merged['recommended_actions'].apply(parse_json_col)
+    else:
+        df_merged['recommended_actions'] = [[] for _ in range(len(df_merged))]
+
+    # 1. Ministry View
+    state_stats = df_merged.groupby('state_name').agg(
+        total_sanctioned=('sanction_amount', 'sum'),
+        total_spent=('total_disbursed', 'sum'),
+        avg_risk=('financial_risk_score', 'mean'),
+        total_projects=('work_id', 'count')
+    ).reset_index()
+    state_stats['avg_risk'] = state_stats['avg_risk'].round(2)
+    state_stats['utilization_rate'] = (state_stats['total_spent'] / state_stats['total_sanctioned'].replace(0, 1)).round(4)
+    
+    top_national_anomalies = df_merged.nlargest(200, 'financial_risk_score')[
+        ['work_id', 'activity_name', 'state_name', 'const_name', 'mp_name', 'sanction_amount', 'total_disbursed', 'financial_risk_score', 'stall_probability', 'anomaly_reasons', 'recommended_actions', 'agency_risk_score', 'agency_risk_tier']
+    ]
+    
+    ministry_payload = {
+        "view_type": "Ministry / Central Nodal Authority",
+        "national_stats": {
+            "total_sanctioned": float(df_merged['sanction_amount'].sum()),
+            "total_disbursed": float(df_merged['total_disbursed'].sum()),
+            "total_projects": int(df_merged['work_id'].count()),
+            "avg_national_risk": float(df_merged['financial_risk_score'].mean() if 'financial_risk_score' in df_merged.columns else 0.0)
+        },
+        "state_wise_benchmarks": state_stats.to_dict(orient="records"),
+        "top_national_risk_alerts": top_national_anomalies.to_dict(orient="records")
+    }
+
+    # 2. District Authority / Implementing Agency View
+    const_groups = df_merged.groupby(['constituency_id', 'const_name', 'state_name'])
+    district_payloads = []
+    for (const_id, const_name, state_name), grp in const_groups:
+        top_local_risks = grp.nlargest(10, 'financial_risk_score')[
+            ['work_id', 'activity_name', 'sanction_amount', 'total_disbursed', 'financial_risk_score', 'stall_probability', 'anomaly_reasons', 'recommended_actions', 'agency_risk_score', 'agency_risk_tier']
+        ]
+        district_payloads.append({
+            "constituency_id": int(const_id),
+            "constituency_name": const_name,
+            "state_name": state_name,
+            "total_projects": int(len(grp)),
+            "high_risk_count": int((grp['financial_risk_score'].fillna(0) > 40).sum()),
+            "avg_risk": float(grp['financial_risk_score'].mean() if 'financial_risk_score' in grp.columns else 0.0),
+            "top_local_alerts": top_local_risks.to_dict(orient="records")
+        })
+
+    # 3. MP View
+    mp_groups = df_merged.groupby(['mp_id', 'mp_name', 'const_name', 'state_name'])
+    mp_payloads = []
+    for (mp_id, mp_name, const_name, state_name), grp in mp_groups:
+        mp_payloads.append({
+            "mp_id": int(mp_id),
+            "mp_name": mp_name,
+            "constituency_name": const_name,
+            "state_name": state_name,
+            "total_allocated": float(grp['sanction_amount'].sum()),
+            "total_disbursed": float(grp['total_disbursed'].sum()),
+            "unspent_balance": float(grp['sanction_amount'].sum() - grp['total_disbursed'].sum()),
+            "utilization_rate": float(grp['total_disbursed'].sum() / grp['sanction_amount'].sum() if grp['sanction_amount'].sum() > 0 else 0.0),
+            "avg_project_delay_days": float(grp['completion_delay_days'].mean() if 'completion_delay_days' in grp.columns else 0.0),
+            "stalled_projects_count": int((grp['stall_probability'].fillna(0) > 0.50).sum() if 'stall_probability' in grp.columns else 0),
+            "avg_agency_risk": float(grp['agency_risk_score'].mean() if 'agency_risk_score' in grp.columns else 0.0)
+        })
+
+    def clean_nan(d):
+        if isinstance(d, dict):
+            return {k: clean_nan(v) for k, v in d.items()}
+        elif isinstance(d, list):
+            return [clean_nan(x) for x in d]
+        elif pd.isna(d):
+            return None
+        return d
+
+    m_path = os.path.join(LIVE_EXPORTS_DIR, "Ministry_View.json")
+    with open(m_path, "w") as f:
+        json.dump(clean_nan(ministry_payload), f, indent=2)
+
+    da_path = os.path.join(LIVE_EXPORTS_DIR, "District_Authority_View.json")
+    with open(da_path, "w") as f:
+        json.dump(clean_nan(district_payloads), f, indent=2)
+
+    mp_path = os.path.join(LIVE_EXPORTS_DIR, "MP_View.json")
+    with open(mp_path, "w") as f:
+        json.dump(clean_nan(mp_payloads), f, indent=2)
+
+    log.info("RBAC views generated successfully.")
+    return {"records_exported": len(df_merged), "file": "rbac_tiered_views (Ministry_View, District_Authority_View, MP_View)"}
 
 # ---------------------------------------------------------------------------
 # Main Orchestration

@@ -334,54 +334,95 @@ def detect_payment_anomalies(df: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # SIGNAL 6: Composite Financial Integrity Score (0–100)
 # ---------------------------------------------------------------------------
+def compute_predictive_stall_probability(df: pd.DataFrame) -> pd.DataFrame:
+    """Compute predictive stall probability using the trained RandomForest model."""
+    log.info("SIGNAL EXTRA: Computing Predictive Stall Probabilities...")
+    from ai_models.stall_predictor import predict_stall_probabilities
+    
+    # Predict probabilities (0.0 to 1.0)
+    df['stall_probability'] = predict_stall_probabilities(df)
+    
+    # Scale to 0-100%
+    df['stall_probability_score'] = (df['stall_probability'] * 100).round(2)
+    
+    # Set a flag if stall probability > 60%
+    df['flag_high_stall_risk'] = df['stall_probability'] > 0.60
+    
+    n_high_risk = df['flag_high_stall_risk'].sum()
+    log.info(f"  -> Flagged high stall risk (>60%): {n_high_risk:,}")
+    return df
+
+
 def compute_financial_risk_score(df: pd.DataFrame) -> pd.DataFrame:
     """Ensemble all flags into a unified Financial Risk Score (0-100)."""
     log.info("SIGNAL 6: Computing Composite Financial Risk Score...")
 
     # Weighted ensemble of individual signals
-    # Weights: Cost Overrun (15), Over-Disbursement (15), Z-Score (10),
-    #          Isolation Forest (20, continuous), Progress Mismatch (20, continuous),
-    #          Payment Fragmentation (10), March Rush (10)
+    # Weights: Cost Overrun (10), Over-Disbursement (10), Z-Score (5),
+    #          Isolation Forest (15, continuous), Progress Mismatch (15, continuous),
+    #          Payment Fragmentation (10), March Rush (5),
+    #          Prohibited Work Compliance (15), Predictive Stall Risk (15)
 
     score = pd.Series(0.0, index=df.index)
 
-    score += df['flag_cost_overrun'].astype(float) * 15
-    score += df['flag_over_disbursement'].astype(float) * 15
-    score += df['flag_zscore_outlier'].astype(float) * 10
-    # Isolation forest: continuous 0-100, weight at 20%
-    score += (df['isolation_forest_score'].fillna(0) / 100) * 20
-    # Progress mismatch: continuous 0-100, weight at 20%
-    score += (df['progress_mismatch_score'].fillna(0) / 100) * 20
+    score += df['flag_cost_overrun'].astype(float) * 10
+    score += df['flag_over_disbursement'].astype(float) * 10
+    score += df['flag_zscore_outlier'].astype(float) * 5
+    # Isolation forest: continuous 0-100, weight at 15%
+    score += (df['isolation_forest_score'].fillna(0) / 100) * 15
+    # Progress mismatch: continuous 0-100, weight at 15%
+    score += (df['progress_mismatch_score'].fillna(0) / 100) * 15
     score += df['flag_payment_fragmentation'].astype(float) * 10
-    score += df['flag_march_rush'].astype(float) * 10
+    score += df['flag_march_rush'].astype(float) * 5
+    score += df.get('flag_prohibited_work', pd.Series(False, index=df.index)).astype(float) * 15
+    score += (df.get('stall_probability_score', pd.Series(0.0, index=df.index)).fillna(0) / 100) * 15
 
     df['financial_risk_score'] = score.clip(0, 100).round(2)
 
-    # Build anomaly_reasons list
+    # Build anomaly_reasons list and recommended actions
     reasons = []
+    actions = []
     for _, row in df.iterrows():
         r = []
+        a = []
         if row.get('flag_cost_overrun'):
             r.append(f"Cost overrun {row.get('cost_overrun_pct', 0):.1f}%")
+            a.append("Audit project bills against standard state categories")
         if row.get('flag_over_disbursement'):
             r.append("Over-disbursement >120%")
+            a.append("Verify disbursement vouchers and physical works validation")
         if row.get('flag_zscore_outlier'):
             r.append(f"Extreme Z-score ({row.get('cost_z_score', 0):.2f})")
+            a.append("Validate sanity of extreme cost deviation with District Authority")
         if row.get('flag_isolation_forest'):
             r.append("Isolation Forest anomaly")
+            a.append("Review multi-dimensional financial logs for administrative anomalies")
         if row.get('flag_ghost_disbursal'):
             r.append("Ghost disbursal risk")
+            a.append("Immediate on-site physical inspection to verify work progress")
         if row.get('flag_phantom_completion'):
             r.append("Phantom completion risk")
+            a.append("Cross-reference completion certificate with actual bank records")
         if row.get('flag_stalled_capital'):
             r.append("Stalled capital")
+            a.append("Scrutinize project execution timeline and delay justifications")
         if row.get('flag_payment_fragmentation'):
             r.append("Payment fragmentation/structuring")
+            a.append("Check for split tenders to bypass higher sanctioning thresholds")
         if row.get('flag_march_rush'):
             r.append(f"March Rush ({row.get('march_ratio', 0)*100:.1f}%)")
+            a.append("Audit year-end transaction receipts and invoice dates")
+        if row.get('flag_prohibited_work'):
+            r.append("Potentially Prohibited Work under MPLADS guidelines")
+            a.append("Confirm work compliance against prohibited items listed in official MPLADS guidelines")
+        if row.get('flag_high_stall_risk'):
+            r.append(f"High predictive stall risk ({row.get('stall_probability_score', 0):.1f}%)")
+            a.append("Initiate early-warning audit; review contractor solvency and execution milestones")
         reasons.append(r)
+        actions.append(a)
 
     df['anomaly_reasons'] = reasons
+    df['recommended_actions'] = actions
 
     n_risky = (df['financial_risk_score'] > 30).sum()
     avg_score = df['financial_risk_score'].mean()
@@ -405,27 +446,34 @@ def export_to_postgres(df: pd.DataFrame):
     cur.execute("DROP TABLE IF EXISTS finguard_financial_anomalies;")
     cur.execute("""
         CREATE TABLE finguard_financial_anomalies (
-            work_id                   INTEGER PRIMARY KEY,
-            financial_risk_score      REAL,
-            isolation_forest_score    REAL,
-            progress_mismatch_score   REAL,
-            flag_cost_overrun         BOOLEAN,
-            flag_over_disbursement    BOOLEAN,
-            flag_zscore_outlier       BOOLEAN,
-            flag_isolation_forest     BOOLEAN,
-            flag_ghost_disbursal      BOOLEAN,
-            flag_phantom_completion   BOOLEAN,
-            flag_stalled_capital      BOOLEAN,
+            work_id                    INTEGER PRIMARY KEY,
+            financial_risk_score       REAL,
+            isolation_forest_score     REAL,
+            progress_mismatch_score    REAL,
+            stall_probability          REAL,
+            flag_cost_overrun          BOOLEAN,
+            flag_over_disbursement     BOOLEAN,
+            flag_zscore_outlier        BOOLEAN,
+            flag_isolation_forest      BOOLEAN,
+            flag_ghost_disbursal       BOOLEAN,
+            flag_phantom_completion    BOOLEAN,
+            flag_stalled_capital       BOOLEAN,
             flag_payment_fragmentation BOOLEAN,
-            flag_march_rush           BOOLEAN,
-            march_ratio               REAL,
-            anomaly_reasons           TEXT
+            flag_march_rush            BOOLEAN,
+            flag_prohibited_work       BOOLEAN,
+            flag_high_stall_risk       BOOLEAN,
+            march_ratio                REAL,
+            anomaly_reasons            TEXT,
+            recommended_actions        TEXT
         );
     """)
 
     # Only insert works that have at least some risk
     df_export = df[df['financial_risk_score'] > 0].copy()
     df_export['anomaly_reasons_str'] = df_export['anomaly_reasons'].apply(
+        lambda x: json.dumps(x) if isinstance(x, list) else '[]'
+    )
+    df_export['recommended_actions_str'] = df_export['recommended_actions'].apply(
         lambda x: json.dumps(x) if isinstance(x, list) else '[]'
     )
 
@@ -435,6 +483,7 @@ def export_to_postgres(df: pd.DataFrame):
             float(row['financial_risk_score']),
             float(row.get('isolation_forest_score', 0)),
             float(row.get('progress_mismatch_score', 0)),
+            float(row.get('stall_probability', 0)),
             bool(row.get('flag_cost_overrun', False)),
             bool(row.get('flag_over_disbursement', False)),
             bool(row.get('flag_zscore_outlier', False)),
@@ -444,8 +493,11 @@ def export_to_postgres(df: pd.DataFrame):
             bool(row.get('flag_stalled_capital', False)),
             bool(row.get('flag_payment_fragmentation', False)),
             bool(row.get('flag_march_rush', False)),
+            bool(row.get('flag_prohibited_work', False)),
+            bool(row.get('flag_high_stall_risk', False)),
             float(row.get('march_ratio', 0)),
             row['anomaly_reasons_str'],
+            row['recommended_actions_str'],
         )
         for _, row in df_export.iterrows()
     ]
@@ -453,12 +505,13 @@ def export_to_postgres(df: pd.DataFrame):
     psycopg2.extras.execute_values(cur, """
         INSERT INTO finguard_financial_anomalies (
             work_id, financial_risk_score, isolation_forest_score,
-            progress_mismatch_score,
+            progress_mismatch_score, stall_probability,
             flag_cost_overrun, flag_over_disbursement,
             flag_zscore_outlier, flag_isolation_forest,
             flag_ghost_disbursal, flag_phantom_completion,
             flag_stalled_capital, flag_payment_fragmentation,
-            flag_march_rush, march_ratio, anomaly_reasons
+            flag_march_rush, flag_prohibited_work, flag_high_stall_risk,
+            march_ratio, anomaly_reasons, recommended_actions
         ) VALUES %s
     """, values, page_size=1000)
 
@@ -499,13 +552,13 @@ def export_json_anomalies(df: pd.DataFrame):
         'sanction_amount', 'actual_amount', 'total_disbursed',
         'cost_overrun_pct', 'cost_z_score',
         'financial_risk_score', 'isolation_forest_score',
-        'progress_mismatch_score', 'anomaly_reasons',
+        'progress_mismatch_score', 'stall_probability', 'anomaly_reasons', 'recommended_actions',
         'vendor_names', 'num_payments',
         'flag_cost_overrun', 'flag_over_disbursement',
         'flag_zscore_outlier', 'flag_isolation_forest',
         'flag_ghost_disbursal', 'flag_phantom_completion',
         'flag_stalled_capital', 'flag_payment_fragmentation',
-        'flag_march_rush',
+        'flag_march_rush', 'flag_prohibited_work', 'flag_high_stall_risk',
     ]
     existing = [c for c in export_cols if c in df.columns]
 
@@ -561,6 +614,9 @@ def run_finguard_pipeline():
 
     log.info("STEP 7/8: Running Signal 5 — Payment Pattern & March Rush...")
     df = detect_payment_anomalies(df)
+
+    log.info("STEP 7.5: Running ML Predictive Stall Classifier...")
+    df = compute_predictive_stall_probability(df)
 
     log.info("STEP 8/8: Computing Composite Financial Risk Score...")
     df = compute_financial_risk_score(df)

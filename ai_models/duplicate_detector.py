@@ -448,8 +448,10 @@ def create_duplicate_alerts_table(conn) -> None:
             financial_match_flag  BOOLEAN NOT NULL DEFAULT FALSE,
             agency_match_flag     BOOLEAN NOT NULL DEFAULT FALSE,
             temporal_match_flag   BOOLEAN NOT NULL DEFAULT FALSE,
+            location_match_flag   BOOLEAN NOT NULL DEFAULT FALSE,
             risk_confidence_score DOUBLE PRECISION NOT NULL,
             partition_key         TEXT,
+            alert_type            VARCHAR(20) NOT NULL DEFAULT 'DUPLICATE',
             detected_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             UNIQUE ("work_id_A", "work_id_B")
         );
@@ -488,13 +490,13 @@ def insert_alerts_to_db(conn, alerts_df: pd.DataFrame) -> int:
     columns = [
         "work_id_A", "work_id_B", "text_similarity_score",
         "financial_match_flag", "agency_match_flag", "temporal_match_flag",
-        "risk_confidence_score", "partition_key",
+        "location_match_flag", "risk_confidence_score", "partition_key", "alert_type",
     ]
     
     db_columns = [
         '"work_id_A"', '"work_id_B"', "text_similarity_score",
         "financial_match_flag", "agency_match_flag", "temporal_match_flag",
-        "risk_confidence_score", "partition_key",
+        "location_match_flag", "risk_confidence_score", "partition_key", "alert_type",
     ]
 
     rows = []
@@ -514,8 +516,10 @@ def insert_alerts_to_db(conn, alerts_df: pd.DataFrame) -> int:
                 financial_match_flag  = EXCLUDED.financial_match_flag,
                 agency_match_flag     = EXCLUDED.agency_match_flag,
                 temporal_match_flag   = EXCLUDED.temporal_match_flag,
+                location_match_flag   = EXCLUDED.location_match_flag,
                 risk_confidence_score = EXCLUDED.risk_confidence_score,
                 partition_key         = EXCLUDED.partition_key,
+                alert_type            = EXCLUDED.alert_type,
                 detected_at           = CURRENT_TIMESTAMP
         """,
         rows,
@@ -543,6 +547,15 @@ def export_alerts_parquet(alerts_df: pd.DataFrame) -> str:
 # ===========================================================================
 # MAIN PIPELINE
 # ===========================================================================
+
+SPLIT_INDICATORS = ["part", "phase", "stage", "pkg", "package", "chainage", "km", "section"]
+
+def check_split_indicators(desc_a: str, desc_b: str, title_a: str, title_b: str) -> bool:
+    all_text = " ".join([str(desc_a or ""), str(desc_b or ""), str(title_a or ""), str(title_b or "")]).lower()
+    for word in SPLIT_INDICATORS:
+        if word in all_text:
+            return True
+    return False
 
 def process_partition(
     partition_key: str,
@@ -596,6 +609,24 @@ def process_partition(
 
         risk_score = compute_risk_confidence(text_sim, financial, agency, temporal)
 
+        # Location Match Flag: Same constituency (partition groups by constituency_id)
+        location_match = int(row_a.get("constituency_id", -1)) == int(row_b.get("constituency_id", -2))
+
+        # Split work detection
+        is_split = False
+        if text_sim > 0.80:
+            has_indicators = check_split_indicators(
+                row_a.get("clean_description"), row_b.get("clean_description"),
+                row_a.get("work_short_title"), row_b.get("work_short_title")
+            )
+            time_diff = check_temporal_proximity(
+                row_a.get("sanction_date"), row_b.get("sanction_date"), max_days=90
+            )
+            if has_indicators or time_diff:
+                is_split = True
+
+        alert_type = "SPLIT_WORK" if is_split else "DUPLICATE"
+
         alerts.append({
             "work_id_A": int(min(row_a["work_id"], row_b["work_id"])),
             "work_id_B": int(max(row_a["work_id"], row_b["work_id"])),
@@ -603,8 +634,10 @@ def process_partition(
             "financial_match_flag": financial,
             "agency_match_flag": agency,
             "temporal_match_flag": temporal,
+            "location_match_flag": location_match,
             "risk_confidence_score": risk_score,
             "partition_key": partition_key,
+            "alert_type": alert_type,
         })
 
         # Cap alerts per partition to prevent runaway output
@@ -694,8 +727,8 @@ def main():
         alerts_df = pd.DataFrame(columns=[
             "work_id_A", "work_id_B", "text_similarity_score",
             "financial_match_flag", "agency_match_flag",
-            "temporal_match_flag", "risk_confidence_score",
-            "partition_key",
+            "temporal_match_flag", "location_match_flag", "risk_confidence_score",
+            "partition_key", "alert_type",
         ])
 
     log.info("  -> Final alerts: %s", f"{len(alerts_df):,}")

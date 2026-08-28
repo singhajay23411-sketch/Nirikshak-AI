@@ -205,6 +205,20 @@ def normalize_text(text: str) -> str:
     return " ".join(tokens)
 
 
+PROHIBITED_KEYWORDS = [
+    "temple", "mandir", "masjid", "mosque", "church", "gurudwara", "ashram", "shrine",
+    "private", "personal", "residential", "shop", "commercial", "office building",
+    "unauthorized", "prohibited", "clubhouse", "cooperative"
+]
+
+def check_compliance(desc: str, title: str) -> bool:
+    desc_val = str(desc or "").lower()
+    title_val = str(title or "").lower()
+    for kw in PROHIBITED_KEYWORDS:
+        if kw in desc_val or kw in title_val:
+            return True
+    return False
+
 def compute_text_features(works: pd.DataFrame) -> pd.DataFrame:
     """Normalize work descriptions and compute basic text metrics."""
     print("\nComputing text features...")
@@ -212,8 +226,16 @@ def compute_text_features(works: pd.DataFrame) -> pd.DataFrame:
     works["desc_word_count"] = works["clean_description"].apply(lambda x: len(x.split()) if x else 0)
     works["desc_char_count"] = works["clean_description"].str.len()
 
+    # NLP Compliance Check for prohibited works
+    works["flag_prohibited_work"] = works.apply(
+        lambda r: check_compliance(r.get("work_description"), r.get("activity_name")),
+        axis=1
+    )
+
     n_clean = (works["clean_description"].str.len() > 0).sum()
+    n_prohibited = works["flag_prohibited_work"].sum()
     print(f"  -> Cleaned descriptions for {n_clean:,} works")
+    print(f"  -> Flagged {n_prohibited:,} potentially prohibited works")
     return works
 
 
@@ -401,6 +423,7 @@ def export_parquet(df: pd.DataFrame):
         "median_delay", "std_delay", "delay_z_score",
         # Text features
         "desc_word_count", "desc_char_count",
+        "flag_prohibited_work",
         # Expenditure features
         "total_disbursed", "num_payments", "num_vendors",
         "avg_payment", "max_payment", "disbursement_ratio",
@@ -460,7 +483,8 @@ def export_to_postgres(df: pd.DataFrame):
             agency_risk_score        DOUBLE PRECISION,
             agency_risk_tier         TEXT,
             agency_risk_contribution DOUBLE PRECISION,
-            agency_risk_factors      JSONB
+            agency_risk_factors      JSONB,
+            flag_prohibited_work     BOOLEAN
         );
     """)
 
@@ -474,6 +498,7 @@ def export_to_postgres(df: pd.DataFrame):
         "total_disbursed", "num_payments", "num_vendors",
         "desc_word_count", "clean_description",
         "agency_risk_score", "agency_risk_tier", "agency_risk_contribution", "agency_risk_factors",
+        "flag_prohibited_work",
     ]
 
     existing = [c for c in insert_cols if c in df.columns]
