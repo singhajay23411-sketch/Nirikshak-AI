@@ -199,16 +199,15 @@ export const en = {
     lead: "Nirikshak AI generates clear, multi-factor risk explainability so district authorities can prioritize human field inspection.",
     dossier: {
       badge: "SAMPLE PROJECT RISK DOSSIER",
-      title: "Construction of Rural Road A–B",
-      meta: "District: Patna • Sanction Amount: ₹45,00,000 • ID: MPLADS-2026-8871",
+      title: "Purchase & Supply of 02 Nos. Buses",
+      meta: "District: ANDAMAN AND NICOBAR ISLANDS • Sanction Amount: ₹86,00,000 • ID: MPLADS-89998",
       riskLevel: "HIGH RISK",
       irregularitiesHeading: "Potential Irregularities Identified:",
       irregularitiesList: [
-        "90% of budget spent",
-        "Only 40% physical progress",
-        "Completion deadline exceeded",
-        "Cost above comparable projects",
-        "Implementing agency has multiple delayed projects"
+        "Over-disbursement >120%",
+        "Extreme Z-score outlier (3.85)",
+        "Isolation Forest anomaly detected",
+        "March Rush (100.0% of funds dumped in March)"
       ],
       actionTitle: "RECOMMENDED ACTION",
       actionText: "Physical inspection and verification of bills, measurements and project photographs.",
@@ -229,10 +228,10 @@ export const en = {
     ],
     docketTitle: "Review High-Risk Project Docket",
     docketLead: "Select an flagged project to generate an explainable inspection bundle:",
-    project1Title: "Rural Road A–B (MPLADS-8871)",
-    project1Sub: "Risk Score 87 • 90% Spent vs 40% Progress",
-    project2Title: "Community Center Ward 12 (MPLADS-4412)",
-    project2Sub: "Risk Score 74 • Potential Duplicate Work Description",
+    project1Title: "Purchase & Supply of 02 Nos. Buses (MPLADS-89998)",
+    project1Sub: "Risk Score 54 • Over-disbursement & March Rush (100%)",
+    project2Title: "Establishment of Mineral Water Plants (MPLADS-158087)",
+    project2Sub: "Risk Score 100 • High-Confidence Duplicate Work",
     generateDossierBtn: "Generate Dossier",
     scheduleTitle: "Dispatch District Field Inspection Team",
     officerNamePlaceholder: "Nodal Officer Name *",
@@ -260,36 +259,36 @@ export const en = {
     mapTitle: "MPLADS India Risk Intelligence Map",
     districtCards: [
       {
-        district: "Patna District",
-        state: "Bihar",
-        totalProjectsText: "142 Projects",
-        sanctionedAmountText: "₹28.4 Cr Sanctioned",
-        riskCategory: "Critical",
-        anomalyCountText: "12 Anomalies"
-      },
-      {
-        district: "Varanasi District",
+        district: "Aligarh District",
         state: "Uttar Pradesh",
-        totalProjectsText: "198 Projects",
-        sanctionedAmountText: "₹41.2 Cr Sanctioned",
+        totalProjectsText: "32,863 Projects",
+        sanctionedAmountText: "₹1,461 Cr Sanctioned",
+        riskCategory: "Critical",
+        anomalyCountText: "5,146 Anomalies"
+      },
+      {
+        district: "Betul District",
+        state: "Madhya Pradesh",
+        totalProjectsText: "14,869 Projects",
+        sanctionedAmountText: "₹524 Cr Sanctioned",
         riskCategory: "High",
-        anomalyCountText: "7 Anomalies"
+        anomalyCountText: "2,863 Anomalies"
       },
       {
-        district: "Pune District",
-        state: "Maharashtra",
-        totalProjectsText: "310 Projects",
-        sanctionedAmountText: "₹62.5 Cr Sanctioned",
+        district: "Hazaribagh District",
+        state: "Jharkhand",
+        totalProjectsText: "7,097 Projects",
+        sanctionedAmountText: "₹248 Cr Sanctioned",
         riskCategory: "Medium",
-        anomalyCountText: "4 Anomalies"
+        anomalyCountText: "1,802 Anomalies"
       },
       {
-        district: "Ernakulam District",
-        state: "Kerala",
-        totalProjectsText: "115 Projects",
-        sanctionedAmountText: "₹22.1 Cr Sanctioned",
+        district: "Bangalore Rural",
+        state: "Karnataka",
+        totalProjectsText: "9,421 Projects",
+        sanctionedAmountText: "₹518 Cr Sanctioned",
         riskCategory: "Low",
-        anomalyCountText: "1 Anomalies"
+        anomalyCountText: "1,356 Anomalies"
       }
     ],
     exploreDistrictAlert: "Exploring {district} MPLADS projects..."

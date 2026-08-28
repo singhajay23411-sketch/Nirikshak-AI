@@ -2,13 +2,13 @@ import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export const getMarqueeStats = (t) => [
-  { value: '2,847', label: t('marquee.projects') },
-  { value: '₹1,245 Cr', label: t('marquee.sanctioned') },
-  { value: '₹982 Cr', label: t('marquee.utilized') },
-  { value: '1,936', label: t('marquee.activeProjects') },
-  { value: '742', label: t('marquee.completed') },
-  { value: '186', label: t('marquee.highRiskProjects'), highlight: '#FF6B6B' },
-  { value: '423', label: t('marquee.anomaliesDetected'), highlight: '#E5B842' },
+  { value: '2,18,913', label: t('marquee.projects') },
+  { value: '₹12,129 Cr', label: t('marquee.sanctioned') },
+  { value: '₹8,007 Cr', label: t('marquee.utilized') },
+  { value: '1,07,301', label: t('marquee.activeProjects') },
+  { value: '1,11,612', label: t('marquee.completed') },
+  { value: '1,105', label: t('marquee.highRiskProjects'), highlight: '#FF6B6B' },
+  { value: '43,894', label: t('marquee.anomaliesDetected'), highlight: '#E5B842' },
   { value: '36', label: t('marquee.statesMonitored') }
 ];
 
