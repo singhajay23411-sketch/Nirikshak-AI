@@ -75,6 +75,9 @@ class Work:
     work_status: Optional[str] = None
     average_rating: Optional[float] = None
     flag: Optional[int] = None
+    agency_risk_score: Optional[float] = None
+    agency_risk_tier: Optional[str] = None
+    agency_risk_contribution: Optional[float] = None
 
 @dataclass
 class Vendor:
@@ -193,27 +196,30 @@ def initialise_schema(conn) -> None:
     # -- works --
     cur.execute("""
         CREATE TABLE IF NOT EXISTS works (
-            work_id              INTEGER PRIMARY KEY,
-            activity_name        TEXT,
-            work_description     TEXT,
-            work_category        TEXT,
-            mp_id                INTEGER,
-            house_type           INTEGER,
-            tenure               TEXT,
-            constituency_id      INTEGER REFERENCES constituencies(constituency_id) ON DELETE SET NULL,
-            state_id             INTEGER REFERENCES states(state_id) ON DELETE SET NULL,
-            ida_name             TEXT,
-            letter_no            TEXT,
-            recommended_amount   NUMERIC(15, 2),
-            sanction_amount      NUMERIC(15, 2),
-            actual_amount        NUMERIC(15, 2),
-            recommendation_date  DATE,
-            sanction_date        DATE,
-            actual_end_date      DATE,
-            work_stage           TEXT,
-            work_status          TEXT,
-            average_rating       REAL,
-            flag                 INTEGER,
+            work_id                  INTEGER PRIMARY KEY,
+            activity_name            TEXT,
+            work_description         TEXT,
+            work_category            TEXT,
+            mp_id                    INTEGER,
+            house_type               INTEGER,
+            tenure                   TEXT,
+            constituency_id          INTEGER REFERENCES constituencies(constituency_id) ON DELETE SET NULL,
+            state_id                 INTEGER REFERENCES states(state_id) ON DELETE SET NULL,
+            ida_name                 TEXT,
+            letter_no                TEXT,
+            recommended_amount       NUMERIC(15, 2),
+            sanction_amount          NUMERIC(15, 2),
+            actual_amount            NUMERIC(15, 2),
+            recommendation_date      DATE,
+            sanction_date            DATE,
+            actual_end_date          DATE,
+            work_stage               TEXT,
+            work_status              TEXT,
+            average_rating           REAL,
+            flag                     INTEGER,
+            agency_risk_score        DOUBLE PRECISION,
+            agency_risk_tier         TEXT,
+            agency_risk_contribution DOUBLE PRECISION,
             FOREIGN KEY (mp_id, house_type, tenure) REFERENCES mps(mp_id, house_type, tenure) ON DELETE SET NULL
         );
     """)
@@ -223,6 +229,7 @@ def initialise_schema(conn) -> None:
         CREATE TABLE IF NOT EXISTS vendors (
             vendor_id   INTEGER PRIMARY KEY,
             vendor_name TEXT NOT NULL
+
         );
     """)
 

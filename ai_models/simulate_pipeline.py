@@ -1,9 +1,10 @@
 """simulate_pipeline.py
 
-End-to-End simulation demonstrating Nirikshak AI's three assigned modules:
+End-to-End simulation demonstrating Nirikshak AI's integrated modules:
 1. Delay Risk Detection (15% platform risk)
 2. EvidenceAI – Image & Document Verification (10% platform risk)
-3. Investigation Hub (Case management & field verification workflow)
+3. Agency Intelligence – Executing Agency & District Authority Risk (5% platform risk)
+4. Investigation Hub (Case management & field verification workflow)
 """
 
 import os
@@ -19,6 +20,7 @@ from delay_risk import DelayRiskScorer, DelayRiskMLModel
 # pyrefly: ignore [missing-import]
 from evidence_ai import EvidenceAIAnalyzer
 # pyrefly: ignore [missing-import]
+from agency_intelligence import AgencyRiskScorer
 from investigation_hub import CaseManager
 
 
@@ -32,6 +34,7 @@ def run_pipeline_simulation():
     ml_model = DelayRiskMLModel(model_path)
     delay_scorer = DelayRiskScorer(model=ml_model)
     evidence_analyzer = EvidenceAIAnalyzer()
+    agency_scorer = AgencyRiskScorer()
     investigation_hub = CaseManager()
 
     print("\n[MODULE 1: DELAY RISK DETECTION (15% Platform Weight)]")
@@ -114,9 +117,32 @@ def run_pipeline_simulation():
     for f in ev_doc_res.flags:
         print(f"        * {f}")
 
-    # 3. Investigation Hub Workflow
+    # 3. Agency Intelligence Scoring
     print("\n" + "-" * 70)
-    print("[MODULE 3: INVESTIGATION HUB (Decoupled Governance Workflow)]")
+    print("[MODULE 3: AGENCY INTELLIGENCE (5% Platform Weight)]")
+
+    res_agency_delayed = agency_scorer.score_project(proj_delayed)
+    res_agency_ontrack = agency_scorer.score_project(proj_ontrack)
+
+    print(f"\n  Project A Agency Assessment (Work ID {res_agency_delayed['work_id']}):")
+    print(f"    - Agency Risk Score       : {res_agency_delayed['agency_risk_score']}/100 ({res_agency_delayed['agency_risk_tier']})")
+    print(f"    - Unified Contribution    : {res_agency_delayed['unified_risk_contribution']}/5.0 points")
+    print(f"    - Hierarchy Blending      : IDA {int(res_agency_delayed['blending_weights']['ida_weight']*100)}% / IA {int(res_agency_delayed['blending_weights']['ia_weight']*100)}%")
+    print(f"    - Agency Risk Factors:")
+    for f in res_agency_delayed["primary_risk_factors"]:
+        print(f"        * {f}")
+
+    print(f"\n  Project B Agency Assessment (Work ID {res_agency_ontrack['work_id']}):")
+    print(f"    - Agency Risk Score       : {res_agency_ontrack['agency_risk_score']}/100 ({res_agency_ontrack['agency_risk_tier']})")
+    print(f"    - Unified Contribution    : {res_agency_ontrack['unified_risk_contribution']}/5.0 points")
+    print(f"    - Hierarchy Blending      : IDA {int(res_agency_ontrack['blending_weights']['ida_weight']*100)}% / IA {int(res_agency_ontrack['blending_weights']['ia_weight']*100)}%")
+    print(f"    - Agency Risk Factors:")
+    for f in res_agency_ontrack["primary_risk_factors"]:
+        print(f"        * {f}")
+
+    # 4. Investigation Hub Workflow
+    print("\n" + "-" * 70)
+    print("[MODULE 4: INVESTIGATION HUB (Decoupled Governance Workflow)]")
 
     # Auto-create case for high-risk project
     case = investigation_hub.create_case(
@@ -130,6 +156,7 @@ def run_pipeline_simulation():
         risk_breakdown={
             "delay_risk": res_delayed.delay_risk,
             "evidence_risk": ev_doc_res.evidence_risk,
+            "agency_risk": res_agency_delayed["agency_risk_score"],
         },
         actor="RiskEngine"
     )
@@ -188,7 +215,7 @@ def run_pipeline_simulation():
         print(f"    [{a.timestamp[:19]}] {a.actor} -> {a.action}: {a.details}")
 
     print("\n" + "=" * 70)
-    print("      ALL THREE MODULES INTEGRATED AND VERIFIED SUCCESSFULLY!")
+    print("      ALL INTEGRATED MODULES VERIFIED AND FUNCTIONING IN SYNC!")
     print("=" * 70)
 
 

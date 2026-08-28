@@ -1,0 +1,48 @@
+{
+  "module_name": "agency_intelligence",
+  "module_version": "2.0.0",
+  "unified_risk_weight": 0.05,
+  "scoring_type": "empirical_bayes_confidence_adaptive_hierarchy",
+  "empirical_bayes_prior": {
+    "prior_mean": 0.364805,
+    "prior_weight_M": 5.0,
+    "prior_alpha": 1.824025,
+    "prior_beta": 3.175975,
+    "target_baseline": "17th_lok_sabha_mature_delay_rate"
+  },
+  "adaptive_hierarchy": {
+    "ida_base_weight_min": 0.70,
+    "ia_max_credibility_weight": 0.30,
+    "ia_credibility_half_life_n": 20.0
+  },
+  "calibration": {
+    "mature_baseline_delay_rate": 0.364805,
+    "mature_baseline_median_days": 252.0,
+    "neutral_baseline_score": 45.00
+  },
+  "confidence_modulation": {
+    "Strong": { "min_completed": 100, "weight": 1.00 },
+    "Moderate": { "min_completed": 20, "weight": 0.85 },
+    "Low": { "min_completed": 5, "weight": 0.60 },
+    "Very Low": { "min_completed": 0, "weight": 0.30 }
+  },
+  "risk_tiers": {
+    "LOW": [0.0, 29.99],
+    "MODERATE": [30.0, 49.99],
+    "HIGH": [50.0, 69.99],
+    "CRITICAL": [70.0, 100.0]
+  },
+  "review_vs_risk_separation": {
+    "core_risk_components": ["shrunken_delay_rate", "adaptive_hierarchy"],
+    "intelligence_audit_flags": ["workload_pressure", "speed_severity_gap", "top_vendor_concentration"]
+  },
+  "forbidden_leakage_columns": [
+    "actual_end_date",
+    "actual_end_dt",
+    "actual_amount",
+    "is_delayed",
+    "completion_duration_days",
+    "record_hash",
+    "updated_at"
+  ]
+}

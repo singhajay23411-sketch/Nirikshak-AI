@@ -7,15 +7,22 @@ feature table back to both Parquet and PostgreSQL.
 """
 
 import os
+import sys
 import re
+import json
 import string
 import warnings
 
 import numpy as np
 import pandas as pd
-import psycopg2
-import psycopg2.extras
+try:
+    import psycopg2
+    import psycopg2.extras
+except ImportError:
+    psycopg2 = None
+
 from datetime import datetime
+
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -25,6 +32,11 @@ warnings.filterwarnings("ignore", category=UserWarning)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 EXPORT_DIR = os.path.join(PROJECT_ROOT, "data", "export")
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, "data", "parquet")
+AI_MODEL_DIR = os.path.join(PROJECT_ROOT, "ai-model")
+
+if AI_MODEL_DIR not in sys.path:
+    sys.path.insert(0, AI_MODEL_DIR)
+
 
 # ---------------------------------------------------------------------------
 # 1. Data Ingestion
@@ -35,9 +47,12 @@ def load_datasets() -> dict:
     dfs = {}
     for name in ("works", "mps", "expenditures", "vendors", "states", "mp_allocations"):
         path = os.path.join(EXPORT_DIR, f"{name}.parquet")
+        if not os.path.exists(path):
+            path = os.path.join(OUTPUT_DIR, f"{name}.parquet")
         dfs[name] = pd.read_parquet(path)
         print(f"  -> {name}: {dfs[name].shape[0]:,} rows x {dfs[name].shape[1]} cols")
     return dfs
+
 
 
 # ---------------------------------------------------------------------------
@@ -235,7 +250,134 @@ def compute_expenditure_features(works: pd.DataFrame, expenditures: pd.DataFrame
 
 
 # ---------------------------------------------------------------------------
-# 7. Export
+# 7. Agency Intelligence & Risk Features
+# ---------------------------------------------------------------------------
+def compute_agency_risk_features(works: pd.DataFrame, expenditures: pd.DataFrame) -> pd.DataFrame:
+    """Compute point-in-time Agency Intelligence risk scores, operational tiers, and risk factors."""
+    print("\nComputing agency intelligence and risk features...")
+    from agency_intelligence.profiling import build_agency_profiles
+    from agency_intelligence.scoring import AgencyRiskScorer
+    from agency_intelligence.canonicalization import canonicalize_ia, canonicalize_ida
+    from agency_intelligence.signals import compute_adaptive_ia_weight
+
+    scorer = AgencyRiskScorer()
+    ia_profile_df, ida_profile_df = build_agency_profiles(works, expenditures)
+
+    # Convert profile DFs to fast lookup dictionaries
+    ia_lookup = ia_profile_df.set_index("canonical_agency_name").to_dict(orient="index") if len(ia_profile_df) > 0 else {}
+    ida_lookup = ida_profile_df.set_index("canonical_ida_name").to_dict(orient="index") if len(ida_profile_df) > 0 else {}
+
+    # Precompute scores for unique IAs
+    scored_ias = {}
+    for ia_name, p_data in ia_lookup.items():
+        scored_ias[ia_name] = scorer.score_agency(
+            agency_name=ia_name,
+            agency_level="IA",
+            agency_type=p_data.get("agency_type", "Other"),
+            agency_branch=p_data.get("ia_branch", "General"),
+            completed_projects=p_data.get("completed_projects", 0),
+            delay_count=p_data.get("delay_count", 0),
+            median_duration_days=p_data.get("median_duration_days"),
+            workload_pressure=p_data.get("workload_pressure", 1.0),
+            data_confidence=p_data.get("data_confidence"),
+            top_vendor_share=p_data.get("top_vendor_share")
+        )
+
+    # Precompute scores for unique IDAs
+    scored_idas = {}
+    for ida_name, p_data in ida_lookup.items():
+        scored_idas[ida_name] = scorer.score_agency(
+            agency_name=ida_name,
+            agency_level="IDA",
+            agency_type="District Authority",
+            agency_branch=p_data.get("district", "General"),
+            completed_projects=p_data.get("completed_projects", 0),
+            delay_count=p_data.get("delay_count", 0),
+            median_duration_days=p_data.get("median_duration_days"),
+            workload_pressure=p_data.get("workload_pressure", 1.0),
+            data_confidence=p_data.get("data_confidence")
+        )
+
+    # Ensure canonical IA and IDA names are present
+    if "canonical_ia_parent" not in works.columns:
+        raw_ias = expenditures["ia_name"].dropna().unique()
+        ia_map = {ia: canonicalize_ia(ia)[0] for ia in raw_ias}
+        work_ia = (
+            expenditures.dropna(subset=["ia_name"])
+            .groupby("work_id")["ia_name"]
+            .first()
+            .map(ia_map)
+            .reset_index()
+            .rename(columns={"ia_name": "canonical_ia_parent"})
+        )
+        works = works.merge(work_ia, on="work_id", how="left")
+
+    if "canonical_ida_name" not in works.columns:
+        raw_idas = works["ida_name"].dropna().unique()
+        ida_map = {ida: canonicalize_ida(ida)[0] for ida in raw_idas}
+        works["canonical_ida_name"] = works["ida_name"].map(ida_map)
+
+    default_neutral_res = scorer.score_agency(None)
+
+    # Fast vectorized lookup for IDA
+    ida_scores = works["canonical_ida_name"].map(
+        lambda x: scored_idas[x].agency_risk_score if x in scored_idas else default_neutral_res.agency_risk_score
+    )
+    ida_factors = works["canonical_ida_name"].map(
+        lambda x: scored_idas[x].risk_factors if x in scored_idas else default_neutral_res.risk_factors
+    )
+
+    # Fast vectorized lookup for IA
+    ia_scores = works["canonical_ia_parent"].map(
+        lambda x: scored_ias[x].agency_risk_score if pd.notnull(x) and x in scored_ias else default_neutral_res.agency_risk_score
+    )
+    ia_factors = works["canonical_ia_parent"].map(
+        lambda x: scored_ias[x].risk_factors if pd.notnull(x) and x in scored_ias else []
+    )
+    ia_n = works["canonical_ia_parent"].map(
+        lambda x: scored_ias[x].completed_project_count if pd.notnull(x) and x in scored_ias else 0
+    )
+    has_valid_ia = works["canonical_ia_parent"].notnull() & (works["canonical_ia_parent"] != "UNKNOWN_AGENCY")
+
+    raw_ia_weights = compute_adaptive_ia_weight(ia_n, has_valid_ia=True)
+    ia_weights = np.where(has_valid_ia, raw_ia_weights, 0.0)
+    ida_weights = 1.0 - ia_weights
+
+
+    blended_scores = np.round((ida_weights * ida_scores) + (ia_weights * ia_scores), 2)
+    blended_contributions = np.round(blended_scores * 0.05, 3)
+
+    def get_tier(score):
+        if score < 30.0:
+            return "LOW"
+        elif score < 50.0:
+            return "MODERATE"
+        elif score < 70.0:
+            return "HIGH"
+        else:
+            return "CRITICAL"
+
+    tiers = [get_tier(s) for s in blended_scores]
+
+    combined_factors = []
+    for ida_w, ia_w, ida_f, ia_f in zip(ida_weights, ia_weights, ida_factors, ia_factors):
+        f_list = [f"District Governance Anchor ({int(ida_w*100)}% weight): {f}" for f in (ida_f[:2] if ida_f else [])]
+        if ia_w > 0.05 and ia_f:
+            f_list += [f"Executing IA Track Record ({int(ia_w*100)}% weight): {f}" for f in ia_f[:2]]
+        combined_factors.append(f_list)
+
+    works["agency_risk_score"] = blended_scores
+    works["agency_risk_tier"] = tiers
+    works["agency_risk_contribution"] = blended_contributions
+    works["agency_risk_factors"] = combined_factors
+
+    n_scored = works["agency_risk_score"].notna().sum()
+    print(f"  -> agency_risk_score computed for {n_scored:,} works")
+    return works
+
+
+# ---------------------------------------------------------------------------
+# 8. Export
 # ---------------------------------------------------------------------------
 def export_parquet(df: pd.DataFrame):
     """Save enriched dataset to Parquet."""
@@ -262,6 +404,8 @@ def export_parquet(df: pd.DataFrame):
         # Expenditure features
         "total_disbursed", "num_payments", "num_vendors",
         "avg_payment", "max_payment", "disbursement_ratio",
+        # Agency Intelligence features
+        "agency_risk_score", "agency_risk_tier", "agency_risk_contribution", "agency_risk_factors",
     ]
     # Only keep columns that actually exist
     existing = [c for c in feature_cols if c in df.columns]
@@ -273,38 +417,50 @@ def export_parquet(df: pd.DataFrame):
 
 def export_to_postgres(df: pd.DataFrame):
     """Write the analytical features table to PostgreSQL."""
-    from backend.database import get_connection
+    if psycopg2 is None:
+        print("\n  -> psycopg2 not installed; skipping PostgreSQL export (Parquet export succeeded).")
+        return
 
-    print("\nWriting to PostgreSQL table 'works_analytical_features'...")
-    conn = get_connection()
-    cur = conn.cursor()
+    try:
+        from backend.database import get_connection
+        print("\nWriting to PostgreSQL table 'works_analytical_features'...")
+        conn = get_connection()
+        cur = conn.cursor()
+    except Exception as e:
+        print(f"\n  -> Could not connect to PostgreSQL ({e}); skipping DB export.")
+        return
+
 
     cur.execute("DROP TABLE IF EXISTS works_analytical_features;")
     cur.execute("""
         CREATE TABLE works_analytical_features (
-            work_id              BIGINT PRIMARY KEY,
-            activity_name        TEXT,
-            work_category        TEXT,
-            state_id             BIGINT,
-            mp_id                BIGINT,
-            house_type           BIGINT,
-            tenure               TEXT,
-            sanction_amount      NUMERIC,
-            actual_amount        NUMERIC,
-            sanction_delay_days  BIGINT,
-            completion_delay_days BIGINT,
-            project_lifetime_days BIGINT,
-            cost_overrun_pct     DOUBLE PRECISION,
-            sanction_rec_ratio   DOUBLE PRECISION,
-            utilization_rate     DOUBLE PRECISION,
-            cost_z_score         DOUBLE PRECISION,
-            delay_z_score        DOUBLE PRECISION,
-            disbursement_ratio   DOUBLE PRECISION,
-            total_disbursed      NUMERIC,
-            num_payments         BIGINT,
-            num_vendors          BIGINT,
-            desc_word_count      BIGINT,
-            clean_description    TEXT
+            work_id                  BIGINT PRIMARY KEY,
+            activity_name            TEXT,
+            work_category            TEXT,
+            state_id                 BIGINT,
+            mp_id                    BIGINT,
+            house_type               BIGINT,
+            tenure                   TEXT,
+            sanction_amount          NUMERIC,
+            actual_amount            NUMERIC,
+            sanction_delay_days      BIGINT,
+            completion_delay_days    BIGINT,
+            project_lifetime_days    BIGINT,
+            cost_overrun_pct         DOUBLE PRECISION,
+            sanction_rec_ratio       DOUBLE PRECISION,
+            utilization_rate         DOUBLE PRECISION,
+            cost_z_score             DOUBLE PRECISION,
+            delay_z_score            DOUBLE PRECISION,
+            disbursement_ratio       DOUBLE PRECISION,
+            total_disbursed          NUMERIC,
+            num_payments             BIGINT,
+            num_vendors              BIGINT,
+            desc_word_count          BIGINT,
+            clean_description        TEXT,
+            agency_risk_score        DOUBLE PRECISION,
+            agency_risk_tier         TEXT,
+            agency_risk_contribution DOUBLE PRECISION,
+            agency_risk_factors      JSONB
         );
     """)
 
@@ -317,6 +473,7 @@ def export_to_postgres(df: pd.DataFrame):
         "cost_z_score", "delay_z_score", "disbursement_ratio",
         "total_disbursed", "num_payments", "num_vendors",
         "desc_word_count", "clean_description",
+        "agency_risk_score", "agency_risk_tier", "agency_risk_contribution", "agency_risk_factors",
     ]
 
     existing = [c for c in insert_cols if c in df.columns]
@@ -336,13 +493,14 @@ def export_to_postgres(df: pd.DataFrame):
             if pd.isna(val):
                 return None
             return val.isoformat()
+        if isinstance(val, list):
+            return psycopg2.extras.Json(val)
         return val
 
     rows = []
     for row in sub.itertuples(index=False, name=None):
         rows.append(tuple(sanitize_value(v) for v in row))
 
-    placeholders = ", ".join(["%s"] * len(existing))
     col_names = ", ".join(existing)
 
     psycopg2.extras.execute_values(
@@ -359,7 +517,7 @@ def export_to_postgres(df: pd.DataFrame):
 
 
 # ---------------------------------------------------------------------------
-# 8. Statistical Report
+# 9. Statistical Report
 # ---------------------------------------------------------------------------
 def print_distribution_report(df: pd.DataFrame):
     """Print a detailed statistical distribution report for computed features."""
@@ -372,7 +530,7 @@ def print_distribution_report(df: pd.DataFrame):
         "cost_overrun_pct", "sanction_rec_ratio", "utilization_rate",
         "cost_z_score", "delay_z_score",
         "total_disbursed", "num_payments", "num_vendors", "disbursement_ratio",
-        "desc_word_count",
+        "desc_word_count", "agency_risk_score", "agency_risk_contribution",
     ]
 
     existing = [c for c in feature_cols if c in df.columns]
@@ -394,9 +552,9 @@ def print_distribution_report(df: pd.DataFrame):
         print(f"  99th pctl:   {series.quantile(0.99):>12.2f}")
         print(f"  Max:         {series.max():>12.2f}")
 
-    # Anomaly flags summary
+    # Anomaly & Agency Risk flags summary
     print("\n" + "=" * 70)
-    print("ANOMALY SIGNAL SUMMARY")
+    print("ANOMALY & AGENCY RISK SIGNAL SUMMARY")
     print("=" * 70)
 
     if "cost_overrun_pct" in df.columns:
@@ -418,6 +576,10 @@ def print_distribution_report(df: pd.DataFrame):
     if "completion_delay_days" in df.columns:
         long_delay = (df["completion_delay_days"] > 365).sum()
         print(f"  Works delayed > 1 year:           {long_delay:,}")
+
+    if "agency_risk_tier" in df.columns:
+        tier_counts = df["agency_risk_tier"].value_counts().to_dict()
+        print(f"  Agency Risk Tiers: LOW={tier_counts.get('LOW', 0):,}, MODERATE={tier_counts.get('MODERATE', 0):,}, HIGH={tier_counts.get('HIGH', 0):,}, CRITICAL={tier_counts.get('CRITICAL', 0):,}")
 
 
 # ---------------------------------------------------------------------------
@@ -448,17 +610,21 @@ def main():
     # 6. Expenditure Aggregation
     works = compute_expenditure_features(works, dfs["expenditures"])
 
-    # 7. Export
+    # 7. Agency Intelligence & Risk
+    works = compute_agency_risk_features(works, dfs["expenditures"])
+
+    # 8. Export
     export_parquet(works)
     export_to_postgres(works)
 
-    # 8. Report
+    # 9. Report
     print_distribution_report(works)
 
     elapsed = (datetime.now() - start).total_seconds()
     print(f"\n{'=' * 70}")
     print(f"PIPELINE COMPLETE in {elapsed:.1f}s")
     print(f"{'=' * 70}")
+
 
 
 if __name__ == "__main__":
