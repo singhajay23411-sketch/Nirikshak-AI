@@ -22,7 +22,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 EXPORT_DIR = os.path.join(PROJECT_ROOT, "data", "export")
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, "data", "parquet")
 

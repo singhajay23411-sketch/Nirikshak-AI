@@ -45,7 +45,7 @@ log = logging.getLogger("duplicate_detector")
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 PARQUET_DIR = os.path.join(PROJECT_ROOT, "data", "parquet")
 INPUT_PATH = os.path.join(PARQUET_DIR, "analytical_features.parquet")
 OUTPUT_PATH = os.path.join(PARQUET_DIR, "duplicate_alerts.parquet")
@@ -56,9 +56,7 @@ load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"))
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-TEXT_SIM_THRESHOLD = 0.92       # Minimum cosine similarity to consider a pair
-LARGE_PARTITION_THRESHOLD = 1000  # Partitions above this use stricter thresholds
-LARGE_PARTITION_TEXT_THRESHOLD = 0.95  # Stricter cosine sim for large partitions
+TEXT_SIM_THRESHOLD = 0.85       # Minimum cosine similarity to consider a pair
 MAX_ALERTS_PER_PARTITION = 500  # Cap alerts per partition to keep output meaningful
 FINANCIAL_TOLERANCE = 0.05      # 5% relative difference in sanction_amount
 AGENCY_FUZZY_THRESHOLD = 85     # thefuzz token_sort_ratio threshold
@@ -152,6 +150,7 @@ def partition_dataset(
 
 def load_embedding_model():
     """Load the sentence-transformers model."""
+    # pyrefly: ignore [missing-import]
     from sentence_transformers import SentenceTransformer
 
     log.info("Loading embedding model: %s", EMBEDDING_MODEL_NAME)
@@ -330,6 +329,7 @@ def check_agency_match(
         return True
 
     # Fuzzy fallback
+    # pyrefly: ignore [missing-import]
     from thefuzz import fuzz
     return fuzz.token_sort_ratio(ida_a_clean, ida_b_clean) >= fuzzy_threshold
 
@@ -358,9 +358,9 @@ def compute_risk_confidence(
     financial: bool,
     agency: bool,
     temporal: bool,
-) -> float:
+) -> int:
     """
-    Weighted risk confidence score (0.0 to 1.0).
+    Weighted risk confidence score (0 to 100).
 
     Weights: text=0.40, financial=0.20, agency=0.20, temporal=0.20
     """
@@ -370,7 +370,7 @@ def compute_risk_confidence(
         + W_AGENCY * (1.0 if agency else 0.0)
         + W_TEMPORAL * (1.0 if temporal else 0.0)
     )
-    return round(min(score, 1.0), 4)
+    return int(round(min(score, 1.0) * 100))
 
 
 # ===========================================================================
@@ -407,8 +407,8 @@ def verify_candidate_pair(
     risk_score = compute_risk_confidence(text_sim, financial, agency, temporal)
 
     return {
-        "work_id_a": int(min(row_a["work_id"], row_b["work_id"])),
-        "work_id_b": int(max(row_a["work_id"], row_b["work_id"])),
+        "work_id_A": int(min(row_a["work_id"], row_b["work_id"])),
+        "work_id_B": int(max(row_a["work_id"], row_b["work_id"])),
         "text_similarity_score": round(text_sim, 4),
         "financial_match_flag": financial,
         "agency_match_flag": agency,
@@ -442,8 +442,8 @@ def create_duplicate_alerts_table(conn) -> None:
     cur.execute("""
         CREATE TABLE IF NOT EXISTS duplicate_alerts (
             alert_id              SERIAL PRIMARY KEY,
-            work_id_a             BIGINT NOT NULL,
-            work_id_b             BIGINT NOT NULL,
+            "work_id_A"             BIGINT NOT NULL,
+            "work_id_B"             BIGINT NOT NULL,
             text_similarity_score DOUBLE PRECISION NOT NULL,
             financial_match_flag  BOOLEAN NOT NULL DEFAULT FALSE,
             agency_match_flag     BOOLEAN NOT NULL DEFAULT FALSE,
@@ -451,18 +451,18 @@ def create_duplicate_alerts_table(conn) -> None:
             risk_confidence_score DOUBLE PRECISION NOT NULL,
             partition_key         TEXT,
             detected_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE (work_id_a, work_id_b)
+            UNIQUE ("work_id_A", "work_id_B")
         );
     """)
 
     # Indexes for fast querying
     cur.execute("""
         CREATE INDEX IF NOT EXISTS idx_dup_work_a
-        ON duplicate_alerts (work_id_a);
+        ON duplicate_alerts ("work_id_A");
     """)
     cur.execute("""
         CREATE INDEX IF NOT EXISTS idx_dup_work_b
-        ON duplicate_alerts (work_id_b);
+        ON duplicate_alerts ("work_id_B");
     """)
     cur.execute("""
         CREATE INDEX IF NOT EXISTS idx_dup_risk
@@ -486,7 +486,13 @@ def insert_alerts_to_db(conn, alerts_df: pd.DataFrame) -> int:
     cur.execute("TRUNCATE TABLE duplicate_alerts RESTART IDENTITY;")
 
     columns = [
-        "work_id_a", "work_id_b", "text_similarity_score",
+        "work_id_A", "work_id_B", "text_similarity_score",
+        "financial_match_flag", "agency_match_flag", "temporal_match_flag",
+        "risk_confidence_score", "partition_key",
+    ]
+    
+    db_columns = [
+        '"work_id_A"', '"work_id_B"', "text_similarity_score",
         "financial_match_flag", "agency_match_flag", "temporal_match_flag",
         "risk_confidence_score", "partition_key",
     ]
@@ -498,12 +504,12 @@ def insert_alerts_to_db(conn, alerts_df: pd.DataFrame) -> int:
             for c in columns
         ))
 
-    col_names = ", ".join(columns)
+    col_names = ", ".join(db_columns)
     psycopg2.extras.execute_values(
         cur,
         f"""INSERT INTO duplicate_alerts ({col_names})
             VALUES %s
-            ON CONFLICT (work_id_a, work_id_b) DO UPDATE SET
+            ON CONFLICT ("work_id_A", "work_id_B") DO UPDATE SET
                 text_similarity_score = EXCLUDED.text_similarity_score,
                 financial_match_flag  = EXCLUDED.financial_match_flag,
                 agency_match_flag     = EXCLUDED.agency_match_flag,
@@ -545,26 +551,8 @@ def process_partition(
     work_id_to_row: dict,
 ) -> List[dict]:
     """Process a single partition: embed -> filter -> verify -> return alerts."""
-    n = len(partition_df)
-
-    # Adaptive text similarity threshold: stricter for large partitions
-    # because same-constituency works inherently share agency/temporal signals
-    if n > LARGE_PARTITION_THRESHOLD:
-        effective_threshold = LARGE_PARTITION_TEXT_THRESHOLD
-        log.info("    -> Large partition (%s rows), using stricter threshold: %.2f",
-                 f"{n:,}", effective_threshold)
-    else:
-        effective_threshold = TEXT_SIM_THRESHOLD
-
-    # Check if agency is ubiquitous in this partition (same IDA for >90% of rows)
-    ida_counts = partition_df["ida_name"].value_counts(normalize=True)
-    agency_is_ubiquitous = len(ida_counts) > 0 and ida_counts.iloc[0] > 0.90
-    if agency_is_ubiquitous:
-        # When nearly all works share the same agency, require ALL THREE
-        # verification signals -- agency alone is not discriminative
-        effective_min_signals = 3
-    else:
-        effective_min_signals = MIN_VERIFICATION_SIGNALS
+    effective_threshold = TEXT_SIM_THRESHOLD
+    effective_min_signals = MIN_VERIFICATION_SIGNALS
 
     # Build combined text for embeddings
     texts = build_combined_text(partition_df)
@@ -609,8 +597,8 @@ def process_partition(
         risk_score = compute_risk_confidence(text_sim, financial, agency, temporal)
 
         alerts.append({
-            "work_id_a": int(min(row_a["work_id"], row_b["work_id"])),
-            "work_id_b": int(max(row_a["work_id"], row_b["work_id"])),
+            "work_id_A": int(min(row_a["work_id"], row_b["work_id"])),
+            "work_id_B": int(max(row_a["work_id"], row_b["work_id"])),
             "text_similarity_score": round(text_sim, 4),
             "financial_match_flag": financial,
             "agency_match_flag": agency,
@@ -697,14 +685,14 @@ def main():
         alerts_df = pd.DataFrame(all_alerts)
         # Drop exact duplicates (same pair flagged in unlikely edge cases)
         alerts_df = alerts_df.drop_duplicates(
-            subset=["work_id_a", "work_id_b"], keep="first"
+            subset=["work_id_A", "work_id_B"], keep="first"
         )
         alerts_df = alerts_df.sort_values(
             "risk_confidence_score", ascending=False
         ).reset_index(drop=True)
     else:
         alerts_df = pd.DataFrame(columns=[
-            "work_id_a", "work_id_b", "text_similarity_score",
+            "work_id_A", "work_id_B", "text_similarity_score",
             "financial_match_flag", "agency_match_flag",
             "temporal_match_flag", "risk_confidence_score",
             "partition_key",
@@ -718,7 +706,7 @@ def main():
         print("TOP 10 HIGHEST-RISK DUPLICATE ALERTS")
         print("-" * 72)
         preview_cols = [
-            "work_id_a", "work_id_b", "text_similarity_score",
+            "work_id_A", "work_id_B", "text_similarity_score",
             "financial_match_flag", "agency_match_flag",
             "temporal_match_flag", "risk_confidence_score",
         ]
