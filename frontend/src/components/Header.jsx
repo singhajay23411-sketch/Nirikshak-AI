@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronDown, Menu, X, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Menu, X, ArrowRight, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import LanguageSwitcher from './LanguageSwitcher';
 
@@ -69,7 +69,7 @@ const NirikshakLogo = () => {
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 650 200"
         style={{
-          height: '80px', // Additional 30% size increase (80px display height)
+          height: '80px',
           width: 'auto',
           display: 'block'
         }}
@@ -142,10 +142,22 @@ const NirikshakLogo = () => {
   );
 };
 
-const Header = ({ activeSection, setActiveSection }) => {
+const DRAWER_WIDTH = 274;
+
+const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileExpandedGroup, setMobileExpandedGroup] = useState(null);
   const { t } = useLanguage();
+
+  // Desktop continuous sliding drawer states
+  const [activeDrawer, setActiveDrawer] = useState(null); // 'home' | 'problem' | ... | 'more'
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [drawerPos, setDrawerPos] = useState({ left: 0, top: 0, height: 168 });
+
+  const navContainerRef = useRef(null);
+  const navButtonRefs = useRef({});
+  const closeTimerRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -159,24 +171,207 @@ const Header = ({ activeSection, setActiveSection }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { id: 'hero', label: t('header.nav.home') },
-    { id: 'problem', label: t('header.nav.theProblem') },
-    { id: 'process', label: t('header.nav.solutionProcess') },
-    { id: 'ai-detection', label: t('header.nav.aiIntelligence') },
-    { id: 'risk-scoring', label: t('header.nav.riskScoring') },
-    { id: 'geospatial', label: t('header.nav.geospatialMap') },
-    { id: 'investigation', label: t('header.nav.investigation') }
+  // 7 Main Navigation Groups: 6 Primary + "More"
+  const navGroups = [
+    {
+      id: 'home',
+      label: t('header.nav.home'),
+      target: 'hero',
+      items: [
+        { id: 'overview', label: t('header.drawers.home.overview'), target: 'hero' },
+        { id: 'keyMetrics', label: t('header.drawers.home.keyMetrics'), target: 'stats-marquee' },
+        { id: 'riskSummary', label: t('header.drawers.home.riskSummary'), target: 'risk-scoring' },
+        { id: 'recentAlerts', label: t('header.drawers.home.recentAlerts'), target: 'problem' },
+      ]
+    },
+    {
+      id: 'problem',
+      label: t('header.nav.problem'),
+      target: 'problem',
+      items: [
+        { id: 'mpladsOverview', label: t('header.drawers.problem.mpladsOverview'), target: 'problem' },
+        { id: 'monitoringChallenges', label: t('header.drawers.problem.monitoringChallenges'), target: 'problem' },
+        { id: 'commonIrregularities', label: t('header.drawers.problem.commonIrregularities'), target: 'problem' },
+      ]
+    },
+    {
+      id: 'solution',
+      label: t('header.nav.solution'),
+      target: 'process',
+      items: [
+        { id: 'dataCollection', label: t('header.drawers.solution.dataCollection'), target: 'process' },
+        { id: 'aiAnalysis', label: t('header.drawers.solution.aiAnalysis'), target: 'process' },
+        { id: 'anomalyDetection', label: t('header.drawers.solution.anomalyDetection'), target: 'ai-detection' },
+        { id: 'investigationWorkflow', label: t('header.drawers.solution.investigationWorkflow'), target: 'investigation' },
+      ]
+    },
+    {
+      id: 'aiIntelligence',
+      label: t('header.nav.aiIntelligence'),
+      target: 'ai-detection',
+      items: [
+        { id: 'financialAnomaly', label: t('header.drawers.aiIntelligence.financialAnomaly'), target: 'ai-detection' },
+        { id: 'costOverrun', label: t('header.drawers.aiIntelligence.costOverrun'), target: 'ai-detection' },
+        { id: 'duplicateProject', label: t('header.drawers.aiIntelligence.duplicateProject'), target: 'ai-detection' },
+        { id: 'delayRisk', label: t('header.drawers.aiIntelligence.delayRisk'), target: 'ai-detection' },
+        { id: 'evidenceVerification', label: t('header.drawers.aiIntelligence.evidenceVerification'), target: 'ai-detection' },
+        { id: 'geospatialIntelligence', label: t('header.drawers.aiIntelligence.geospatialIntelligence'), target: 'geospatial' },
+      ]
+    },
+    {
+      id: 'riskMap',
+      label: t('header.nav.riskMap'),
+      target: 'risk-scoring',
+      items: [
+        { id: 'overallRiskScore', label: t('header.drawers.riskMap.overallRiskScore'), target: 'risk-scoring' },
+        { id: 'riskFactors', label: t('header.drawers.riskMap.riskFactors'), target: 'risk-scoring' },
+        { id: 'riskTrend', label: t('header.drawers.riskMap.riskTrend'), target: 'risk-scoring' },
+        { id: 'indiaRiskMap', label: t('header.drawers.riskMap.indiaRiskMap'), target: 'geospatial' },
+        { id: 'districtAnalysis', label: t('header.drawers.riskMap.districtAnalysis'), target: 'geospatial' },
+        { id: 'riskHeatmap', label: t('header.drawers.riskMap.riskHeatmap'), target: 'geospatial' },
+      ]
+    },
+    {
+      id: 'investigation',
+      label: t('header.nav.investigation'),
+      target: 'investigation',
+      items: [
+        { id: 'highRiskProjects', label: t('header.drawers.investigation.highRiskProjects'), target: 'investigation' },
+        { id: 'evidenceReview', label: t('header.drawers.investigation.evidenceReview'), target: 'investigation' },
+        { id: 'fieldVerification', label: t('header.drawers.investigation.fieldVerification'), target: 'investigation' },
+        { id: 'resolution', label: t('header.drawers.investigation.resolution'), target: 'investigation' },
+      ]
+    },
+    {
+      id: 'more',
+      label: t('header.nav.more') || 'More',
+      target: 'risk-scoring',
+      isGrouped: true,
+      subGroups: [
+        {
+          title: t('header.drawers.more.monitoring') || 'MONITORING',
+          items: [
+            { id: 'projectStatus', label: t('header.drawers.more.projectStatus') || 'Project Status', target: 'stats-marquee' },
+            { id: 'projectTimeline', label: t('header.drawers.more.projectTimeline') || 'Project Timeline', target: 'process' },
+          ]
+        },
+        {
+          title: t('header.drawers.more.reports') || 'REPORTS',
+          items: [
+            { id: 'generateReport', label: t('header.drawers.more.generateReport') || 'Generate Report', target: 'investigation' },
+            { id: 'auditTrail', label: t('header.drawers.more.auditTrail') || 'Audit Trail', target: 'investigation' },
+          ]
+        },
+        {
+          title: t('header.drawers.more.complaints') || 'COMPLAINTS',
+          items: [
+            { id: 'citizenComplaints', label: t('header.drawers.more.citizenComplaints') || 'Citizen Complaints', target: 'problem' },
+            { id: 'complaintTracking', label: t('header.drawers.more.complaintTracking') || 'Complaint Tracking', target: 'investigation' },
+            { id: 'complaintAnalytics', label: t('header.drawers.more.complaintAnalytics') || 'Complaint Analytics', target: 'risk-scoring' },
+          ]
+        }
+      ]
+    }
   ];
 
+  // Helper to scroll smoothly to a section
   const handleNavClick = (sectionId) => {
     setActiveSection(sectionId);
     setMobileMenuOpen(false);
+    setIsDrawerOpen(false);
+    setActiveDrawer(null);
+
     const el = document.getElementById(sectionId);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  // Helper for clicking a specific drawer feature item
+  const handleDrawerItemClick = (item) => {
+    setIsDrawerOpen(false);
+    setActiveDrawer(null);
+    setMobileMenuOpen(false);
+
+    if (onFeatureSelect) {
+      onFeatureSelect(item.id, item.target);
+    } else {
+      handleNavClick(item.target);
+    }
+  };
+
+  // Calculate drawer position and content-driven height when hovering a nav item
+  const updateDrawerPosition = useCallback((groupId) => {
+    const buttonEl = navButtonRefs.current[groupId];
+    const containerEl = navContainerRef.current;
+
+    if (!buttonEl || !containerEl) return;
+
+    const btnRect = buttonEl.getBoundingClientRect();
+    const containerRect = containerEl.getBoundingClientRect();
+
+    // Center of the button relative to nav container
+    const btnCenter = btnRect.left + btnRect.width / 2 - containerRect.left;
+    let targetLeft = btnCenter - DRAWER_WIDTH / 2;
+
+    // Constrain so it doesn't overflow outside container bounds
+    const maxLeft = containerRect.width - DRAWER_WIDTH - 6;
+    if (targetLeft < 6) targetLeft = 6;
+    if (targetLeft > maxLeft) targetLeft = maxLeft;
+
+    // Natural content-driven height based on number of items/groups
+    const group = navGroups.find(g => g.id === groupId);
+    let calculatedHeight = 168;
+
+    if (group?.isGrouped && group?.subGroups) {
+      // 4 group titles (24px each) + 9 items (36px each) = 96 + 324 = 420px
+      const totalItems = group.subGroups.reduce((acc, sg) => acc + sg.items.length, 0);
+      calculatedHeight = group.subGroups.length * 24 + totalItems * 36;
+    } else if (group?.items) {
+      calculatedHeight = group.items.length * 42;
+    }
+
+    setDrawerPos({
+      left: targetLeft,
+      top: btnRect.height + 10,
+      height: calculatedHeight
+    });
+  }, [navGroups]);
+
+  const handleNavMouseEnter = (groupId) => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+
+    setActiveDrawer(groupId);
+    updateDrawerPosition(groupId);
+    setIsDrawerOpen(true);
+  };
+
+  const handleNavMouseLeave = () => {
+    closeTimerRef.current = setTimeout(() => {
+      setIsDrawerOpen(false);
+      setActiveDrawer(null);
+    }, 180);
+  };
+
+  const handleDrawerMouseEnter = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    setIsDrawerOpen(true);
+  };
+
+  const handleDrawerMouseLeave = () => {
+    closeTimerRef.current = setTimeout(() => {
+      setIsDrawerOpen(false);
+      setActiveDrawer(null);
+    }, 180);
+  };
+
+  const currentGroup = navGroups.find(g => g.id === activeDrawer);
 
   return (
     <header
@@ -212,61 +407,216 @@ const Header = ({ activeSection, setActiveSection }) => {
           <NirikshakLogo />
         </div>
 
-        {/* Viewport-centered Desktop Navigation (absolute positioning) */}
-        <nav style={{ display: 'none', gap: '1.2rem', alignItems: 'center', justifyContent: 'center', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none' }} className="desktop-nav">
-          {navLinks.map((link) => (
-            <button
-              key={link.id}
-              onClick={() => handleNavClick(link.id)}
-              className="nav-item-btn"
+        {/* Viewport-centered Desktop Navigation Container with Continuous Sliding Drawer */}
+        <nav
+          ref={navContainerRef}
+          className="desktop-nav"
+          style={{
+            display: 'none',
+            gap: '1.25rem',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            height: '100%',
+          }}
+          onMouseLeave={handleNavMouseLeave}
+        >
+          {navGroups.map((group) => {
+            const isHovered = activeDrawer === group.id;
+            return (
+              <div
+                key={group.id}
+                ref={(el) => { navButtonRefs.current[group.id] = el; }}
+                onMouseEnter={() => handleNavMouseEnter(group.id)}
+                style={{
+                  position: 'relative',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  height: '100%',
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => handleNavClick(group.target)}
+                  className={`nav-item-btn ${isHovered ? 'is-hovered' : ''}`}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    whiteSpace: 'nowrap',
+                    padding: '0.35rem 0.55rem',
+                    margin: 0,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    outline: 'none',
+                  }}
+                >
+                  {/* Invisible structural anchor reserving constant layout width */}
+                  <span
+                    style={{
+                      visibility: 'hidden',
+                      fontFamily: 'var(--font-sans)',
+                      fontSize: '0.94rem',
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {group.label}
+                  </span>
+
+                  {/* Visible text layer that transforms into handwritten/script font ONLY on hover */}
+                  <span
+                    className="nav-text-label"
+                    style={{
+                      position: 'absolute',
+                      left: '50%',
+                      top: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      fontFamily: isHovered ? 'var(--font-handwritten)' : 'var(--font-sans)',
+                      fontSize: isHovered ? '1.24rem' : '0.94rem',
+                      fontWeight: isHovered ? 700 : 600,
+                      fontStyle: isHovered ? 'italic' : 'normal',
+                      color: isHovered ? 'var(--color-accent-teal-hover)' : '#1D1E22',
+                      letterSpacing: isHovered ? '0.03em' : 'normal',
+                      whiteSpace: 'nowrap',
+                      pointerEvents: 'none',
+                      transition: 'color 0.16s ease, font-size 0.16s ease',
+                    }}
+                  >
+                    {group.label}
+                  </span>
+                </button>
+              </div>
+            );
+          })}
+
+          {/* Unified Physical Attached Continuous Sliding Drawer */}
+          <div
+            onMouseEnter={handleDrawerMouseEnter}
+            onMouseLeave={handleDrawerMouseLeave}
+            className={`continuous-nav-drawer ${isDrawerOpen ? 'is-open' : ''}`}
+            style={{
+              position: 'absolute',
+              top: `${drawerPos.top}px`,
+              left: `${drawerPos.left}px`,
+              width: `${DRAWER_WIDTH}px`,
+              height: `${drawerPos.height}px`,
+              pointerEvents: isDrawerOpen ? 'auto' : 'none',
+            }}
+          >
+            {/* Invisible hover bridge connecting navbar item with drawer */}
+            <div
               style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                position: 'relative',
-                whiteSpace: 'nowrap',
-                pointerEvents: 'auto',
-                padding: '0.25rem 0.35rem',
-                margin: 0,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                position: 'absolute',
+                top: '-16px',
+                left: 0,
+                right: 0,
+                height: '18px',
+                background: 'transparent',
+              }}
+            />
+
+            {/* Tactile Drawer Box */}
+            <div
+              className="drawer-box"
+              style={{
+                background: '#FAF8F3',
+                border: '1.5px solid #1D1E22',
+                borderRadius: 'var(--radius-md)',
+                boxShadow: '3px 4px 0px #1D1E22',
+                width: '100%',
+                height: '100%',
+                overflowY: currentGroup?.isGrouped ? 'auto' : 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
-              {/* Invisible layout anchor reserving constant width */}
-              <span
-                style={{
-                  visibility: 'hidden',
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: '0.96rem',
-                  fontWeight: activeSection === link.id ? 700 : 600,
-                  whiteSpace: 'nowrap',
-                  lineHeight: 1.2
-                }}
-              >
-                {link.label}
-              </span>
+              {/* If group is standard flat items list */}
+              {currentGroup && !currentGroup.isGrouped && currentGroup.items && currentGroup.items.map((item, idx) => {
+                const isLast = idx === currentGroup.items.length - 1;
+                return (
+                  <div
+                    key={item.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDrawerItemClick(item);
+                    }}
+                    className="drawer-item-row"
+                    style={{
+                      height: '42px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '0 1.15rem',
+                      borderBottom: isLast ? 'none' : '1px solid rgba(29, 30, 34, 0.1)',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                    }}
+                  >
+                    <span className="drawer-item-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {item.label}
+                    </span>
+                  </div>
+                );
+              })}
 
-              {/* Visible text layer that transforms on hover without layout reflow */}
-              <span
-                className="nav-text-label"
-                style={{
-                  position: 'absolute',
-                  left: '50%',
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  color: activeSection === link.id ? '#1D1E22' : '#2A2C32',
-                  fontSize: '0.96rem',
-                  fontWeight: activeSection === link.id ? 700 : 600,
-                  fontFamily: 'var(--font-sans)',
-                  whiteSpace: 'nowrap',
-                  transition: 'color 0.2s ease, font-family 0.2s ease, font-size 0.2s ease'
-                }}
-              >
-                {link.label}
-              </span>
-            </button>
-          ))}
+              {/* If group is the More drawer containing visually separated categories */}
+              {currentGroup && currentGroup.isGrouped && currentGroup.subGroups && currentGroup.subGroups.map((subGroup, sgIdx) => (
+                <div key={subGroup.title} style={{ display: 'flex', flexDirection: 'column' }}>
+                  {/* Category Header */}
+                  <div
+                    style={{
+                      padding: '0.35rem 1.15rem 0.2rem 1.15rem',
+                      fontSize: '0.66rem',
+                      fontWeight: 800,
+                      letterSpacing: '0.09em',
+                      color: '#0A2458',
+                      textTransform: 'uppercase',
+                      background: 'rgba(243, 239, 230, 0.75)',
+                      borderBottom: '1px solid rgba(29, 30, 34, 0.08)',
+                      borderTop: sgIdx === 0 ? 'none' : '1px solid rgba(29, 30, 34, 0.12)',
+                      userSelect: 'none',
+                    }}
+                  >
+                    {subGroup.title}
+                  </div>
+
+                  {/* Items under Category */}
+                  {subGroup.items.map((item, itemIdx) => {
+                    const isLastInSub = itemIdx === subGroup.items.length - 1 && sgIdx === currentGroup.subGroups.length - 1;
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDrawerItemClick(item);
+                        }}
+                        className="drawer-item-row"
+                        style={{
+                          height: '36px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '0 1.15rem',
+                          borderBottom: isLastInSub ? 'none' : '1px solid rgba(29, 30, 34, 0.06)',
+                          cursor: 'pointer',
+                          userSelect: 'none',
+                        }}
+                      >
+                        <span className="drawer-item-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {item.label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
         </nav>
 
         {/* Fixed Right Action Area */}
@@ -314,6 +664,7 @@ const Header = ({ activeSection, setActiveSection }) => {
               flexShrink: 0
             }}
             className="mobile-toggle"
+            aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
@@ -321,7 +672,7 @@ const Header = ({ activeSection, setActiveSection }) => {
 
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer (Expandable Accordion Menu) */}
       {mobileMenuOpen && (
         <div
           style={{
@@ -330,38 +681,99 @@ const Header = ({ activeSection, setActiveSection }) => {
             left: 0,
             right: 0,
             background: '#FAF8F3',
-            borderBottom: '1px solid var(--color-border-dark)',
-            padding: '1.5rem',
+            borderBottom: '1.5px solid var(--color-border-dark)',
+            padding: '1.25rem 1.5rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '1rem',
-            boxShadow: 'var(--shadow-card)'
+            gap: '0.5rem',
+            boxShadow: 'var(--shadow-card)',
+            maxHeight: 'calc(100vh - 90px)',
+            overflowY: 'auto'
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(29,30,34,0.08)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(29,30,34,0.1)' }}>
             <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#5A5A5A' }}>{t('header.switchLanguage')}</span>
             <LanguageSwitcher isMobile={true} />
           </div>
 
-          {navLinks.map((link) => (
-            <div
-              key={link.id}
-              onClick={() => handleNavClick(link.id)}
-              style={{
-                fontSize: '1.05rem',
-                fontWeight: 600,
-                color: '#1D1E22',
-                cursor: 'pointer',
-                padding: '0.5rem 0',
-                borderBottom: '1px solid rgba(29,30,34,0.08)'
-              }}
-            >
-              {link.label}
-            </div>
-          ))}
+          {navGroups.map((group) => {
+            const isExpanded = mobileExpandedGroup === group.id;
+            return (
+              <div key={group.id} style={{ borderBottom: '1px solid rgba(29,30,34,0.08)' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0.65rem 0',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => setMobileExpandedGroup(isExpanded ? null : group.id)}
+                >
+                  <span style={{ fontSize: '1rem', fontWeight: 700, color: '#1D1E22' }}>
+                    {group.label}
+                  </span>
+                  <ChevronDown
+                    size={18}
+                    style={{
+                      transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.2s ease',
+                      color: 'var(--color-text-muted)'
+                    }}
+                  />
+                </div>
+
+                {isExpanded && (
+                  <div style={{ paddingLeft: '0.75rem', paddingBottom: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    {/* Standard flat list */}
+                    {!group.isGrouped && group.items && group.items.map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => handleDrawerItemClick(item)}
+                        style={{
+                          fontSize: '0.88rem',
+                          fontWeight: 500,
+                          color: '#4A4D55',
+                          padding: '0.35rem 0',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {item.label}
+                      </div>
+                    ))}
+
+                    {/* More grouped categories */}
+                    {group.isGrouped && group.subGroups && group.subGroups.map((sg) => (
+                      <div key={sg.title} style={{ marginBottom: '0.5rem' }}>
+                        <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#0A2458', letterSpacing: '0.08em', marginBottom: '0.2rem' }}>
+                          {sg.title}
+                        </div>
+                        {sg.items.map((item) => (
+                          <div
+                            key={item.id}
+                            onClick={() => handleDrawerItemClick(item)}
+                            style={{
+                              fontSize: '0.86rem',
+                              fontWeight: 500,
+                              color: '#4A4D55',
+                              padding: '0.25rem 0 0.25rem 0.5rem',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {item.label}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
+      {/* Embedded CSS for smooth physics-based drawer transitions */}
       <style>{`
         @keyframes logoDisappear {
           0% {
@@ -386,15 +798,80 @@ const Header = ({ activeSection, setActiveSection }) => {
         .logo-brand:hover {
           transform: scale(1.03);
         }
-        .nav-item-btn {
-          pointer-events: auto !important;
-          isolation: isolate;
+
+        /* Continuous Sliding Drawer Physics */
+        .continuous-nav-drawer {
+          opacity: 0;
+          visibility: hidden;
+          transform: translateY(6px) scale(0.98);
+          transform-origin: top center;
+          transition: 
+            left 0.26s cubic-bezier(0.16, 1, 0.3, 1),
+            height 0.26s cubic-bezier(0.16, 1, 0.3, 1),
+            opacity 0.2s ease,
+            transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+            visibility 0.2s ease;
+          will-change: left, height, transform, opacity;
+          z-index: 100;
         }
-        .nav-item-btn:hover .nav-text-label {
-          font-family: var(--font-handwritten) !important;
-          font-size: 1.15rem !important;
+
+        .continuous-nav-drawer.is-open {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0) scale(1);
+        }
+
+        /* Drawer Item Row Hover State */
+        .drawer-item-row {
+          background-color: transparent;
+          transition: background-color 0.15s ease, padding-left 0.15s ease;
+        }
+
+        .drawer-item-row .drawer-item-text {
+          color: #1D1E22;
+          font-family: var(--font-sans);
+          font-size: 0.86rem;
+          font-weight: 600;
+          line-height: 1.2;
+          transition: color 0.15s ease, font-size 0.15s ease;
+        }
+
+        .drawer-item-row:hover {
+          background-color: #F3EFE6 !important;
+          padding-left: 1.35rem !important;
+        }
+
+        .drawer-item-row:hover .drawer-item-text {
           color: var(--color-accent-teal-hover) !important;
+          font-family: var(--font-handwritten) !important;
+          font-style: italic !important;
+          font-size: 1.15rem !important;
+          font-weight: 700 !important;
+          letter-spacing: 0.02em;
         }
+
+        .nav-item-btn {
+          cursor: pointer;
+          background: none;
+          border: none;
+          outline: none;
+        }
+
+        .nav-item-btn .nav-text-label {
+          color: #1D1E22;
+          font-family: var(--font-sans);
+          transition: color 0.16s ease, font-size 0.16s ease;
+        }
+
+        .nav-item-btn:hover .nav-text-label,
+        .nav-item-btn.is-hovered .nav-text-label {
+          color: var(--color-accent-teal-hover) !important;
+          font-family: var(--font-handwritten) !important;
+          font-style: italic !important;
+          font-size: 1.24rem !important;
+          font-weight: 700 !important;
+        }
+
         @media (min-width: 992px) {
           .desktop-nav { display: flex !important; }
           .mobile-toggle { display: none !important; }
@@ -405,8 +882,3 @@ const Header = ({ activeSection, setActiveSection }) => {
 };
 
 export default Header;
-
-
-
-
-

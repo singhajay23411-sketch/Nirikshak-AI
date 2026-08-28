@@ -25,12 +25,72 @@ export const en = {
   header: {
     nav: {
       home: "Home",
+      problem: "Problem",
+      solution: "Solution",
+      aiIntelligence: "AI Intelligence",
+      riskMap: "Risk & Map",
+      investigation: "Investigation",
+      more: "More",
       theProblem: "The Problem",
       solutionProcess: "Solution Process",
-      aiIntelligence: "AI Intelligence",
       riskScoring: "Risk Scoring",
-      geospatialMap: "Geospatial Map",
-      investigation: "Investigation"
+      geospatialMap: "Geospatial Map"
+    },
+    drawers: {
+      home: {
+        overview: "Overview",
+        keyMetrics: "Key Metrics",
+        riskSummary: "Risk Summary",
+        recentAlerts: "Recent Alerts"
+      },
+      problem: {
+        mpladsOverview: "MPLADS Overview",
+        monitoringChallenges: "Monitoring Challenges",
+        commonIrregularities: "Common Irregularities"
+      },
+      solution: {
+        dataCollection: "Data Collection",
+        aiAnalysis: "AI Analysis",
+        anomalyDetection: "Anomaly Detection",
+        investigationWorkflow: "Investigation Workflow"
+      },
+      aiIntelligence: {
+        financialAnomaly: "Financial Anomaly Detection",
+        costOverrun: "Cost Overrun Detection",
+        duplicateProject: "Duplicate Project Detection",
+        delayRisk: "Delay Risk Prediction",
+        evidenceVerification: "Evidence Verification",
+        geospatialIntelligence: "Geospatial Intelligence"
+      },
+      riskMap: {
+        overallRiskScore: "Overall Risk Score",
+        riskFactors: "Risk Factors",
+        riskTrend: "Risk Trend",
+        indiaRiskMap: "India Risk Map",
+        districtAnalysis: "District Analysis",
+        riskHeatmap: "Risk Heatmap"
+      },
+      investigation: {
+        highRiskProjects: "High-Risk Projects",
+        evidenceReview: "Evidence Review",
+        fieldVerification: "Field Verification",
+        resolution: "Resolution"
+      },
+      more: {
+        monitoring: "MONITORING",
+        projectStatus: "Project Status",
+        projectTimeline: "Project Timeline",
+        reports: "REPORTS",
+        generateReport: "Generate Report",
+        auditTrail: "Audit Trail",
+        complaints: "COMPLAINTS",
+        citizenComplaints: "Citizen Complaints",
+        complaintTracking: "Complaint Tracking",
+        complaintAnalytics: "Complaint Analytics",
+        admin: "ADMIN",
+        userManagement: "User Management",
+        rolesPermissions: "Roles & Permissions"
+      }
     },
     supportTooltip: "MoSPI Verification Support",
     supportAlert: "Nirikshak AI Help Desk: Supporting MoSPI & District Authorities in MPLADS Verification.",
@@ -409,5 +469,67 @@ export const en = {
     automatedReply: "Nirikshak AI evaluates project, financial, progress, and photographic data to flag potential irregularities for human field verification.",
     inputPlaceholder: "Ask about anomaly detection...",
     openChatBtn: "Ask Nirikshak AI"
+  },
+
+  auth: {
+    ministry: "Ministry of Statistics & Programme Implementation",
+    portalLogin: "Official Portal Login",
+    loginSubtitle: "Securely sign in to the MPLADS Risk Intelligence System.",
+    emailLabel: "Official Email / User ID",
+    emailPlaceholder: "name@nirikshak.gov.in",
+    passwordLabel: "Password",
+    passwordPlaceholder: "Enter your password",
+    rememberMe: "Remember me",
+    forgotPassword: "Forgot password?",
+    secureLogin: "Secure Sign In",
+    authenticating: "Authenticating...",
+    backToPortal: "Public Portal",
+    demoAccounts: "Demo Accounts (Quick Login)",
+    securityNoticeTitle: "Security Notice",
+    securityNoticeText: "This is a secure government system. Unauthorized access is prohibited and monitored.",
+    errorEmailRequired: "Please enter your email or User ID",
+    errorPasswordRequired: "Please enter your password",
+    contactAdmin: "Please contact your administrator",
+  },
+
+  dashboard: {
+    signOut: "Sign Out",
+    national: "National",
+    overview: "Overview",
+    comingSoon: "Coming Soon",
+    comingSoonText: "This module is under development. It will be available in the full production release.",
+    readOnlyMode: "Read-Only Mode — You can view data but cannot modify it.",
+    userManagement: "User Management",
+    registeredUsers: "registered users",
+    createUser: "Create User",
+    searchPlaceholder: "Search by name or email...",
+    allRoles: "All Roles",
+    name: "Name",
+    email: "Email",
+    role: "Role",
+    jurisdiction: "Jurisdiction",
+    status: "Status",
+    actions: "Actions",
+    loading: "Loading...",
+    noUsersFound: "No users found",
+    deactivate: "Deactivate",
+    activate: "Activate",
+    resetPassword: "Reset Password",
+    createOfficialUser: "Create Official User",
+    fullName: "Full Name",
+    officialEmail: "Official Email",
+    username: "Username",
+    initialPassword: "Initial Password",
+    state: "State",
+    district: "District",
+    siteVerification: "Site Verification",
+    photoEvidence: "Photo Evidence Upload",
+    assignedProjects: "Assigned Projects",
+    inspectionChecklist: "Inspection Checklist",
+    inspectionNotes: "Inspection Notes",
+    submitVerification: "Submit Verification Report",
+    verificationSubmitted: "✓ Verification Report Submitted",
+    uploadPhoto: "Upload Photo (Simulated)",
+    notesPlaceholder: "Write your observations here...",
   }
 };

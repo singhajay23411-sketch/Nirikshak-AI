@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowRight, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-const Footer = () => {
+const Footer = ({ onLoginClick, hideCTAButtons = false }) => {
   const { t } = useLanguage();
 
   const scrollToSection = (id) => {
@@ -16,7 +16,8 @@ const Footer = () => {
     if (actionName === 'explore') {
       scrollToSection('risk-scoring');
     } else if (actionName === 'login') {
-      alert(t('footer.alerts.login'));
+      if (onLoginClick) onLoginClick();
+      else alert(t('footer.alerts.login'));
     } else if (actionName === 'report') {
       alert(t('footer.alerts.report'));
     } else if (actionName === 'team') {
@@ -107,56 +108,58 @@ const Footer = () => {
                 letterSpacing: '0.08em',
                 color: 'var(--color-accent-teal-hover)',
                 textTransform: 'uppercase',
-                marginBottom: '2rem'
+                marginBottom: hideCTAButtons ? '0' : '2rem'
               }}
             >
               {t('footer.slogan')}
             </p>
 
-            {/* Pill Action Buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', width: '100%', maxWidth: '240px' }}>
-              <button
-                onClick={() => handleActionClick('explore')}
-                className="btn-teal"
-                style={{
-                  justifyContent: 'space-between',
-                  padding: '0.7rem 1.4rem',
-                  fontSize: '0.92rem',
-                  width: '100%'
-                }}
-              >
-                <span>{t('footer.actions.explore')}</span>
-                <ArrowRight size={16} />
-              </button>
+            {/* Pill Action Buttons (Hidden on internal Overview view) */}
+            {!hideCTAButtons && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', width: '100%', maxWidth: '240px' }}>
+                <button
+                  onClick={() => handleActionClick('explore')}
+                  className="btn-teal"
+                  style={{
+                    justifyContent: 'space-between',
+                    padding: '0.7rem 1.4rem',
+                    fontSize: '0.92rem',
+                    width: '100%'
+                  }}
+                >
+                  <span>{t('footer.actions.explore')}</span>
+                  <ArrowRight size={16} />
+                </button>
 
-              <button
-                onClick={() => handleActionClick('login')}
-                className="btn-teal"
-                style={{
-                  justifyContent: 'space-between',
-                  padding: '0.7rem 1.4rem',
-                  fontSize: '0.92rem',
-                  width: '100%'
-                }}
-              >
-                <span>{t('footer.actions.login')}</span>
-                <ArrowRight size={16} />
-              </button>
+                <button
+                  onClick={() => handleActionClick('login')}
+                  className="btn-teal"
+                  style={{
+                    justifyContent: 'space-between',
+                    padding: '0.7rem 1.4rem',
+                    fontSize: '0.92rem',
+                    width: '100%'
+                  }}
+                >
+                  <span>{t('footer.actions.login')}</span>
+                  <ArrowRight size={16} />
+                </button>
 
-              <button
-                onClick={() => handleActionClick('report')}
-                className="btn-teal"
-                style={{
-                  justifyContent: 'space-between',
-                  padding: '0.7rem 1.4rem',
-                  fontSize: '0.92rem',
-                  width: '100%'
-                }}
-              >
-                <span>{t('footer.actions.report')}</span>
-                <ArrowRight size={16} />
-              </button>
-            </div>
+                <button
+                  onClick={() => handleActionClick('report')}
+                  className="btn-teal"
+                  style={{
+                    justifyContent: 'space-between',
+                    padding: '0.7rem 1.4rem',
+                    fontSize: '0.92rem',
+                    width: '100%'
+                  }}
+                >
+                  <span>{t('footer.actions.report')}</span>
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Column 2: Platform Links */}

@@ -24,13 +24,73 @@ export const hi = {
   },
   header: {
     nav: {
-      home: "मुख्य पृष्ठ",
+      home: "होम",
+      problem: "समस्या",
+      solution: "समाधान",
+      aiIntelligence: "एआई इंटेलिजेंस",
+      riskMap: "जोखिम एवं मानचित्र",
+      investigation: "जांच",
+      more: "अधिक",
       theProblem: "मुख्य समस्या",
       solutionProcess: "समाधान प्रक्रिया",
-      aiIntelligence: "AI इंटेलिजेंस",
       riskScoring: "जोखिम स्कोरिंग",
-      geospatialMap: "भू-स्थानिक मानचित्र",
-      investigation: "जांच एवं सत्यापन"
+      geospatialMap: "भू-स्थानिक मानचित्र"
+    },
+    drawers: {
+      home: {
+        overview: "अवलोकन",
+        keyMetrics: "प्रमुख मेट्रिक्स",
+        riskSummary: "जोखिम सारांश",
+        recentAlerts: "हालिया अलर्ट"
+      },
+      problem: {
+        mpladsOverview: "MPLADS अवलोकन",
+        monitoringChallenges: "निगरानी चुनौतियां",
+        commonIrregularities: "सामान्य अनियमितताएं"
+      },
+      solution: {
+        dataCollection: "डेटा संग्रहण",
+        aiAnalysis: "AI विश्लेषण",
+        anomalyDetection: "विसंगति पहचान",
+        investigationWorkflow: "जांच कार्यप्रवाह"
+      },
+      aiIntelligence: {
+        financialAnomaly: "वित्तीय विसंगति पहचान",
+        costOverrun: "लागत वृद्धि पहचान",
+        duplicateProject: "डुप्लिकेट परियोजना पहचान",
+        delayRisk: "विलंब जोखिम भविष्यवाणी",
+        evidenceVerification: "साक्ष्य सत्यापन",
+        geospatialIntelligence: "भू-स्थानिक इंटेलिजेंस"
+      },
+      riskMap: {
+        overallRiskScore: "समग्र जोखिम स्कोर",
+        riskFactors: "जोखिम कारक",
+        riskTrend: "जोखिम रुझान",
+        indiaRiskMap: "भारत जोखिम मानचित्र",
+        districtAnalysis: "जिला विश्लेषण",
+        riskHeatmap: "जोखिम हीटमैप"
+      },
+      investigation: {
+        highRiskProjects: "उच्च जोखिम परियोजनाएं",
+        evidenceReview: "साक्ष्य समीक्षा",
+        fieldVerification: "क्षेत्र सत्यापन",
+        resolution: "समाधान"
+      },
+      more: {
+        monitoring: "निगरानी",
+        projectStatus: "परियोजना स्थिति",
+        projectTimeline: "परियोजना समयरेखा",
+        reports: "रिपोर्ट",
+        generateReport: "रिपोर्ट उत्पन्न करें",
+        auditTrail: "ऑडिट ट्रेल",
+        complaints: "शिकायतें",
+        citizenComplaints: "नागरिक शिकायतें",
+        complaintTracking: "शिकायत ट्रैकिंग",
+        complaintAnalytics: "शिकायत विश्लेषण",
+        admin: "प्रशासन",
+        userManagement: "उपयोगकर्ता प्रबंधन",
+        rolesPermissions: "भूमिकाएं एवं अनुमतियां"
+      }
     },
     supportTooltip: "MoSPI सत्यापन सहायता",
     supportAlert: "Nirikshak AI सहायता केंद्र: MPLADS सत्यापन में MoSPI और ज़िला अधिकारियों की सहायता।",
