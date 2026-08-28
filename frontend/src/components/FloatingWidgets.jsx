@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
-import { MessageSquare, X, Send, ShieldAlert, Map } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { MessageSquare, X, Send, ShieldAlert } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const FloatingWidgets = () => {
+  const { t, language } = useLanguage();
   const [chatOpen, setChatOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    { sender: 'assistant', text: 'Namaste! I am the Nirikshak AI Decision Support Assistant. How can I assist you with MPLADS risk scoring or anomaly explanations today?' }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
+
+  // Update initial greeting when language changes if no conversation has started
+  useEffect(() => {
+    setMessages([
+      { sender: 'assistant', text: t('floatingWidgets.greeting') }
+    ]);
+  }, [language, t]);
 
   const handleSend = (e) => {
     e.preventDefault();
@@ -19,7 +26,7 @@ const FloatingWidgets = () => {
     setTimeout(() => {
       setMessages((prev) => [
         ...prev,
-        { sender: 'assistant', text: "Nirikshak AI evaluates project, financial, progress, and photographic data to flag potential irregularities for human field verification." }
+        { sender: 'assistant', text: t('floatingWidgets.automatedReply') }
       ]);
     }, 1000);
   };
@@ -43,8 +50,8 @@ const FloatingWidgets = () => {
         onMouseUp={() => setIsRiskBtnPressed(false)}
         role="button"
         tabIndex={0}
-        aria-label="Open Geospatial Risk Map"
-        title="Navigate to National Geospatial Risk Map"
+        aria-label={t('floatingWidgets.riskMapTooltip')}
+        title={t('floatingWidgets.riskMapTooltip')}
         style={{
           position: 'fixed',
           bottom: 'clamp(20px, 3vw, 30px)',
@@ -184,7 +191,7 @@ const FloatingWidgets = () => {
               fontFamily="system-ui, -apple-system, sans-serif"
             >
               <textPath href="#riskMapCirclePath" startOffset="50%" textAnchor="middle">
-                ↖ RISK MAP ↗
+                {t('floatingWidgets.riskMapLabel')}
               </textPath>
             </text>
           </svg>
@@ -227,7 +234,7 @@ const FloatingWidgets = () => {
             >
               <div style={{ fontWeight: 800, color: '#1D1E22', fontSize: '0.92rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <ShieldAlert size={18} />
-                Nirikshak AI Assistant
+                {t('floatingWidgets.assistantTitle')}
               </div>
               <button
                 onClick={() => setChatOpen(false)}
@@ -265,7 +272,7 @@ const FloatingWidgets = () => {
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder="Ask about anomaly detection..."
+                placeholder={t('floatingWidgets.inputPlaceholder')}
                 style={{ flex: 1, border: 'none', outline: 'none', fontSize: '0.85rem', fontFamily: 'var(--font-sans)' }}
               />
               <button type="submit" style={{ background: '#52B79A', border: '1px solid #1D1E22', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
@@ -280,7 +287,7 @@ const FloatingWidgets = () => {
             style={{ padding: '0.75rem 1.4rem', fontSize: '0.9rem', boxShadow: '3px 4px 0px #1D1E22' }}
           >
             <MessageSquare size={18} />
-            Ask Nirikshak AI
+            {t('floatingWidgets.openChatBtn')}
           </button>
         )}
       </div>

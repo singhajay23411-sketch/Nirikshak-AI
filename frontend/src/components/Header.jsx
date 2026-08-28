@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Menu, X, ArrowRight, ShieldAlert } from 'lucide-react';
+import { ChevronDown, Menu, X, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const NirikshakLogo = () => {
   const [animStage, setAnimStage] = useState('idle'); // 'idle' | 'disappearing' | 'vanished' | 'revealing'
@@ -143,6 +145,7 @@ const NirikshakLogo = () => {
 const Header = ({ activeSection, setActiveSection }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -157,13 +160,13 @@ const Header = ({ activeSection, setActiveSection }) => {
   }, []);
 
   const navLinks = [
-    { id: 'hero', label: 'Home' },
-    { id: 'problem', label: 'The Problem' },
-    { id: 'process', label: 'Solution Process' },
-    { id: 'ai-detection', label: 'AI Intelligence' },
-    { id: 'risk-scoring', label: 'Risk Scoring' },
-    { id: 'geospatial', label: 'Geospatial Map' },
-    { id: 'investigation', label: 'Investigation' }
+    { id: 'hero', label: t('header.nav.home') },
+    { id: 'problem', label: t('header.nav.theProblem') },
+    { id: 'process', label: t('header.nav.solutionProcess') },
+    { id: 'ai-detection', label: t('header.nav.aiIntelligence') },
+    { id: 'risk-scoring', label: t('header.nav.riskScoring') },
+    { id: 'geospatial', label: t('header.nav.geospatialMap') },
+    { id: 'investigation', label: t('header.nav.investigation') }
   ];
 
   const handleNavClick = (sectionId) => {
@@ -267,34 +270,35 @@ const Header = ({ activeSection, setActiveSection }) => {
         </nav>
 
         {/* Fixed Right Action Area */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0, transform: 'translateX(0.5rem)' }}>
+          {/* Language Switcher */}
+          <LanguageSwitcher />
+
+          {/* Explore Dashboard Button - Locked Fixed Dimensions */}
           <button
             onClick={() => handleNavClick('risk-scoring')}
             className="btn-teal"
-            style={{ padding: '0.65rem 1.4rem', fontSize: '0.88rem', whiteSpace: 'nowrap', flexShrink: 0 }}
-          >
-            Explore Dashboard
-            <ArrowRight size={16} />
-          </button>
-
-          <button
-            onClick={() => alert("Nirikshak AI Help Desk: Supporting MoSPI & District Authorities in MPLADS Verification.")}
             style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '50%',
-              background: '#52B79A',
-              border: '1.5px solid #1D1E22',
-              display: 'flex',
+              padding: '0.65rem 1.4rem',
+              fontSize: '0.88rem',
+              fontWeight: 600,
+              width: '202px',
+              minWidth: '202px',
+              maxWidth: '202px',
+              height: '42px',
+              boxSizing: 'border-box',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              cursor: 'pointer',
-              boxShadow: '1.5px 2px 0px #1D1E22',
-              flexShrink: 0
+              gap: '0.5rem'
             }}
-            title="MoSPI Verification Support"
           >
-            <ShieldAlert size={20} color="#1D1E22" />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {t('common.exploreDashboard')}
+            </span>
+            <ArrowRight size={16} style={{ flexShrink: 0 }} />
           </button>
 
           {/* Mobile menu toggle */}
@@ -306,7 +310,8 @@ const Header = ({ activeSection, setActiveSection }) => {
               border: 'none',
               color: '#1D1E22',
               cursor: 'pointer',
-              padding: '0.4rem'
+              padding: '0.4rem',
+              flexShrink: 0
             }}
             className="mobile-toggle"
           >
@@ -333,6 +338,11 @@ const Header = ({ activeSection, setActiveSection }) => {
             boxShadow: 'var(--shadow-card)'
           }}
         >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(29,30,34,0.08)' }}>
+            <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#5A5A5A' }}>{t('header.switchLanguage')}</span>
+            <LanguageSwitcher isMobile={true} />
+          </div>
+
           {navLinks.map((link) => (
             <div
               key={link.id}

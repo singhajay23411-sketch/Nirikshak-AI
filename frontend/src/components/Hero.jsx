@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowRight, Play, ShieldAlert, CheckCircle } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 import projectApprovalsImg from '../assets/Project Approvals.png';
 import financialExpenditureImg from '../assets/Financial Expenditure.png';
@@ -58,6 +59,8 @@ const PreviewTextLink = ({ text, image, onClick }) => {
 };
 
 const Hero = ({ onExploreClick, onVirtualOfficeClick }) => {
+  const { t } = useLanguage();
+
   const scrollToId = (id) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -86,29 +89,29 @@ const Hero = ({ onExploreClick, onVirtualOfficeClick }) => {
               color: 'var(--color-text-primary)'
             }}
           >
-            Analyze multi-dimensional data across MPLADS development works:{' '}
+            {t('hero.introLead')}{' '}
             <PreviewTextLink
-              text="Project Approvals"
+              text={t('hero.previews.projectApprovals')}
               image={projectApprovalsImg}
               onClick={() => scrollToId('problem')}
             />,{' '}
             <PreviewTextLink
-              text="Financial Expenditure"
+              text={t('hero.previews.financialExpenditure')}
               image={financialExpenditureImg}
               onClick={() => scrollToId('problem')}
             />,{' '}
             <PreviewTextLink
-              text="Physical Progress"
+              text={t('hero.previews.physicalProgress')}
               image={physicalProgressImg}
               onClick={() => scrollToId('problem')}
             />,{' '}
             <PreviewTextLink
-              text="Evidence Verification"
+              text={t('hero.previews.evidenceVerification')}
               image={evidenceVerificationImg}
               onClick={() => scrollToId('ai-detection')}
             />, and{' '}
             <PreviewTextLink
-              text="Geospatial Intelligence"
+              text={t('hero.previews.geospatialIntelligence')}
               image={geospatialIntelligenceImg}
               onClick={() => scrollToId('geospatial')}
             />.
@@ -168,14 +171,14 @@ const Hero = ({ onExploreClick, onVirtualOfficeClick }) => {
                   borderRadius: 'var(--radius-full)'
                 }}
               >
-                MPLADS RISK INTELLIGENCE
+                {t('hero.badge')}
               </span>
             </div>
           </div>
 
           {/* Right Column: Title, Copy & CTA */}
           <div>
-            <span className="eyebrow">NIRIKSHAK AI</span>
+            <span className="eyebrow">{t('hero.eyebrow')}</span>
 
             <h1
               style={{
@@ -187,21 +190,21 @@ const Hero = ({ onExploreClick, onVirtualOfficeClick }) => {
                 lineHeight: 1.15
               }}
             >
-              AI-Powered Intelligence for MPLADS Monitoring
+              {t('hero.headline')}
             </h1>
 
             <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.08rem', lineHeight: 1.7, marginBottom: '2rem' }}>
-              Analyze project, financial, progress and evidence data to identify anomalies, assess risk, and help authorities prioritize projects that require verification.
+              {t('hero.description')}
             </p>
 
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '2rem' }}>
               <button onClick={() => scrollToId('risk-scoring')} className="btn-teal">
-                Explore Dashboard
+                {t('common.exploreDashboard')}
                 <ArrowRight size={16} />
               </button>
 
               <button onClick={() => scrollToId('process')} className="btn-outline-dark">
-                See How It Works
+                {t('hero.ctaHowItWorks')}
               </button>
             </div>
 
@@ -221,7 +224,7 @@ const Hero = ({ onExploreClick, onVirtualOfficeClick }) => {
               }}
             >
               <CheckCircle size={16} color="#52B79A" />
-              <span>Monitor • Detect • Verify • Prioritize</span>
+              <span>{t('hero.microcopy')}</span>
             </div>
           </div>
         </div>
@@ -241,12 +244,12 @@ const Hero = ({ onExploreClick, onVirtualOfficeClick }) => {
         >
           <div>
             <p style={{ fontSize: '1.12rem', color: '#1D1E22', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-              "Nirikshak AI serves as an explainable decision-support system for MoSPI and district authorities. It brings multi-signal risk factors together to prioritize projects requiring physical verification."
+              {t('hero.quote')}
             </p>
 
             {/* Handwritten Signature Accent */}
             <div className="handwritten">
-              Nirikshak AI Decision-Support Layer
+              {t('hero.signature')}
             </div>
           </div>
 
@@ -264,7 +267,7 @@ const Hero = ({ onExploreClick, onVirtualOfficeClick }) => {
               justifyContent: 'center',
               cursor: 'pointer'
             }}
-            onClick={() => alert("Playing Nirikshak AI System Overview Video...")}
+            onClick={() => alert(t('hero.videoAlert'))}
           >
             <div
               style={{
@@ -283,7 +286,7 @@ const Hero = ({ onExploreClick, onVirtualOfficeClick }) => {
             </div>
 
             <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', color: '#FFFFFF', fontSize: '0.85rem', fontWeight: 600 }}>
-              Watch System Overview Video
+              {t('hero.watchVideoText')}
             </div>
           </div>
         </div>

@@ -1,8 +1,11 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 import prefooterRoadmapImg from '../assets/prefooter-roadmap.jpg';
 
 const PreFooter = ({ onExploreClick }) => {
+  const { t } = useLanguage();
+
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) {
@@ -28,10 +31,10 @@ const PreFooter = ({ onExploreClick }) => {
       <div className="container" style={{ textAlign: 'center', maxWidth: '960px', margin: '0 auto 3.5rem auto' }}>
         {/* Eyebrow badge */}
         <span className="eyebrow" style={{ marginBottom: '1rem' }}>
-          MPLADS INTELLIGENCE ROADMAP
+          {t('prefooter.eyebrow')}
         </span>
 
-        {/* Large Serif Title inspired by reference */}
+        {/* Large Serif Title */}
         <h2
           style={{
             fontFamily: 'var(--font-serif-primary)',
@@ -43,7 +46,7 @@ const PreFooter = ({ onExploreClick }) => {
             letterSpacing: '-0.02em'
           }}
         >
-          A transparent roadmap for every constituency.
+          {t('prefooter.heading')}
         </h2>
 
         {/* Short supporting text */}
@@ -56,7 +59,7 @@ const PreFooter = ({ onExploreClick }) => {
             lineHeight: 1.6
           }}
         >
-          Accountability is a continuous journey. Monitor fund flows, detect anomalies, and verify development works with confidence.
+          {t('prefooter.subtitle')}
         </p>
 
         {/* CTA Button */}
@@ -70,7 +73,7 @@ const PreFooter = ({ onExploreClick }) => {
               gap: '0.65rem'
             }}
           >
-            Explore Dashboard
+            {t('common.exploreDashboard')}
             <ArrowRight size={18} />
           </button>
         </div>

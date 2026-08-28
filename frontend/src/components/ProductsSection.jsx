@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { DollarSign, Activity, Scale, Copy, Clock, Image, Users, MapPin, ArrowRight, AlertTriangle } from 'lucide-react';
+import { DollarSign, Activity, Scale, Copy, Clock, Image, Users, MapPin, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const ProductsSection = () => {
+  const { t } = useLanguage();
   const [activeModal, setActiveModal] = useState(null);
   const [budgetSpentPct, setBudgetSpentPct] = useState(85);
   const [progressPct, setProgressPct] = useState(35);
@@ -9,59 +11,59 @@ const ProductsSection = () => {
   const features = [
     {
       id: 'financial-anomalies',
-      title: 'Financial Anomalies',
-      tag: 'FINANCIAL SIGNAL',
+      title: t('aiDetection.features.financialAnomalies.title'),
+      tag: t('aiDetection.features.financialAnomalies.tag'),
       icon: DollarSign,
-      description: 'Identify unusual expenditure, abnormal costs and suspicious payment patterns.'
+      description: t('aiDetection.features.financialAnomalies.description')
     },
     {
       id: 'progress-inconsistencies',
-      title: 'Progress Inconsistencies',
-      tag: 'PROGRESS SIGNAL',
+      title: t('aiDetection.features.progressInconsistencies.title'),
+      tag: t('aiDetection.features.progressInconsistencies.tag'),
       icon: Activity,
-      description: 'Compare financial expenditure with reported physical progress.'
+      description: t('aiDetection.features.progressInconsistencies.description')
     },
     {
       id: 'cost-benchmarking',
-      title: 'Cost Benchmarking',
-      tag: 'COMPARATIVE SIGNAL',
+      title: t('aiDetection.features.costBenchmarking.title'),
+      tag: t('aiDetection.features.costBenchmarking.tag'),
       icon: Scale,
-      description: 'Compare projects with genuinely similar works based on category, location and relevant project characteristics.'
+      description: t('aiDetection.features.costBenchmarking.description')
     },
     {
       id: 'duplicate-works',
-      title: 'Duplicate Works',
-      tag: 'GEOSPATIAL & TEXT SIGNAL',
+      title: t('aiDetection.features.duplicateWorks.title'),
+      tag: t('aiDetection.features.duplicateWorks.tag'),
       icon: Copy,
-      description: 'Use project descriptions, locations and other signals to identify potentially duplicated projects.'
+      description: t('aiDetection.features.duplicateWorks.description')
     },
     {
       id: 'delay-risk',
-      title: 'Delay Risk',
-      tag: 'TIMELINE SIGNAL',
+      title: t('aiDetection.features.delayRisk.title'),
+      tag: t('aiDetection.features.delayRisk.tag'),
       icon: Clock,
-      description: 'Identify delayed projects and predict projects that may miss their expected completion.'
+      description: t('aiDetection.features.delayRisk.description')
     },
     {
       id: 'evidence-verification',
-      title: 'Evidence Verification',
-      tag: 'MULTIMEDIA SIGNAL',
+      title: t('aiDetection.features.evidenceVerification.title'),
+      tag: t('aiDetection.features.evidenceVerification.tag'),
       icon: Image,
-      description: 'Compare uploaded photographs and supporting evidence for potential inconsistencies or reuse.'
+      description: t('aiDetection.features.evidenceVerification.description')
     },
     {
       id: 'agency-intelligence',
-      title: 'Agency Intelligence',
-      tag: 'AGENCY SIGNAL',
+      title: t('aiDetection.features.agencyIntelligence.title'),
+      tag: t('aiDetection.features.agencyIntelligence.tag'),
       icon: Users,
-      description: 'Analyze historical project performance and identify recurring patterns requiring review.'
+      description: t('aiDetection.features.agencyIntelligence.description')
     },
     {
       id: 'geospatial-intelligence',
-      title: 'Geospatial Intelligence',
-      tag: 'SPATIAL SIGNAL',
+      title: t('aiDetection.features.geospatialIntelligence.title'),
+      tag: t('aiDetection.features.geospatialIntelligence.tag'),
       icon: MapPin,
-      description: 'Identify geographic patterns, project clusters and potentially duplicated works.'
+      description: t('aiDetection.features.geospatialIntelligence.description')
     }
   ];
 
@@ -82,12 +84,12 @@ const ProductsSection = () => {
 
         {/* Section Header */}
         <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto 3.5rem auto' }}>
-          <span className="eyebrow">AI INTELLIGENCE</span>
+          <span className="eyebrow">{t('aiDetection.eyebrow')}</span>
           <h2 style={{ fontFamily: 'var(--font-serif-primary)', marginBottom: '1rem' }}>
-            What Nirikshak AI <span style={{ color: 'var(--color-accent-teal-hover)' }}>Detects</span>
+            {t('aiDetection.heading')} <span style={{ color: 'var(--color-accent-teal-hover)' }}>{t('aiDetection.headingHighlight')}</span>
           </h2>
           <p className="lead">
-            Nirikshak AI evaluates multi-signal indicators to spot potential irregularities and highlight high-risk projects for field inspection.
+            {t('aiDetection.lead')}
           </p>
         </div>
 
@@ -152,7 +154,7 @@ const ProductsSection = () => {
                   className="btn-outline-dark"
                   style={{ width: '100%', padding: '0.65rem', fontSize: '0.85rem' }}
                 >
-                  Test Detector Signal
+                  {t('aiDetection.testButton')}
                   <ArrowRight size={15} />
                 </button>
               </div>
@@ -174,13 +176,13 @@ const ProductsSection = () => {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
               <div>
-                <span className="eyebrow" style={{ marginBottom: 0 }}>DETECTOR SIMULATION</span>
+                <span className="eyebrow" style={{ marginBottom: 0 }}>{t('aiDetection.simulator.eyebrow')}</span>
                 <h3 style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.6rem' }}>
-                  Progress & Expenditure Discrepancy Simulator
+                  {t('aiDetection.simulator.heading')}
                 </h3>
               </div>
               <button onClick={() => setActiveModal(null)} className="btn-outline-dark" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
-                Close
+                {t('aiDetection.simulator.closeBtn')}
               </button>
             </div>
 
@@ -188,7 +190,7 @@ const ProductsSection = () => {
               <div>
                 <div style={{ marginBottom: '1.2rem' }}>
                   <label style={{ display: 'block', fontSize: '0.88rem', color: '#1D1E22', marginBottom: '0.4rem', fontWeight: 600 }}>
-                    Budget Spent: <strong>{budgetSpentPct}%</strong>
+                    {t('aiDetection.simulator.budgetSpentLabel')} <strong>{budgetSpentPct}%</strong>
                   </label>
                   <input
                     type="range"
@@ -202,7 +204,7 @@ const ProductsSection = () => {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.88rem', color: '#1D1E22', marginBottom: '0.4rem', fontWeight: 600 }}>
-                    Physical Progress: <strong>{progressPct}%</strong>
+                    {t('aiDetection.simulator.physicalProgressLabel')} <strong>{progressPct}%</strong>
                   </label>
                   <input
                     type="range"
@@ -225,13 +227,13 @@ const ProductsSection = () => {
                 }}
               >
                 <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: '#1D1E22' }}>
-                  SIMULATED ANOMALY RISK SCORE
+                  {t('aiDetection.simulator.scoreCardTitle')}
                 </div>
                 <div style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '2.8rem', fontWeight: 700, color: simulatedRiskScore > 70 ? '#D9534F' : '#1D1E22', margin: '0.3rem 0' }}>
                   {simulatedRiskScore} <span style={{ fontSize: '1.2rem', color: '#5A5A5A' }}>/ 100</span>
                 </div>
                 <div style={{ fontSize: '0.82rem', fontWeight: 700, color: simulatedRiskScore > 70 ? '#D9534F' : '#52B79A' }}>
-                  {simulatedRiskScore > 70 ? 'HIGH RISK • Inspection Recommended' : 'MODERATE RISK • Monitor Milestones'}
+                  {simulatedRiskScore > 70 ? t('aiDetection.simulator.highRiskText') : t('aiDetection.simulator.moderateRiskText')}
                 </div>
               </div>
             </div>

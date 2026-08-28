@@ -152,6 +152,7 @@ def partition_dataset(
 
 def load_embedding_model():
     """Load the sentence-transformers model."""
+    # pyrefly: ignore [missing-import]
     from sentence_transformers import SentenceTransformer
 
     log.info("Loading embedding model: %s", EMBEDDING_MODEL_NAME)
@@ -330,6 +331,7 @@ def check_agency_match(
         return True
 
     # Fuzzy fallback
+    # pyrefly: ignore [missing-import]
     from thefuzz import fuzz
     return fuzz.token_sort_ratio(ida_a_clean, ida_b_clean) >= fuzzy_threshold
 

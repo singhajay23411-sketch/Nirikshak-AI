@@ -1,21 +1,21 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
-/**
- * Temporary demo data array for Nirikshak AI Live Statistics Marquee.
- * Easily replaceable with real API / database data in the future.
- */
-export const DEMO_MARQUEE_STATS = [
-  { value: '2,847', label: 'PROJECTS' },
-  { value: '₹1,245 Cr', label: 'SANCTIONED' },
-  { value: '₹982 Cr', label: 'UTILIZED' },
-  { value: '1,936', label: 'ACTIVE PROJECTS' },
-  { value: '742', label: 'COMPLETED' },
-  { value: '186', label: 'HIGH-RISK PROJECTS', highlight: '#FF6B6B' },
-  { value: '423', label: 'ANOMALIES DETECTED', highlight: '#E5B842' },
-  { value: '36', label: 'STATES/UTs MONITORED' }
+export const getMarqueeStats = (t) => [
+  { value: '2,847', label: t('marquee.projects') },
+  { value: '₹1,245 Cr', label: t('marquee.sanctioned') },
+  { value: '₹982 Cr', label: t('marquee.utilized') },
+  { value: '1,936', label: t('marquee.activeProjects') },
+  { value: '742', label: t('marquee.completed') },
+  { value: '186', label: t('marquee.highRiskProjects'), highlight: '#FF6B6B' },
+  { value: '423', label: t('marquee.anomaliesDetected'), highlight: '#E5B842' },
+  { value: '36', label: t('marquee.statesMonitored') }
 ];
 
-const StatsMarquee = ({ stats = DEMO_MARQUEE_STATS, speedSeconds = 32 }) => {
+const StatsMarquee = ({ customStats = null, speedSeconds = 32 }) => {
+  const { t } = useLanguage();
+  const stats = customStats || getMarqueeStats(t);
+
   // Render a single stats item sequence
   const renderStatsSequence = (keyPrefix) => (
     <div className="marquee-sequence" key={keyPrefix} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>

@@ -1,8 +1,10 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import IndiaMapSVG from '@svg-maps/india';
 import stateRiskData, { RISK_COLORS } from '../data/IndiaMapData';
+import { useLanguage } from '../context/LanguageContext';
 
 const IndiaMap = () => {
+  const { t } = useLanguage();
   const [hoveredState, setHoveredState] = useState(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
   const [selectedState, setSelectedState] = useState(null); // for touch devices
@@ -99,7 +101,7 @@ const IndiaMap = () => {
         marginBottom: '0.8rem',
         fontFamily: 'system-ui, -apple-system, sans-serif',
       }}>
-        MPLADS India Risk Intelligence Map
+        {t('indiaMap.mapTitle')}
       </div>
 
       {/* SVG Map */}
@@ -118,6 +120,7 @@ const IndiaMap = () => {
         {IndiaMapSVG.locations.map((location) => {
           const { fill, opacity } = getStateFill(location.id);
           const isActive = hoveredState === location.id || selectedState === location.id;
+          const localizedName = t(`indiaMap.states.${location.id}`, stateRiskData[location.id]?.name || location.name);
 
           return (
             <path
@@ -141,13 +144,11 @@ const IndiaMap = () => {
                 filter: isActive ? `drop-shadow(0 0 6px ${fill})` : 'none',
               }}
             >
-              <title>{stateRiskData[location.id]?.name || location.name}</title>
+              <title>{localizedName}</title>
             </path>
           );
         })}
       </svg>
-
-
 
       {/* Tooltip */}
       <div
@@ -181,7 +182,7 @@ const IndiaMap = () => {
               fontFamily: 'var(--font-serif-primary, Georgia, serif)',
               lineHeight: 1.2,
             }}>
-              {activeData.name}
+              {t(`indiaMap.states.${activeStateId}`, activeData.name)}
             </div>
 
             {/* Risk Badge */}
@@ -209,7 +210,7 @@ const IndiaMap = () => {
                 letterSpacing: '0.08em',
                 color: RISK_COLORS[activeData.riskLevel].text,
               }}>
-                {activeData.riskLevel} Risk
+                {t(`indiaMap.riskLevels.${activeData.riskLevel.toLowerCase()}`, activeData.riskLevel)} {t('indiaMap.tooltip.riskSuffix')}
               </span>
             </div>
 
@@ -221,10 +222,10 @@ const IndiaMap = () => {
               borderTop: '1px solid rgba(29, 30, 34, 0.1)',
               paddingTop: '0.55rem',
             }}>
-              <StatRow label="Projects" value={activeData.projects} />
-              <StatRow label="Risk Score" value={`${activeData.riskScore}%`} highlight={activeData.riskLevel} />
-              <StatRow label="Sanctioned" value={activeData.sanctionedAmount} />
-              <StatRow label="Anomalies" value={activeData.anomalies} highlight={activeData.anomalies > 5 ? 'High' : null} />
+              <StatRow label={t('indiaMap.tooltip.projects')} value={activeData.projects} />
+              <StatRow label={t('indiaMap.tooltip.riskScore')} value={`${activeData.riskScore}%`} highlight={activeData.riskLevel} />
+              <StatRow label={t('indiaMap.tooltip.sanctioned')} value={activeData.sanctionedAmount} />
+              <StatRow label={t('indiaMap.tooltip.anomalies')} value={activeData.anomalies} highlight={activeData.anomalies > 5 ? 'High' : null} />
             </div>
           </div>
         )}

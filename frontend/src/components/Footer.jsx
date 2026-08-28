@@ -1,7 +1,10 @@
 import React from 'react';
-import { ArrowRight, ShieldCheck, Mail, Phone, ExternalLink, HelpCircle, FileText, Lock, Globe } from 'lucide-react';
+import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const Footer = () => {
+  const { t } = useLanguage();
+
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) {
@@ -13,19 +16,19 @@ const Footer = () => {
     if (actionName === 'explore') {
       scrollToSection('risk-scoring');
     } else if (actionName === 'login') {
-      alert("Nirikshak AI Auth Portal: Official Nodal Officer & MoSPI Authority Access.");
+      alert(t('footer.alerts.login'));
     } else if (actionName === 'report') {
-      alert("Anonymous Whistleblower & Grievance Reporting: Opening encrypted submission channel...");
+      alert(t('footer.alerts.report'));
     } else if (actionName === 'team') {
-      alert("Nirikshak AI Project Team • Smart India Hackathon SIH26102 (MoSPI).");
+      alert(t('footer.alerts.team'));
     } else if (actionName === 'faq') {
-      alert("Nirikshak AI Knowledge Base & FAQs: Explaining Risk Models, Graph Analytics & Anomaly Detection.");
+      alert(t('footer.alerts.faq'));
     } else if (actionName === 'support') {
-      alert("Nirikshak AI Technical Support Desk: Contacting MoSPI Technical Cell.");
+      alert(t('footer.alerts.support'));
     } else if (actionName === 'ask') {
       const widgetBtn = document.querySelector('[title="Ask Nirikshak AI"]') || document.querySelector('.floating-chat-btn');
       if (widgetBtn) widgetBtn.click();
-      else alert("Nirikshak AI Assistant ready to assist you.");
+      else alert(t('floatingWidgets.greeting'));
     }
   };
 
@@ -68,7 +71,7 @@ const Footer = () => {
                   marginBottom: '0.25rem'
                 }}
               >
-                NIRIKSHΛK ΛI
+                {t('footer.brandName')}
               </div>
               <div
                 style={{
@@ -79,7 +82,7 @@ const Footer = () => {
                   textTransform: 'uppercase'
                 }}
               >
-                MPLADS INTELLIGENCE
+                {t('footer.brandSubtitle')}
               </div>
             </div>
 
@@ -94,7 +97,7 @@ const Footer = () => {
                 marginBottom: '0.75rem'
               }}
             >
-              AI-Powered Intelligence for MPLADS Monitoring
+              {t('footer.headline')}
             </h3>
 
             <p
@@ -107,10 +110,10 @@ const Footer = () => {
                 marginBottom: '2rem'
               }}
             >
-              Detect • Assess • Verify • Prioritize
+              {t('footer.slogan')}
             </p>
 
-            {/* Pill Action Buttons (Stacked like reference image) */}
+            {/* Pill Action Buttons */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', width: '100%', maxWidth: '240px' }}>
               <button
                 onClick={() => handleActionClick('explore')}
@@ -122,7 +125,7 @@ const Footer = () => {
                   width: '100%'
                 }}
               >
-                <span>Explore Dashboard</span>
+                <span>{t('footer.actions.explore')}</span>
                 <ArrowRight size={16} />
               </button>
 
@@ -136,7 +139,7 @@ const Footer = () => {
                   width: '100%'
                 }}
               >
-                <span>Login</span>
+                <span>{t('footer.actions.login')}</span>
                 <ArrowRight size={16} />
               </button>
 
@@ -150,7 +153,7 @@ const Footer = () => {
                   width: '100%'
                 }}
               >
-                <span>Report Anonymously</span>
+                <span>{t('footer.actions.report')}</span>
                 <ArrowRight size={16} />
               </button>
             </div>
@@ -170,7 +173,7 @@ const Footer = () => {
                 marginBottom: '1.4rem'
               }}
             >
-              Platform
+              {t('footer.sections.platform')}
             </div>
 
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.85rem', padding: 0, margin: 0 }}>
@@ -180,7 +183,7 @@ const Footer = () => {
                   className="footer-nav-link"
                   style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#2A2C32', fontWeight: 500 }}
                 >
-                  AI Intelligence
+                  {t('footer.links.aiIntelligence')}
                 </span>
               </li>
               <li>
@@ -189,7 +192,7 @@ const Footer = () => {
                   className="footer-nav-link"
                   style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#2A2C32', fontWeight: 500 }}
                 >
-                  Risk Scoring
+                  {t('footer.links.riskScoring')}
                 </span>
               </li>
               <li>
@@ -198,7 +201,7 @@ const Footer = () => {
                   className="footer-nav-link"
                   style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#2A2C32', fontWeight: 500 }}
                 >
-                  Geospatial Map
+                  {t('footer.links.geospatialMap')}
                 </span>
               </li>
               <li>
@@ -207,7 +210,7 @@ const Footer = () => {
                   className="footer-nav-link"
                   style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#2A2C32', fontWeight: 500 }}
                 >
-                  Evidence Verification
+                  {t('footer.links.evidenceVerification')}
                 </span>
               </li>
               <li>
@@ -216,7 +219,7 @@ const Footer = () => {
                   className="footer-nav-link"
                   style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#2A2C32', fontWeight: 500 }}
                 >
-                  Investigation
+                  {t('footer.links.investigation')}
                 </span>
               </li>
             </ul>
@@ -236,7 +239,7 @@ const Footer = () => {
                 marginBottom: '1.4rem'
               }}
             >
-              Resources
+              {t('footer.sections.resources')}
             </div>
 
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.85rem', padding: 0, margin: 0 }}>
@@ -246,7 +249,7 @@ const Footer = () => {
                   className="footer-nav-link"
                   style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#2A2C32', fontWeight: 500 }}
                 >
-                  The Problem
+                  {t('footer.links.theProblem')}
                 </span>
               </li>
               <li>
@@ -255,7 +258,7 @@ const Footer = () => {
                   className="footer-nav-link"
                   style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#2A2C32', fontWeight: 500 }}
                 >
-                  Solution Process
+                  {t('footer.links.solutionProcess')}
                 </span>
               </li>
               <li>
@@ -264,7 +267,7 @@ const Footer = () => {
                   className="footer-nav-link"
                   style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#2A2C32', fontWeight: 500 }}
                 >
-                  Meet the Team
+                  {t('footer.links.meetTheTeam')}
                 </span>
               </li>
               <li>
@@ -273,7 +276,7 @@ const Footer = () => {
                   className="footer-nav-link"
                   style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#2A2C32', fontWeight: 500 }}
                 >
-                  FAQs
+                  {t('footer.links.faqs')}
                 </span>
               </li>
             </ul>
@@ -293,7 +296,7 @@ const Footer = () => {
                 marginBottom: '1.4rem'
               }}
             >
-              Contact
+              {t('footer.sections.contact')}
             </div>
 
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.85rem', padding: 0, margin: 0, marginBottom: '1.8rem' }}>
@@ -303,7 +306,7 @@ const Footer = () => {
                   className="footer-nav-link"
                   style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#2A2C32', fontWeight: 500 }}
                 >
-                  Support
+                  {t('footer.links.support')}
                 </span>
               </li>
               <li>
@@ -312,7 +315,7 @@ const Footer = () => {
                   className="footer-nav-link"
                   style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#2A2C32', fontWeight: 500 }}
                 >
-                  Ask Nirikshak AI
+                  {t('footer.links.askNirikshakAi')}
                 </span>
               </li>
               <li>
@@ -321,12 +324,12 @@ const Footer = () => {
                   className="footer-nav-link"
                   style={{ cursor: 'pointer', fontSize: '0.95rem', color: '#2A2C32', fontWeight: 500 }}
                 >
-                  Contact / Help
+                  {t('footer.links.contactHelp')}
                 </span>
               </li>
             </ul>
 
-            {/* Ministry & Verified Authority Stamp Badge (matching BBB A+ style in reference) */}
+            {/* Ministry & Verified Authority Stamp Badge */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               <div
                 style={{
@@ -343,10 +346,10 @@ const Footer = () => {
                 <ShieldCheck size={24} color="#52B79A" />
                 <div>
                   <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#1D1E22', lineHeight: 1.1 }}>
-                    MoSPI VERIFIED
+                    {t('footer.badges.verified')}
                   </div>
                   <div style={{ fontSize: '0.62rem', fontWeight: 700, color: '#727682', letterSpacing: '0.08em' }}>
-                    SIH26102 COMPLIANT
+                    {t('footer.badges.compliant')}
                   </div>
                 </div>
               </div>
@@ -370,28 +373,28 @@ const Footer = () => {
         >
           {/* Left Copyright & Platform info */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <span style={{ fontWeight: 600, color: '#1D1E22' }}>© 2026 Nirikshak AI</span>
+            <span style={{ fontWeight: 600, color: '#1D1E22' }}>{t('footer.copyright')}</span>
             <span>•</span>
-            <span>MPLADS Risk Intelligence Platform</span>
+            <span>{t('footer.platformDesc')}</span>
           </div>
 
           {/* Right Legal Links */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
             <a
               href="#privacy"
-              onClick={(e) => { e.preventDefault(); alert("Nirikshak AI Privacy Policy: Data anonymization and strict government compliance."); }}
+              onClick={(e) => { e.preventDefault(); alert(t('footer.alerts.privacy')); }}
               className="link-underline"
               style={{ fontSize: '0.85rem', color: '#1D1E22' }}
             >
-              Privacy Policy
+              {t('footer.privacyPolicy')}
             </a>
             <a
               href="#terms"
-              onClick={(e) => { e.preventDefault(); alert("Nirikshak AI Terms of Use: Decision support guidelines for authorized personnel."); }}
+              onClick={(e) => { e.preventDefault(); alert(t('footer.alerts.terms')); }}
               className="link-underline"
               style={{ fontSize: '0.85rem', color: '#1D1E22' }}
             >
-              Terms of Use
+              {t('footer.termsOfUse')}
             </a>
           </div>
         </div>

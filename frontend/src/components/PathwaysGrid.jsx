@@ -1,69 +1,72 @@
-import React, { useState } from 'react';
-import { Database, DollarSign, Activity, FileCheck, ArrowRight, ShieldCheck, Cpu, AlertTriangle, BarChart3, Search, ChevronRight } from 'lucide-react';
+import React from 'react';
+import { Database, DollarSign, Activity, FileCheck, ShieldCheck, Cpu, AlertTriangle, BarChart3, Search, ChevronRight } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const PathwaysGrid = () => {
+  const { t } = useLanguage();
+
   const problemCards = [
     {
       id: 'project-data',
-      title: 'Project Data',
+      title: t('problem.cards.projectData.title'),
       icon: Database,
-      tagline: 'Approvals & Classifications',
-      description: 'Project approvals, locations, categories, implementing agencies and project status.',
+      tagline: t('problem.cards.projectData.tagline'),
+      description: t('problem.cards.projectData.description'),
       bulletPoints: [
-        'Sanction orders & administrative approvals',
-        'Geographic district & constituency tagging',
-        'Implementing agency registration & performance',
-        'Project sector classification & scope definition'
+        t('problem.cards.projectData.bullets.0'),
+        t('problem.cards.projectData.bullets.1'),
+        t('problem.cards.projectData.bullets.2'),
+        t('problem.cards.projectData.bullets.3')
       ]
     },
     {
       id: 'financial-data',
-      title: 'Financial Data',
+      title: t('problem.cards.financialData.title'),
       icon: DollarSign,
-      tagline: 'Funds & Expenditure Flow',
-      description: 'Sanctioned amounts, releases, expenditure and payment information.',
+      tagline: t('problem.cards.financialData.tagline'),
+      description: t('problem.cards.financialData.description'),
       bulletPoints: [
-        'Sanctioned cost vs. installment releases',
-        'Vendor payments & voucher breakdowns',
-        'Unspent balance & interest tracking',
-        'Utilization certificate (UC) alignment'
+        t('problem.cards.financialData.bullets.0'),
+        t('problem.cards.financialData.bullets.1'),
+        t('problem.cards.financialData.bullets.2'),
+        t('problem.cards.financialData.bullets.3')
       ]
     },
     {
       id: 'progress-data',
-      title: 'Progress Data',
+      title: t('problem.cards.progressData.title'),
       icon: Activity,
-      tagline: 'Timelines & Execution Rates',
-      description: 'Project timelines, completion dates and physical progress.',
+      tagline: t('problem.cards.progressData.tagline'),
+      description: t('problem.cards.progressData.description'),
       bulletPoints: [
-        'Start dates, milestones & expected completion',
-        'Reported physical completion percentages',
-        'Historical delay metrics & extension requests',
-        'Site inspection frequency & status logs'
+        t('problem.cards.progressData.bullets.0'),
+        t('problem.cards.progressData.bullets.1'),
+        t('problem.cards.progressData.bullets.2'),
+        t('problem.cards.progressData.bullets.3')
       ]
     },
     {
       id: 'evidence-docs',
-      title: 'Evidence & Documents',
+      title: t('problem.cards.evidenceDocs.title'),
       icon: FileCheck,
-      tagline: 'Photographs & Official Records',
-      description: 'Photographs and supporting project documentation.',
+      tagline: t('problem.cards.evidenceDocs.tagline'),
+      description: t('problem.cards.evidenceDocs.description'),
       bulletPoints: [
-        'Geotagged site photographs & work logs',
-        'Measurement books (MB) & completion reports',
-        'Contractor agreements & technical sanction files',
-        'Audit queries & public grievance reports'
+        t('problem.cards.evidenceDocs.bullets.0'),
+        t('problem.cards.evidenceDocs.bullets.1'),
+        t('problem.cards.evidenceDocs.bullets.2'),
+        t('problem.cards.evidenceDocs.bullets.3')
       ]
     }
   ];
 
   const processSteps = [
-    { label: 'MPLADS DATA', desc: 'Financial, physical & photo signals', icon: Database },
-    { label: 'AI ANALYSIS', desc: 'Cross-project pattern matching', icon: Cpu },
-    { label: 'ANOMALY DETECTION', desc: 'Flags discrepancies & delays', icon: AlertTriangle },
-    { label: 'RISK SCORING', desc: 'Quantified 0-100 risk score', icon: BarChart3 },
-    { label: 'EXPLAINABLE EVIDENCE', desc: 'Human-readable factor breakdowns', icon: Search },
-    { label: 'INVESTIGATION PRIORITY', desc: 'Focused physical verification', icon: ShieldCheck }
+    { label: t('process.steps.0.label'), desc: t('process.steps.0.desc'), icon: Database },
+    { label: t('process.steps.1.label'), desc: t('process.steps.1.desc'), icon: Cpu },
+    { label: t('process.steps.2.label'), desc: t('process.steps.2.desc'), icon: AlertTriangle },
+    { label: t('process.steps.3.label'), desc: t('process.steps.3.desc'), icon: BarChart3 },
+    { label: t('process.steps.4.label'), desc: t('process.steps.4.desc'), icon: Search },
+    { label: t('process.steps.5.label'), desc: t('process.steps.5.desc'), icon: ShieldCheck }
   ];
 
   return (
@@ -81,12 +84,12 @@ const PathwaysGrid = () => {
 
           {/* Section Header */}
           <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto 3.5rem auto' }}>
-            <span className="eyebrow">THE PROBLEM</span>
+            <span className="eyebrow">{t('problem.eyebrow')}</span>
             <h2 style={{ fontFamily: 'var(--font-serif-primary)', marginBottom: '1rem' }}>
-              Thousands of Projects. <span style={{ color: 'var(--color-accent-teal-hover)' }}>One Intelligence Layer.</span>
+              {t('problem.heading')} <span style={{ color: 'var(--color-accent-teal-hover)' }}>{t('problem.headingHighlight')}</span>
             </h2>
             <p className="lead">
-              MPLADS involves thousands of development projects, multiple authorities and substantial public funds. Manually examining project approvals, expenditure, progress, payments and supporting evidence can make it difficult to identify unusual patterns in time.
+              {t('problem.lead')}
             </p>
           </div>
 
@@ -165,12 +168,12 @@ const PathwaysGrid = () => {
         <div className="container">
 
           <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto 3.5rem auto' }}>
-            <span className="eyebrow">SOLUTION PROCESS</span>
+            <span className="eyebrow">{t('process.eyebrow')}</span>
             <h2 style={{ fontFamily: 'var(--font-serif-primary)', marginBottom: '1rem' }}>
-              From Project Data to <span style={{ color: 'var(--color-accent-teal-hover)' }}>Actionable Risk Intelligence</span>
+              {t('process.heading')} <span style={{ color: 'var(--color-accent-teal-hover)' }}>{t('process.headingHighlight')}</span>
             </h2>
             <p className="lead">
-              Nirikshak AI combines multiple signals across MPLADS projects to identify potential irregularities and bring high-priority cases to the attention of officials.
+              {t('process.lead')}
             </p>
           </div>
 
