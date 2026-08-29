@@ -1,12 +1,12 @@
 # Nirikshak AI — QA Intelligence Audit Report
 
-**Generated:** 2026-08-30 01:06:33
-**Audit Duration:** 71.5s
-**Total Records Audited:** 715,291
-**Total Violations Found:** 0
+**Generated:** 2026-08-30 03:03:17
+**Audit Duration:** 261.5s
+**Total Records Audited:** 716,733
+**Total Violations Found:** 1
 **Total Warnings:** 1
 
-## Overall Verdict: ✅ ALL CHECKS PASSED
+## Overall Verdict: ❌ VIOLATIONS DETECTED
 
 ---
 
@@ -26,52 +26,52 @@
 
 ---
 
-## ✅ Duplicate Detection Authenticity
-- **Status:** PASSED
+## ❌ Duplicate Detection Authenticity
+- **Status:** FAILED
 - **Records Audited:** 29,402
-- **Violations:** 0
+- **Violations:** 1
 - **Warnings:** 0
 - **Summary:** Validated 29,402 duplicate alert pairs.
 
 ### Detailed Findings
 
 - ✅ No self-pairing found (verified on 29,402 alerts)
-- ✅ Cross-referenced with works table — all duplicates within same state
+- ❌ LOCATION GATE FAILURE: 75 alerts flag works in different states
 - Mean confidence: 88.5 | High-confidence (≥80): 22,413
 
 ---
 
 ## ✅ FinGuard Financial Sanity
 - **Status:** PASSED
-- **Records Audited:** 218,913
+- **Records Audited:** 219,782
 - **Violations:** 0
 - **Warnings:** 0
-- **Summary:** Audited 218,913 works for financial integrity.
+- **Summary:** Audited 219,782 works for financial integrity.
 
 ### Detailed Findings
 
-- Works with zero/null sanction_amount: 383 / 218,913 (0.2%)
+- Works with zero/null sanction_amount: 44,551 / 219,782 (20.3%)
 - Works with cost overrun > 100%: 0
 - ✅ No extreme overruns to verify
-- Global cost overrun rate: -54.58%
-- Null actual_amount: 107,620 | Null recommended_amount: 739
+- Global cost overrun rate: -43.48%
+- Null actual_amount: 108,520 | Null recommended_amount: 97,642
 
 ---
 
 ## ✅ Vendor Network & HHI
 - **Status:** PASSED
-- **Records Audited:** 238,063
+- **Records Audited:** 238,636
 - **Violations:** 0
 - **Warnings:** 0
-- **Summary:** Audited vendor concentration across 238,063 expenditure records.
+- **Summary:** Audited vendor concentration across 238,636 expenditure records.
 
 ### Detailed Findings
 
-- HHI computed for 63 constituencies
+- HHI computed for 64 constituencies
 - ✅ All HHI values ≤ 10000
 - ✅ All HHI values ≥ 0
-- Market concentration: 2 monopolistic (>2500) | 58 competitive (<1500) constituencies
-- Mean HHI: 497.7
+- Market concentration: 2 monopolistic (>2500) | 59 competitive (<1500) constituencies
+- Mean HHI: 498.7
 
 ---
 
@@ -86,15 +86,15 @@
 
 - Full dataset: 218,913 records | Sample: 10,000 records
 - **Feature computation (z-scores on 10,000 records):**
--   Time: 0.01s | Peak RAM: 3.4 MB
+-   Time: 0.04s | Peak RAM: 3.4 MB
 -   Projected full dataset (218,913): ~74 MB
 - **SentenceTransformer encoding (1,000 texts):**
--   Time: 48.46s | Peak RAM: 249.0 MB
--   Projected full dataset (218,913): ~54508 MB
--   ⚠️ WARNING: Projected RAM (54508 MB) exceeds 8 GB
+-   Time: 189.91s | Peak RAM: 249.3 MB
+-   Projected full dataset (218,913): ~54566 MB
+-   ⚠️ WARNING: Projected RAM (54566 MB) exceeds 8 GB
 - **NetworkX graph construction (10,000 edges):**
--   Time: 6.15s | Peak RAM: 217.6 MB
--   Projected full dataset (238,063): ~5180 MB
--   Graph: 15879 nodes, 9856 edges
+-   Time: 23.05s | Peak RAM: 246.3 MB
+-   Projected full dataset (238,636): ~5878 MB
+-   Graph: 15859 nodes, 9861 edges
 
 ---
