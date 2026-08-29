@@ -261,6 +261,7 @@ export const getMpsSummaryStats = (mps) => {{
 const roundVal = (v) => Math.round(v * 10) / 10;
 """
 
+os.makedirs(os.path.dirname(mps_js_path), exist_ok=True)
 with open(mps_js_path, "w", encoding="utf-8") as f:
     f.write(mps_js_content)
 

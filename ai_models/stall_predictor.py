@@ -84,3 +84,6 @@ def predict_stall_probabilities(df_input: pd.DataFrame) -> np.ndarray:
     
     score = (0.50 * np.clip(sanc_delay / 365.0, 0.0, 1.0)) + (0.50 * (1.0 - np.clip(util, 0.0, 1.0)))
     return np.clip(score, 0.0, 1.0).values
+
+if __name__ == "__main__":
+    train_stall_model()

@@ -146,9 +146,11 @@ def detect_cartel_cliques(df: pd.DataFrame) -> List[Dict[str, Any]]:
         
     vendor_nodes = [n for n, d in B.nodes(data=True) if d.get('bipartite') == 1]
     
-    # Map constituency to vendors
+    # Map constituency to vendors, keeping ONLY vendors with degree >= 2
     const_to_vendors = defaultdict(list)
-    for v in vendor_nodes:
+    multi_const_vendors = {v for v in vendor_nodes if B.degree(v) >= 2}
+    
+    for v in multi_const_vendors:
         for c in B.neighbors(v):
             const_to_vendors[c].append(v)
             
@@ -162,10 +164,10 @@ def detect_cartel_cliques(df: pd.DataFrame) -> List[Dict[str, Any]]:
                 v_b = v_list[j]
                 pair = (min(v_a, v_b), max(v_a, v_b))
                 shared_counts[pair] += 1
-                
+                 
     # Build projected vendor collusion graph
     G_vendor = nx.Graph()
-    G_vendor.add_nodes_from(vendor_nodes)
+    G_vendor.add_nodes_from(multi_const_vendors)
     
     # Only add edges for vendors sharing >= 2 constituencies
     for (v_a, v_b), count in shared_counts.items():
@@ -211,3 +213,7 @@ def run_full_analysis():
     cartels = generate_vendor_cartel_network(df, hhi_df)
     cartel_cliques = detect_cartel_cliques(df)
     return hhi_records, cartels, cartel_cliques
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    run_full_analysis()
