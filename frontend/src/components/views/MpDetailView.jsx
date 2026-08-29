@@ -10,7 +10,6 @@ import { useLanguage } from '../../context/LanguageContext';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useData } from '../../context/DataContext';
 import Footer from '../Footer';
-import Footer from '../Footer';
 
 // ─── PREMIUM FINANCIAL ANALYTICS GAUGE COMPONENT ───
 const FinancialUtilizationGauge = ({ utilizationPct, mpName, term }) => {
