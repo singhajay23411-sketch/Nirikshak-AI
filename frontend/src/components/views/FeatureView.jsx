@@ -8,6 +8,7 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
+import { useData } from '../../context/DataContext';
 import LanguageSwitcher from '../LanguageSwitcher';
 import HouseSelector from '../HouseSelector';
 import IndiaMap from '../IndiaMap';
@@ -216,36 +217,35 @@ const KeyMetricsDashboard = ({ isHi }) => {
     completedVsPending: '194K / 24K'
   });
 
+  const { ministryView } = useData();
+
   useEffect(() => {
-    fetch('/data/Ministry_View.json')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.state_wise_benchmarks) {
-          const formatted = data.state_wise_benchmarks.map(item => ({
-            state: item.state_name || 'N/A',
-            util: parseFloat(((item.utilization_rate || 0) * 100).toFixed(1)),
-            allocated: Math.round((item.total_sanctioned || 0) / 10000000),
-            spent: Math.round((item.total_spent || 0) / 10000000)
-          }));
-          formatted.sort((a, b) => b.util - a.util);
-          setStatesData(formatted.slice(0, 10));
-        }
-        if (data && data.national_stats) {
-          const stats = data.national_stats;
-          const sanctionedCr = Math.round(stats.total_sanctioned / 10000000);
-          const spentCr = Math.round(stats.total_disbursed / 10000000);
-          const utilRate = ((stats.total_disbursed / (stats.total_sanctioned || 1)) * 100).toFixed(1);
-          setKpis({
-            totalProjects: stats.total_projects.toLocaleString(),
-            totalAllocated: `₹${sanctionedCr.toLocaleString()} Cr`,
-            totalSpent: `₹${spentCr.toLocaleString()} Cr`,
-            utilizationRate: `${utilRate}%`,
-            completedVsPending: '194K / 24K'
-          });
-        }
-      })
-      .catch(err => console.error("Error loading metrics dashboard:", err));
-  }, []);
+    if (ministryView) {
+      if (ministryView.state_wise_benchmarks) {
+        const formatted = ministryView.state_wise_benchmarks.map(item => ({
+          state: item.state_name || 'N/A',
+          util: parseFloat(((item.utilization_rate || 0) * 100).toFixed(1)),
+          allocated: Math.round((item.total_sanctioned || 0) / 10000000),
+          spent: Math.round((item.total_spent || 0) / 10000000)
+        }));
+        formatted.sort((a, b) => b.util - a.util);
+        setStatesData(formatted.slice(0, 10));
+      }
+      if (ministryView.national_stats) {
+        const stats = ministryView.national_stats;
+        const sanctionedCr = Math.round(stats.total_sanctioned / 10000000);
+        const spentCr = Math.round(stats.total_disbursed / 10000000);
+        const utilRate = ((stats.total_disbursed / (stats.total_sanctioned || 1)) * 100).toFixed(1);
+        setKpis({
+          totalProjects: stats.total_projects.toLocaleString(),
+          totalAllocated: `₹${sanctionedCr.toLocaleString()} Cr`,
+          totalSpent: `₹${spentCr.toLocaleString()} Cr`,
+          utilizationRate: `${utilRate}%`,
+          completedVsPending: '194K / 24K'
+        });
+      }
+    }
+  }, [ministryView]);
 
   const TOP_STATES_DATA = statesData.length > 0 ? statesData : [
     { state: 'Nagaland', util: 91.5, allocated: 140, spent: 128 },
@@ -654,7 +654,37 @@ const KeyMetricsDashboard = ({ isHi }) => {
   );
 };
 
-const FinancialAnomalyDashboard = ({ isHi, anomalyProjects = MOCK_ANOMALY_PROJECTS }) => {
+const FinancialAnomalyDashboard = ({ isHi }) => {
+  const { costAndDelayAnomalies } = useData();
+  const mapAnomalyData = (data) => {
+    if (!data || data.length === 0) return MOCK_ANOMALY_PROJECTS;
+    return data.slice(0, 10).map(d => ({
+      id: d.work_id,
+      title: d.work_short_title || d.work_description || 'Unknown Work',
+      category: d.work_category || 'General',
+      state: d.state_name,
+      district: d.const_name,
+      constituency: d.const_name,
+      sanctionedCost: `₹${((d.sanction_amount || 0) / 100000).toFixed(1)} L`,
+      expenditure: `₹${((d.total_disbursed || 0) / 100000).toFixed(1)} L`,
+      expenditurePct: Math.round(((d.total_disbursed || 0) / (d.sanction_amount || 1)) * 100),
+      physicalProgress: 50,
+      delayMonths: Math.round((d.completion_delay_days || 0) / 30),
+      costDeviationPct: Math.round(d.cost_overrun_pct || 0),
+      riskScore: Math.round(Math.min(99, (d.severity_score || 0) * 10)),
+      riskBand: (d.severity_score || 0) > 5 ? 'Critical' : 'High',
+      confidenceScore: 90,
+      agency: d.primary_vendor_name || 'Unknown Agency',
+      agencyPriorFlags: 1,
+      reasons: [
+        `Cost deviation of ${Math.round(d.cost_overrun_pct || 0)}%`,
+        `Delayed by ${Math.round((d.completion_delay_days || 0) / 30)} months`
+      ],
+      recommendedAction: 'Conduct physical inspection and verify measurement books.'
+    }));
+  };
+  const anomalyProjects = mapAnomalyData(costAndDelayAnomalies);
+  
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisStatus, setAnalysisStatus] = useState('Last Run: Today, 10:45 AM • 218K Records Scanned');
   const [selectedAnomaly, setSelectedAnomaly] = useState(null);
@@ -1634,16 +1664,6 @@ const GeoIntelDashboard = ({ isHi }) => {
             </div>
 
             {/* Nearby Projects */}
-            <div style={{ background: '#FFF8E1', border: '1px solid #E5B842', borderRadius: 'var(--radius-md)', padding: '1.1rem', marginBottom: '1.5rem' }}>
-              <div style={{ fontSize: '0.74rem', fontWeight: 800, color: '#B8860B', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
-                Nearby Project Proximity
-              </div>
-              <div style={{ fontSize: '0.86rem', color: '#1D1E22', fontWeight: 700 }}>
-                {selectedMapProject.nearby}
-              </div>
-            </div>
-
-            {/* Buttons */}
             <div style={{ display: 'flex', gap: '0.85rem', marginTop: 'auto' }}>
               <button
                 type="button"
@@ -2322,76 +2342,68 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
     riskLow: '127,811'
   });
 
-  useEffect(() => {
-    fetch('/data/Ministry_View.json')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.national_stats) {
-          const stats = data.national_stats;
-          const sanctionedCr = Math.round(stats.total_sanctioned / 10000000);
-          const spentCr = Math.round(stats.total_disbursed / 10000000);
-          const utilRate = ((stats.total_disbursed / (stats.total_sanctioned || 1)) * 100).toFixed(1);
-          setNationalStats(prev => ({
-            ...prev,
-            totalProjects: stats.total_projects.toLocaleString(),
-            totalAllocated: `₹${sanctionedCr.toLocaleString()} Cr`,
-            totalSpent: `₹${spentCr.toLocaleString()} Cr`,
-            utilizationRate: `${utilRate}%`,
-          }));
-        }
-      })
-      .catch(err => console.error("Error loading national stats in FeatureView:", err));
+  const { ministryView, unifiedProjects } = useData();
 
-    fetch('/data/unified_project_evaluations.json')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          const formatted = data.map(item => {
-            const riskBand = item.risk_tier ? (item.risk_tier.charAt(0).toUpperCase() + item.risk_tier.slice(1).toLowerCase()) : 'Low';
-            const reasons = item.top_risk_drivers && item.top_risk_drivers.length > 0
-              ? (typeof item.top_risk_drivers === 'string' ? JSON.parse(item.top_risk_drivers) : item.top_risk_drivers).map(d => {
-                  const pillars = {
-                    'financial_risk_score': 'Financial over-disbursement',
-                    'progress_risk_score': 'High project stall probability',
-                    'cost_risk_score': 'Severe cost escalation',
-                    'delay_risk_score': 'Chronic completion delays',
-                    'duplicate_risk_score': 'Duplicate/split-work alerts',
-                    'evidence_risk_score': 'Prohibited guidelines violation',
-                    'agency_risk_score': 'Poor executing agency track record',
-                    'payment_risk_score': 'High cartel or payment fragmentation'
-                  };
-                  return pillars[d.pillar] || d.pillar;
-                })
-              : [item.project_summary || 'General risk flagged'];
-            
-            return {
-              id: `MPLADS-${item.work_id}`,
-              title: item.activity_name || item.work_description || 'MPLADS Project',
-              category: item.work_category || 'Normal/Others',
-              state: item.state_name || 'N/A',
-              district: item.const_name || 'N/A',
-              constituency: item.const_name || 'N/A',
-              sanctionedCost: `₹${(item.sanction_amount || 0).toLocaleString('en-IN')}`,
-              expenditure: `₹${(item.total_disbursed || 0).toLocaleString('en-IN')}`,
-              expenditurePct: Math.round((item.utilization_rate || 0) * 100),
-              physicalProgress: item.work_status === 'Completed' ? 100 : (item.work_status === 'Sanctioned' ? 0 : 50),
-              delayMonths: Math.round((item.completion_delay_days || 0) / 30),
-              costDeviationPct: Math.round(item.cost_overrun_pct || 0),
-              riskScore: Math.round(item.final_risk_score || 0),
-              riskBand: riskBand,
-              confidenceScore: Math.round(90 + (item.final_risk_score % 10)),
-              agency: item.primary_vendor_name || item.ida_name || 'N/A',
-              agencyPriorFlags: item.agency_risk_tier === 'HIGH' ? 3 : (item.agency_risk_tier === 'MODERATE' ? 1 : 0),
-              reasons: reasons,
-              recommendedAction: item.recommended_actions && item.recommended_actions.length > 0 ? item.recommended_actions[0] : 'Conduct ground audit.'
-            };
-          });
-          setAnomalyProjects(formatted);
-          setSelectedProject(formatted[0]);
-        }
-      })
-      .catch(err => console.error("Error loading anomaly projects:", err));
-  }, []);
+  useEffect(() => {
+    if (ministryView && ministryView.national_stats) {
+      const stats = ministryView.national_stats;
+      const sanctionedCr = Math.round(stats.total_sanctioned / 10000000);
+      const spentCr = Math.round(stats.total_disbursed / 10000000);
+      const utilRate = ((stats.total_disbursed / (stats.total_sanctioned || 1)) * 100).toFixed(1);
+      setNationalStats(prev => ({
+        ...prev,
+        totalProjects: stats.total_projects.toLocaleString(),
+        totalAllocated: `₹${sanctionedCr.toLocaleString()} Cr`,
+        totalSpent: `₹${spentCr.toLocaleString()} Cr`,
+        utilizationRate: `${utilRate}%`,
+      }));
+    }
+
+    if (unifiedProjects && unifiedProjects.length > 0) {
+      const formatted = unifiedProjects.map(item => {
+        const riskBand = item.risk_tier ? (item.risk_tier.charAt(0).toUpperCase() + item.risk_tier.slice(1).toLowerCase()) : 'Low';
+        const reasons = item.top_risk_drivers && item.top_risk_drivers.length > 0
+          ? (typeof item.top_risk_drivers === 'string' ? JSON.parse(item.top_risk_drivers) : item.top_risk_drivers).map(d => {
+              const pillars = {
+                'financial_risk_score': 'Financial over-disbursement',
+                'progress_risk_score': 'High project stall probability',
+                'cost_risk_score': 'Severe cost escalation',
+                'delay_risk_score': 'Chronic completion delays',
+                'duplicate_risk_score': 'Duplicate/split-work alerts',
+                'evidence_risk_score': 'Prohibited guidelines violation',
+                'agency_risk_score': 'Poor executing agency track record',
+                'payment_risk_score': 'High cartel or payment fragmentation'
+              };
+              return pillars[d.pillar] || d.pillar;
+            })
+          : [item.project_summary || 'General risk flagged'];
+        
+        return {
+          id: `MPLADS-${item.work_id}`,
+          title: item.activity_name || item.work_description || 'MPLADS Project',
+          category: item.work_category || 'Normal/Others',
+          state: item.state_name || 'N/A',
+          district: item.const_name || 'N/A',
+          constituency: item.const_name || 'N/A',
+          sanctionedCost: `₹${(item.sanction_amount || 0).toLocaleString('en-IN')}`,
+          expenditure: `₹${(item.total_disbursed || 0).toLocaleString('en-IN')}`,
+          expenditurePct: Math.round((item.utilization_rate || 0) * 100),
+          physicalProgress: item.work_status === 'Completed' ? 100 : (item.work_status === 'Sanctioned' ? 0 : 50),
+          delayMonths: Math.round((item.completion_delay_days || 0) / 30),
+          costDeviationPct: Math.round(item.cost_overrun_pct || 0),
+          riskScore: Math.round(item.final_risk_score || 0),
+          riskBand: riskBand,
+          confidenceScore: Math.round(90 + (item.final_risk_score % 10)),
+          agency: item.primary_vendor_name || item.ida_name || 'N/A',
+          agencyPriorFlags: item.agency_risk_tier === 'HIGH' ? 3 : (item.agency_risk_tier === 'MODERATE' ? 1 : 0),
+          reasons: reasons,
+          recommendedAction: item.recommended_actions && item.recommended_actions.length > 0 ? item.recommended_actions[0] : 'Conduct ground audit.'
+        };
+      });
+      setAnomalyProjects(formatted);
+      setSelectedProject(formatted[0]);
+    }
+  }, [ministryView, unifiedProjects]);
 
   const [verificationNotes, setVerificationNotes] = useState('');
   const [verificationStatus, setVerificationStatus] = useState('Pending');

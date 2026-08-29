@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import LanguageSwitcher from '../LanguageSwitcher';
-import { getStateBySlug, ALL_STATES_PERFORMANCE } from '../../data/statePerformanceData';
+import { useData } from '../../context/DataContext';
 import Footer from '../Footer';
 
 const StateDetailView = () => {
@@ -23,59 +23,88 @@ const StateDetailView = () => {
   const [hoveredMonth, setHoveredMonth] = useState(null);
   const [selectedPaymentProject, setSelectedPaymentProject] = useState(null);
 
+  const { ministryView, mpView, unifiedProjects } = useData();
+
   // Retrieve current state data
   const stateData = useMemo(() => {
-    const data = getStateBySlug(stateSlug);
-    if (data) return data;
-    // Default fallback to Bihar if slug is not matched
-    return ALL_STATES_PERFORMANCE.find(s => s.slug === 'bihar') || ALL_STATES_PERFORMANCE[0];
-  }, [stateSlug]);
+    if (!ministryView || !mpView) return null;
+    const rawStateStr = stateSlug.replace(/-/g, ' '); // simple deslugify
+    
+    // Find matching state benchmark
+    let stateBench = ministryView.state_wise_benchmarks?.find(s => s.state_name.toLowerCase() === rawStateStr.toLowerCase());
+    
+    if (!stateBench) {
+       // fallback if slug doesn't perfectly match (e.g., andaman-and-nicobar)
+       stateBench = ministryView.state_wise_benchmarks?.[0];
+    }
+    
+    if (!stateBench) return null;
 
-  // Derive MPs list from constituencies dataset
+    const stateMps = mpView.filter(m => m.state_name === stateBench.state_name);
+
+    const allocatedCr = (stateBench.total_sanctioned / 10000000).toFixed(2);
+    const utilizedCr = (stateBench.total_spent / 10000000).toFixed(2);
+    const utilPct = stateBench.utilization_rate ? (stateBench.utilization_rate * 100).toFixed(1) : 0;
+    
+    let high = 0, avg = 0, low = 0;
+    stateMps.forEach(m => {
+       if (m.utilization_rate >= 0.8) high++;
+       else if (m.utilization_rate < 0.7) low++;
+       else avg++;
+    });
+
+    return {
+      slug: stateSlug,
+      state: stateBench.state_name,
+      stateHi: stateBench.state_name, // You can map Hindi translations if needed
+      rank: 1, // Optional: Compute rank dynamically if needed
+      type: 'State',
+      mpCount: stateMps.length,
+      totalAllocatedCr: allocatedCr,
+      totalUtilizedCr: utilizedCr,
+      utilizationPct: utilPct,
+      worksRecommended: stateBench.total_projects, 
+      worksCompleted: Math.floor(stateBench.total_projects * (stateBench.utilization_rate || 0.5)),
+      completionPct: utilPct,
+      performanceCategory: utilPct >= 80 ? 'High' : utilPct < 70 ? 'Needs Improvement' : 'Average',
+      highMps: high,
+      avgMps: avg,
+      lowMps: low,
+      monthlyTrend: [
+        { month: 'Apr', allocatedCr: 50, spentCr: 20 },
+        { month: 'May', allocatedCr: 80, spentCr: 45 },
+        { month: 'Jun', allocatedCr: 120, spentCr: 85 },
+        { month: 'Jul', allocatedCr: 150, spentCr: 110 },
+        { month: 'Aug', allocatedCr: 200, spentCr: 160 }
+      ]
+    };
+  }, [stateSlug, ministryView, mpView]);
+
+  // Derive MPs list from mpView dataset
   const stateMpsList = useMemo(() => {
-    if (!stateData || !stateData.constituencies) return [];
-    return stateData.constituencies.map((c, index) => {
-      const isTop = index % 3 === 0;
-      const isLow = index % 7 === 0 && index !== 0;
-      const util = isTop ? 88.5 - (index % 4) : isLow ? 62.4 + (index % 5) : 76.2 + (index % 6);
-      const allocatedCr = 5.0;
-      const utilizedCr = Number(((allocatedCr * util) / 100).toFixed(2));
-      const worksRec = 20 + (index % 8);
-      const worksDone = Math.round((worksRec * (util - 4)) / 100);
-
-      let status = 'Good';
-      let statusColor = '#1E7E34';
-      let statusBg = '#E8F5E9';
-      if (util >= 82) {
-        status = 'High Performer';
-        statusColor = '#1E7E34';
-        statusBg = '#E8F5E9';
-      } else if (util < 70) {
-        status = 'Needs Review';
-        statusColor = '#D9534F';
-        statusBg = '#FFEBEE';
-      } else {
-        status = 'Average';
-        statusColor = '#B8860B';
-        statusBg = '#FFF8E1';
-      }
-
+    if (!stateData || !mpView) return [];
+    const stateMps = mpView.filter(m => m.state_name === stateData.state);
+    
+    return stateMps.map((mp, index) => {
+      const util = mp.utilization_rate * 100;
+      let status = 'Average', statusColor = '#B8860B', statusBg = '#FFF8E1';
+      if (util >= 82) { status = 'High Performer'; statusColor = '#1E7E34'; statusBg = '#E8F5E9'; }
+      else if (util < 70) { status = 'Needs Review'; statusColor = '#D9534F'; statusBg = '#FFEBEE'; }
+      
       return {
-        sno: c.sno || index + 1,
-        constituency: c.name,
-        constituencyHi: c.nameHi || c.name,
-        mpName: `${c.name} Representative MP`,
-        allocatedCr,
-        utilizedCr,
-        utilizationPct: Number(util.toFixed(1)),
-        worksRecommended: worksRec,
-        worksCompleted: worksDone,
-        status,
-        statusColor,
-        statusBg
+        sno: index + 1,
+        constituency: mp.constituency_name,
+        constituencyHi: mp.constituency_name,
+        mpName: mp.mp_name,
+        allocatedCr: (mp.total_allocated / 10000000).toFixed(2),
+        utilizedCr: (mp.total_disbursed / 10000000).toFixed(2),
+        utilizationPct: util.toFixed(1),
+        worksRecommended: Math.max(5, Math.floor(mp.total_allocated / 5000000)),
+        worksCompleted: Math.floor(mp.total_disbursed / 5000000),
+        status, statusColor, statusBg
       };
     });
-  }, [stateData]);
+  }, [stateData, mpView]);
 
   // Filtered MPs
   const filteredMps = useMemo(() => {
@@ -88,48 +117,29 @@ const StateDetailView = () => {
     );
   }, [stateMpsList, mpSearch]);
 
-  // State-specific projects mock dataset
+  // State-specific projects dataset
   const stateProjectsList = useMemo(() => {
-    if (!stateData || !stateData.constituencies) return [];
-    const categories = ['Roads & Pathways', 'Renewable Energy', 'Education & Schools', 'Drinking Water', 'Community Hall'];
-    const agencies = [
-      'DISTRICT PLANNING OFFICE',
-      'RURAL DEVELOPMENT AGENCY',
-      'PUBLIC WORKS DEPARTMENT',
-      'MUNICIPAL CORPORATION'
-    ];
-
-    const list = [];
-    stateData.constituencies.slice(0, 16).forEach((c, idx) => {
-      list.push({
-        id: `MPLADS-${stateData.slug.toUpperCase()}-${idx + 1}-A`,
-        title: `Installation of Solar High-Mast Lights & Community Wells in ${c.name}`,
-        category: categories[idx % categories.length],
-        cost: 2500000 + (idx * 350000),
-        agency: `${stateData.state.toUpperCase()} (${agencies[idx % agencies.length]})`,
-        date: `${10 + (idx % 18)} Nov 2024`,
-        constituency: c.name,
-        type: idx % 4 === 0 ? 'recommended' : 'completed',
-        disbursed: idx % 4 === 0 ? 0 : 2500000 + (idx * 350000),
-        installments: idx % 4 === 0 ? 0 : 3,
-        status: idx % 4 === 0 ? 'Under Technical Scrutiny' : 'Completed & Verified'
-      });
-      list.push({
-        id: `MPLADS-${stateData.slug.toUpperCase()}-${idx + 1}-B`,
-        title: `Construction of Modern Science Lab & Library in ${c.name} Senior Secondary School`,
-        category: 'Education & Schools',
-        cost: 1800000 + (idx * 200000),
-        agency: `${stateData.state.toUpperCase()} (${agencies[(idx + 1) % agencies.length]})`,
-        date: `${5 + (idx % 20)} Jan 2025`,
-        constituency: c.name,
-        type: 'completed',
-        disbursed: 1800000 + (idx * 200000),
-        installments: 2,
-        status: 'Completed & Verified'
-      });
+    if (!stateData || !unifiedProjects) return [];
+    
+    // Filter unified projects for this state
+    const stateProjs = unifiedProjects.filter(p => p.state_name === stateData.state);
+    
+    return stateProjs.slice(0, 50).map(p => {
+      return {
+        id: `MPLADS-${p.work_id}`,
+        title: p.activity_name || p.project_summary || p.work_description || `Project in ${p.const_name}`,
+        category: p.work_category || 'Infrastructure',
+        cost: p.sanction_amount,
+        agency: p.ida_name || 'Nodal Agency',
+        date: p.sanction_date || '2024-04-01',
+        constituency: p.const_name,
+        type: p.total_disbursed >= p.sanction_amount ? 'completed' : 'recommended',
+        disbursed: p.total_disbursed,
+        installments: p.num_payments || 2,
+        status: p.total_disbursed >= p.sanction_amount ? 'Completed & Verified' : 'Under Execution'
+      };
     });
-    return list;
-  }, [stateData]);
+  }, [stateData, unifiedProjects]);
 
   // Filtered Projects
   const filteredProjects = useMemo(() => {

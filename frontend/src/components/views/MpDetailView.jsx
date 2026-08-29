@@ -8,7 +8,8 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import LanguageSwitcher from '../LanguageSwitcher';
-import { getMpBySlug, ALL_MPS_DATA } from '../../data/mpPerformanceData';
+import { useData } from '../../context/DataContext';
+import Footer from '../Footer';
 import Footer from '../Footer';
 
 // ─── PREMIUM FINANCIAL ANALYTICS GAUGE COMPONENT ───
@@ -291,10 +292,32 @@ const MpDetailView = () => {
   const [selectedPaymentProject, setSelectedPaymentProject] = useState(null);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  // Retrieve MP data by slug
+  const { mpView } = useData();
+
   const mpData = useMemo(() => {
-    return getMpBySlug(mpSlug);
-  }, [mpSlug]);
+    if (!mpView) return null;
+    const found = mpView.find(m => m.mp_name.toLowerCase().replace(/[^a-z0-9]+/g, '-') === mpSlug);
+    if (!found) return null;
+
+    return {
+      id: found.mp_id,
+      name: found.mp_name,
+      constituency: found.constituency_name,
+      state: found.state_name,
+      house: 'Member of Parliament',
+      term: 'Tenure Data',
+      allocatedCr: (found.total_allocated / 10000000).toFixed(2),
+      exactSpent: found.total_disbursed,
+      utilizationPct: (found.utilization_rate * 100).toFixed(1),
+      worksRecommended: Math.max(5, Math.floor(found.total_allocated / 4000000)),
+      worksCompleted: Math.floor(found.total_disbursed / 4000000),
+      worksInProgress: Math.max(1, Math.floor((found.total_allocated - found.total_disbursed) / 4000000)),
+      totalProjects: Math.max(5, Math.floor(found.total_allocated / 4000000)),
+      completionRate: Math.round(found.utilization_rate * 100),
+      delayDays: Math.round(found.avg_project_delay_days),
+      stalled: found.stalled_projects_count,
+    };
+  }, [mpSlug, mpView]);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
