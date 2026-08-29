@@ -28,7 +28,7 @@ export const en = {
       problem: "Problem",
       solution: "Solution",
       aiIntelligence: "AI Intelligence",
-      riskMap: "Risk & Map",
+      projects: "Projects",
       investigation: "Investigation",
       more: "More",
       theProblem: "The Problem",
@@ -62,13 +62,12 @@ export const en = {
         evidenceVerification: "Evidence Verification",
         geospatialIntelligence: "Geospatial Intelligence"
       },
-      riskMap: {
-        overallRiskScore: "Overall Risk Score",
-        riskFactors: "Risk Factors",
-        riskTrend: "Risk Trend",
-        indiaRiskMap: "India Risk Map",
-        districtAnalysis: "District Analysis",
-        riskHeatmap: "Risk Heatmap"
+      projects: {
+        findProject: "Find Project",
+        browseState: "Browse State",
+        browseMpMla: "Browse MP/MLA",
+        compare: "Compare",
+        feedback: "Feedback"
       },
       investigation: {
         highRiskProjects: "High-Risk Projects",

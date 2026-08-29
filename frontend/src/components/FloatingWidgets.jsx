@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, X, Send, ShieldAlert } from 'lucide-react';
+import { MessageSquare, X, Send, ShieldAlert, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-const FloatingWidgets = () => {
+const FloatingWidgets = ({ onLoginClick }) => {
   const { t, language } = useLanguage();
   const [chatOpen, setChatOpen] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -34,6 +34,14 @@ const FloatingWidgets = () => {
   const scrollToGeospatial = () => {
     const el = document.getElementById('geospatial');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleLoginClick = () => {
+    if (onLoginClick) {
+      onLoginClick();
+    } else {
+      alert(t('footer.alerts.login'));
+    }
   };
 
   const [isRiskBtnHovered, setIsRiskBtnHovered] = useState(false);
@@ -198,15 +206,34 @@ const FloatingWidgets = () => {
         </div>
       </div>
 
-      {/* Floating Chat Assistant "Nirikshak AI" Bottom Right */}
+      {/* Floating Chat Assistant "Nirikshak AI" & Login Button Bottom Right */}
       <div
         style={{
           position: 'fixed',
           bottom: '24px',
           right: '24px',
-          zIndex: 999
+          zIndex: 999,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          gap: '0.85rem'
         }}
       >
+        {/* Floating Login Button matching landing-page footer design */}
+        <button
+          onClick={handleLoginClick}
+          className="btn-teal"
+          style={{
+            justifyContent: 'space-between',
+            padding: '0.7rem 1.4rem',
+            fontSize: '0.92rem',
+            gap: '0.75rem',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          <span>{t('footer.actions.login')}</span>
+          <ArrowRight size={16} />
+        </button>
         {chatOpen ? (
           <div
             style={{

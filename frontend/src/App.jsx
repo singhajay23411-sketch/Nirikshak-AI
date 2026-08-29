@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import StatsMarquee from './components/StatsMarquee';
@@ -12,33 +13,43 @@ import FloatingWidgets from './components/FloatingWidgets';
 import LoginView from './components/auth/LoginView';
 import RoleDashboardLayout from './components/dashboard/RoleDashboardLayout';
 import FeatureView from './components/views/FeatureView';
+import StateDetailView from './components/views/StateDetailView';
+import MpDetailView from './components/views/MpDetailView';
 import { useAuth } from './context/AuthContext';
 
-/*
-  View Routing:
-    'landing'   → Public portal (default)
-    'login'     → Login page
-    'dashboard' → Role-based dashboard (authenticated only)
-*/
+// Helper component to scroll to top on route change
+function ScrollToTop() {
+  const { pathname, state } = useLocation();
 
-// Nirikshak AI Main Application Layout
-function App() {
-  const { isAuthenticated, user } = useAuth();
-  const [currentView, setCurrentView] = useState('landing');
-  const [activeSection, setActiveSection] = useState('hero');
-  const [activeFeature, setActiveFeature] = useState(null);
-
-  // Auto-redirect to dashboard if already authenticated
   useEffect(() => {
-    if (isAuthenticated && currentView === 'login') {
-      setCurrentView('dashboard');
+    if (!state?.scrollTo) {
+      window.scrollTo(0, 0);
     }
-  }, [isAuthenticated]);
+  }, [pathname, state]);
 
-  // Scroll reveal observer for all sections and elements
+  return null;
+}
+
+// ─── Public Landing Page Component ───
+function LandingPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [activeSection, setActiveSection] = useState('hero');
+
+  // Handle scroll-to-section on load or when navigating with state
   useEffect(() => {
-    if (currentView !== 'landing') return;
+    if (location.state?.scrollTo) {
+      const el = document.getElementById(location.state.scrollTo);
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }, 80);
+      }
+    }
+  }, [location.state]);
 
+  // Scroll reveal observer for landing sections
+  useEffect(() => {
     const observerCallback = (entries, observer) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -61,7 +72,7 @@ function App() {
     });
 
     return () => observer.disconnect();
-  }, [currentView]);
+  }, []);
 
   const scrollToSection = (id) => {
     setActiveSection(id);
@@ -71,43 +82,20 @@ function App() {
     }
   };
 
-  // ─── Login View ───
-  if (currentView === 'login') {
-    return (
-      <LoginView
-        onBack={() => setCurrentView('landing')}
-        onLoginSuccess={(user) => setCurrentView('dashboard')}
-      />
-    );
-  }
+  const handleFeatureSelect = (featureId) => {
+    const targetPath = `/features/${featureId}`;
+    if (location.pathname !== targetPath) {
+      navigate(targetPath);
+    }
+  };
 
-  // ─── Feature Detail View (from Navigation Drawer) ───
-  if (activeFeature) {
-    return (
-      <FeatureView
-        featureId={activeFeature}
-        onBack={() => setActiveFeature(null)}
-      />
-    );
-  }
-
-  // ─── Dashboard View (Authenticated) ───
-  if (currentView === 'dashboard' && isAuthenticated) {
-    return (
-      <RoleDashboardLayout
-        onLogout={() => setCurrentView('landing')}
-      />
-    );
-  }
-
-  // ─── Public Landing Page (Default) ───
   return (
     <div style={{ background: 'var(--color-bg-light)', color: 'var(--color-text-primary)', minHeight: '100vh' }}>
       {/* Nirikshak AI MoSPI Header */}
       <Header
         activeSection={activeSection}
         setActiveSection={setActiveSection}
-        onFeatureSelect={(featureId) => setActiveFeature(featureId)}
+        onFeatureSelect={handleFeatureSelect}
       />
 
       {/* Main Content Sections */}
@@ -137,11 +125,100 @@ function App() {
       </main>
 
       {/* Footer with Login entry point */}
-      <Footer onLoginClick={() => setCurrentView('login')} />
+      <Footer onLoginClick={() => navigate('/login')} />
 
       {/* Floating Risk Map & Nirikshak AI Assistant Widgets */}
-      <FloatingWidgets />
+      <FloatingWidgets onLoginClick={() => navigate('/login')} />
     </div>
+  );
+}
+
+// ─── Login View Wrapper ───
+function LoginPage() {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  // Auto-redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  return (
+    <LoginView
+      onBack={() => navigate('/')}
+      onLoginSuccess={() => navigate('/dashboard')}
+    />
+  );
+}
+
+// ─── Dashboard View Wrapper ───
+function DashboardPage() {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  // If not authenticated, redirect to login
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <RoleDashboardLayout
+      onLogout={() => navigate('/')}
+    />
+  );
+}
+
+// ─── Feature Detail View Wrapper ───
+function FeaturePage() {
+  const navigate = useNavigate();
+
+  return (
+    <FeatureView
+      onBack={() => navigate('/')}
+    />
+  );
+}
+
+// ─── State Detail View Wrapper ───
+function StateDetailPage() {
+  return <StateDetailView />;
+}
+
+// ─── MP Detail View Wrapper ───
+function MpDetailPage() {
+  return <MpDetailView />;
+}
+
+// ─── Main App Router Layout ───
+function App() {
+  return (
+    <>
+      <ScrollToTop />
+      <Routes>
+        {/* Public Landing Page */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* Authentication */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Authenticated Dashboard */}
+        <Route path="/dashboard" element={<DashboardPage />} />
+
+        {/* Dedicated State Detail Route */}
+        <Route path="/states/:stateSlug" element={<StateDetailPage />} />
+
+        {/* Dedicated MP Detail Route */}
+        <Route path="/mps/:mpSlug" element={<MpDetailPage />} />
+
+        {/* Feature Detail Views */}
+        <Route path="/features/:featureId" element={<FeaturePage />} />
+
+        {/* Direct Feature Aliases (e.g., /overview, /keyMetrics, /financialAnomaly, /states, /mps) */}
+        <Route path="/:featureId" element={<FeaturePage />} />
+      </Routes>
+    </>
   );
 }
 

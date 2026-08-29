@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, ArrowRight, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -145,6 +146,8 @@ const NirikshakLogo = () => {
 const DRAWER_WIDTH = 274;
 
 const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileExpandedGroup, setMobileExpandedGroup] = useState(null);
@@ -219,16 +222,15 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
       ]
     },
     {
-      id: 'riskMap',
-      label: t('header.nav.riskMap'),
-      target: 'risk-scoring',
+      id: 'projects',
+      label: t('header.nav.projects') || 'Projects',
+      target: 'ai-detection',
       items: [
-        { id: 'overallRiskScore', label: t('header.drawers.riskMap.overallRiskScore'), target: 'risk-scoring' },
-        { id: 'riskFactors', label: t('header.drawers.riskMap.riskFactors'), target: 'risk-scoring' },
-        { id: 'riskTrend', label: t('header.drawers.riskMap.riskTrend'), target: 'risk-scoring' },
-        { id: 'indiaRiskMap', label: t('header.drawers.riskMap.indiaRiskMap'), target: 'geospatial' },
-        { id: 'districtAnalysis', label: t('header.drawers.riskMap.districtAnalysis'), target: 'geospatial' },
-        { id: 'riskHeatmap', label: t('header.drawers.riskMap.riskHeatmap'), target: 'geospatial' },
+        { id: 'findProject', label: t('header.drawers.projects.findProject') || 'Find Project', target: 'ai-detection' },
+        { id: 'browseState', label: t('header.drawers.projects.browseState') || 'Browse State', target: 'geospatial' },
+        { id: 'browseMpMla', label: t('header.drawers.projects.browseMpMla') || 'Browse MP/MLA', target: 'stats-marquee' },
+        { id: 'compare', label: t('header.drawers.projects.compare') || 'Compare', target: 'process' },
+        { id: 'feedback', label: t('header.drawers.projects.feedback') || 'Feedback', target: 'problem' },
       ]
     },
     {
@@ -276,10 +278,15 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
 
   // Helper to scroll smoothly to a section
   const handleNavClick = (sectionId) => {
-    setActiveSection(sectionId);
+    if (setActiveSection) setActiveSection(sectionId);
     setMobileMenuOpen(false);
     setIsDrawerOpen(false);
     setActiveDrawer(null);
+
+    if (location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: sectionId } });
+      return;
+    }
 
     const el = document.getElementById(sectionId);
     if (el) {
@@ -296,7 +303,10 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
     if (onFeatureSelect) {
       onFeatureSelect(item.id, item.target);
     } else {
-      handleNavClick(item.target);
+      const targetPath = `/features/${item.id}`;
+      if (location.pathname !== targetPath) {
+        navigate(targetPath);
+      }
     }
   };
 

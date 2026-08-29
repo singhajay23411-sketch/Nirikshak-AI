@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff, Lock, Mail, ShieldCheck, ChevronDown, ChevronUp } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -16,8 +17,19 @@ const DEMO_ACCOUNTS = [
 ];
 
 const LoginView = ({ onBack, onLoginSuccess }) => {
+  const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { login, isLoading, error: authError } = useAuth();
+
+  const handleBack = () => {
+    if (onBack) onBack();
+    else navigate('/');
+  };
+
+  const handleSuccess = (user) => {
+    if (onLoginSuccess) onLoginSuccess(user);
+    else navigate('/dashboard');
+  };
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,7 +55,7 @@ const LoginView = ({ onBack, onLoginSuccess }) => {
 
     const result = await login(email.trim(), password, rememberMe);
     if (result.success) {
-      onLoginSuccess && onLoginSuccess(result.user);
+      handleSuccess(result.user);
     }
   };
 
@@ -54,7 +66,7 @@ const LoginView = ({ onBack, onLoginSuccess }) => {
 
     const result = await login(account.email, account.password, false);
     if (result.success) {
-      onLoginSuccess && onLoginSuccess(result.user);
+      handleSuccess(result.user);
     }
   };
 
@@ -97,7 +109,7 @@ const LoginView = ({ onBack, onLoginSuccess }) => {
         {/* Left: Back to Public Portal with persistent dark text on hover */}
         <button
           type="button"
-          onClick={onBack}
+          onClick={handleBack}
           className="btn-back-portal"
         >
           <ArrowLeft size={15} />

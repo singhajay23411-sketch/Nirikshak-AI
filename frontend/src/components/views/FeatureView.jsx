@@ -1,15 +1,29 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Shield, AlertTriangle, CheckCircle, Database, TrendingUp, 
   MapPin, Clock, FileText, Search, Filter, Download, ExternalLink, 
+=======
+import React, { useState } from 'react';
+import {
+  ArrowLeft, Shield, AlertTriangle, CheckCircle, Database, TrendingUp,
+  MapPin, Clock, FileText, Search, Filter, Download, ExternalLink,
+>>>>>>> 4c60b3f (feat(frontend): add Find Projects, Browse States, Browse MPs, Compare, and Feedback modules with detail views)
   Layers, Camera, ChevronRight, Eye, RefreshCw, BarChart3, AlertCircle,
   FileCheck, Users, Send, CheckSquare, Copy
 } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import LanguageSwitcher from '../LanguageSwitcher';
+import HouseSelector from '../HouseSelector';
 import IndiaMap from '../IndiaMap';
 import Footer from '../Footer';
+import FindProjectsView from './FindProjectsView';
+import BrowseStatesView from './BrowseStatesView';
+import BrowseMpsView from './BrowseMpsView';
+import CompareView from './CompareView';
+import FeedbackView from './FeedbackView';
 
 // MOCK DATA SOURCED DIRECTLY FROM README.MD SPECIFICATIONS
 const MOCK_ANOMALY_PROJECTS = [
@@ -2275,10 +2289,22 @@ const DuplicateDetectionDashboard = ({ isHi }) => {
   );
 };
 
-const FeatureView = ({ featureId, onBack }) => {
+const FeatureView = ({ featureId: propFeatureId, onBack }) => {
+  const { featureId: paramFeatureId } = useParams();
+  const navigate = useNavigate();
+  const featureId = propFeatureId || paramFeatureId || 'overview';
+
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const isHi = language === 'hi';
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/');
+    }
+  };
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('ALL');
@@ -2377,10 +2403,17 @@ const FeatureView = ({ featureId, onBack }) => {
   const [verificationStatus, setVerificationStatus] = useState('Pending');
 
   // Filter projects
+<<<<<<< HEAD
   const filteredProjects = anomalyProjects.filter(p => {
     const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           p.district.toLowerCase().includes(searchQuery.toLowerCase());
+=======
+  const filteredProjects = MOCK_ANOMALY_PROJECTS.filter(p => {
+    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.district.toLowerCase().includes(searchQuery.toLowerCase());
+>>>>>>> 4c60b3f (feat(frontend): add Find Projects, Browse States, Browse MPs, Compare, and Feedback modules with detail views)
     const matchesFilter = selectedFilter === 'ALL' || p.riskBand.toUpperCase() === selectedFilter;
     return matchesSearch && matchesFilter;
   });
@@ -2402,8 +2435,13 @@ const FeatureView = ({ featureId, onBack }) => {
                   {isHi ? 'MPLADS डैशबोर्ड' : 'MPLADS Dashboard'}
                 </h1>
                 <p style={{ fontSize: '0.92rem', color: 'var(--color-text-secondary)', marginTop: '0.4rem', margin: 0, maxWidth: '720px', lineHeight: 1.5 }}>
+<<<<<<< HEAD
                   {isHi 
                     ? '543 लोकसभा and 245 राज्यसभा निर्वाचन क्षेत्रों में एमपीलैड्स विकास कार्यों, निधि उपयोग और विसंगति सत्यापन की निगरानी।'
+=======
+                  {isHi
+                    ? '543 लोकसभा और 245 राज्यसभा निर्वाचन क्षेत्रों में एमपीलैड्स विकास कार्यों, निधि उपयोग और विसंगति सत्यापन की निगरानी।'
+>>>>>>> 4c60b3f (feat(frontend): add Find Projects, Browse States, Browse MPs, Compare, and Feedback modules with detail views)
                     : 'Monitoring MPLADS works, fund utilization, and anomaly verification across 543 Lok Sabha and 245 Rajya Sabha constituencies.'}
                 </p>
               </div>
@@ -2449,62 +2487,48 @@ const FeatureView = ({ featureId, onBack }) => {
               </div>
             </div>
 
-            {/* 7 Key Metric Cards Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1rem' }}>
-              <div className="card-light" style={{ padding: '1.15rem', border: '1.5px solid #1D1E22', boxShadow: '2px 3px 0px #1D1E22', background: '#FFF' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+            {/* 4 Key Metric Cards Grid in One Clean Responsive Row */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                gap: '1.25rem'
+              }}
+            >
+              {/* Card 1: Total Allocated */}
+              <div className="card-light" style={{ padding: '1.25rem', border: '1.5px solid #1D1E22', boxShadow: '2px 3px 0px #1D1E22', background: '#FFF' }}>
+                <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'कुल आवंटित निधि' : 'Total Allocated'}
                 </div>
                 <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#1D1E22' }}>{nationalStats.totalAllocated}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>16-17 Lok Sabha</div>
               </div>
 
-              <div className="card-light" style={{ padding: '1.15rem', border: '1.5px solid #1D1E22', boxShadow: '2px 3px 0px #1D1E22', background: '#FFF' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+              {/* Card 2: Total Expenditure */}
+              <div className="card-light" style={{ padding: '1.25rem', border: '1.5px solid #1D1E22', boxShadow: '2px 3px 0px #1D1E22', background: '#FFF' }}>
+                <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'कुल व्यय' : 'Total Expenditure'}
                 </div>
                 <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#0A2458' }}>{nationalStats.totalSpent}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>Disbursed Vouchers</div>
               </div>
 
-              <div className="card-light" style={{ padding: '1.15rem', border: '1.5px solid #1D1E22', boxShadow: '2px 3px 0px #1D1E22', background: '#FFF' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-accent-teal)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+              {/* Card 3: Fund Utilization */}
+              <div className="card-light" style={{ padding: '1.25rem', border: '1.5px solid #1D1E22', boxShadow: '2px 3px 0px #1D1E22', background: '#FFF' }}>
+                <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--color-accent-teal)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'निधि उपयोग दर' : 'Fund Utilization'}
                 </div>
                 <div style={{ fontSize: '1.55rem', fontWeight: 800, color: 'var(--color-accent-teal-hover)' }}>{nationalStats.utilizationRate}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>National Average</div>
               </div>
 
-              <div className="card-light" style={{ padding: '1.15rem', border: '1.5px solid #1D1E22', boxShadow: '2px 3px 0px #1D1E22', background: '#FFF' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
-                  {isHi ? 'कुल सांसद' : 'Total MPs'}
-                </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#1D1E22' }}>{nationalStats.totalMps}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>543 LS + 245 RS</div>
-              </div>
-
-              <div className="card-light" style={{ padding: '1.15rem', border: '1.5px solid #1D1E22', boxShadow: '2px 3px 0px #1D1E22', background: '#FFF' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#1E7E34', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+              {/* Card 4: Works Completed */}
+              <div className="card-light" style={{ padding: '1.25rem', border: '1.5px solid #1D1E22', boxShadow: '2px 3px 0px #1D1E22', background: '#FFF' }}>
+                <div style={{ fontSize: '0.74rem', fontWeight: 800, color: '#1E7E34', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'पूर्ण कार्य' : 'Works Completed'}
                 </div>
                 <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#1E7E34' }}>{nationalStats.completedWorks}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>Verified Finish</div>
-              </div>
-
-              <div className="card-light" style={{ padding: '1.15rem', border: '1.5px solid #1D1E22', boxShadow: '2px 3px 0px #1D1E22', background: '#FFF' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B8860B', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
-                  {isHi ? 'लंबित कार्य' : 'Works Pending'}
-                </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#B8860B' }}>{nationalStats.pendingWorks}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>In Sanction Cycle</div>
-              </div>
-
-              <div className="card-light" style={{ padding: '1.15rem', border: '1.5px solid #1D1E22', boxShadow: '2px 3px 0px #1D1E22', background: '#FFF' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#D9534F', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
-                  {isHi ? 'अपूर्ण / विसंगति कार्य' : 'Incomplete Works'}
-                </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#D9534F' }}>{nationalStats.incompleteWorks}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>Flagged for Review</div>
               </div>
             </div>
 
@@ -2641,7 +2665,6 @@ const FeatureView = ({ featureId, onBack }) => {
                 ))}
               </div>
             </div>
-
             {/* High-Risk Projects Registry Table */}
             <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: '3px 4px 0px #1D1E22' }}>
               <div style={{ padding: '1.15rem 1.5rem', background: '#F3EFE6', borderBottom: '1px solid #1D1E22', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -2710,6 +2733,13 @@ const FeatureView = ({ featureId, onBack }) => {
             <Footer hideCTAButtons={true} />
           </div>
         );
+
+      case 'findProject':
+      case 'findProjects':
+      case 'find-project':
+      case 'find-projects':
+      case 'searchProjects':
+        return <FindProjectsView />;
 
       case 'keyMetrics':
         return <KeyMetricsDashboard isHi={isHi} />;
@@ -3016,7 +3046,7 @@ const FeatureView = ({ featureId, onBack }) => {
                   {isHi ? 'राष्ट्रीय भू-स्थानिक जोखिम मानचित्र' : 'National Geospatial Risk Intelligence Map'}
                 </h3>
                 <p style={{ fontSize: '0.88rem', color: 'var(--color-text-secondary)', margin: 0 }}>
-                  {isHi 
+                  {isHi
                     ? '28 राज्यों और 8 केंद्र शासित प्रदेशों में एमपीलैड्स परियोजनाओं, वित्तीय उपयोग और विसंगति हॉटस्पॉट का विश्लेषण करें।'
                     : 'Explore state and district-level fund utilisation, delay patterns, and critical irregularity clusters across 28 states & 8 UTs.'}
                 </p>
@@ -3155,6 +3185,25 @@ const FeatureView = ({ featureId, onBack }) => {
           </div>
         );
 
+      case 'browseState':
+      case 'browseStates':
+      case 'states':
+        return <BrowseStatesView />;
+
+      case 'browseMpMla':
+      case 'browseMps':
+      case 'browseMp':
+      case 'mps':
+        return <BrowseMpsView />;
+
+      case 'compare':
+      case 'compareConstituencies':
+        return <CompareView />;
+
+      case 'feedback':
+      case 'reportIssue':
+        return <FeedbackView />;
+
       // Default fallback
       default:
         return (
@@ -3195,7 +3244,7 @@ const FeatureView = ({ featureId, onBack }) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <button
             type="button"
-            onClick={onBack}
+            onClick={handleBack}
             className="btn-outline-dark"
             style={{
               padding: '0.5rem 1.15rem',
@@ -3216,12 +3265,27 @@ const FeatureView = ({ featureId, onBack }) => {
               NIRIKSHΛK ΛI • MPLADS INTELLIGENCE
             </div>
             <div style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.25rem', fontWeight: 700, color: '#1D1E22' }}>
-              {featureId.toUpperCase()}
+              {featureId === 'findProject' || featureId === 'findProjects'
+                ? (isHi ? 'परियोजनाएं खोजें' : 'FIND PROJECTS')
+                : featureId === 'browseState' || featureId === 'browseStates' || featureId === 'states'
+                ? (isHi ? 'राज्य-वार प्रदर्शन' : 'BROWSE STATES')
+                : featureId === 'browseMpMla' || featureId === 'browseMps' || featureId === 'mps'
+                ? (isHi ? 'सांसद प्रदर्शन' : 'BROWSE MPS')
+                : featureId === 'compare' || featureId === 'compareConstituencies'
+                ? (isHi ? 'निर्वाचन क्षेत्र तुलना' : 'COMPARE CONSTITUENCIES')
+                : featureId === 'feedback' || featureId === 'reportIssue'
+                ? (isHi ? 'मुद्दा / प्रतिपुष्टि दर्ज करें' : 'REPORT AN ISSUE')
+                : featureId.toUpperCase()}
             </div>
           </div>
         </div>
 
-        <LanguageSwitcher />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {(featureId === 'overview' || featureId === 'home') && (
+            <HouseSelector />
+          )}
+          <LanguageSwitcher />
+        </div>
       </header>
 
       {/* Main Feature Content Container */}

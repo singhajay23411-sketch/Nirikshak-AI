@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LogOut, User, ChevronDown, Shield, BarChart3, Map, FileText, Search, Users, Database, Activity, Cpu, Eye, ClipboardCheck, Camera, Settings } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -61,6 +62,7 @@ const ROLE_NAV_CONFIG = {
 };
 
 const RoleDashboardLayout = ({ onLogout }) => {
+  const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
@@ -72,7 +74,11 @@ const RoleDashboardLayout = ({ onLogout }) => {
 
   const handleLogout = () => {
     logout();
-    onLogout && onLogout();
+    if (onLogout) {
+      onLogout();
+    } else {
+      navigate('/');
+    }
   };
 
   const getRoleLabel = () => {

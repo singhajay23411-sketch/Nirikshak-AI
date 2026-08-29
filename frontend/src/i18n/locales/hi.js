@@ -28,7 +28,7 @@ export const hi = {
       problem: "समस्या",
       solution: "समाधान",
       aiIntelligence: "एआई इंटेलिजेंस",
-      riskMap: "जोखिम एवं मानचित्र",
+      projects: "परियोजनाएं",
       investigation: "जांच",
       more: "अधिक",
       theProblem: "मुख्य समस्या",
@@ -62,13 +62,12 @@ export const hi = {
         evidenceVerification: "साक्ष्य सत्यापन",
         geospatialIntelligence: "भू-स्थानिक इंटेलिजेंस"
       },
-      riskMap: {
-        overallRiskScore: "समग्र जोखिम स्कोर",
-        riskFactors: "जोखिम कारक",
-        riskTrend: "जोखिम रुझान",
-        indiaRiskMap: "भारत जोखिम मानचित्र",
-        districtAnalysis: "जिला विश्लेषण",
-        riskHeatmap: "जोखिम हीटमैप"
+      projects: {
+        findProject: "परियोजना खोजें",
+        browseState: "राज्य अनुसार ब्राउज़ करें",
+        browseMpMla: "सांसद/विधायक अनुसार ब्राउज़ करें",
+        compare: "तुलना करें",
+        feedback: "प्रतिक्रिया"
       },
       investigation: {
         highRiskProjects: "उच्च जोखिम परियोजनाएं",
