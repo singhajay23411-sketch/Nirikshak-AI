@@ -17,6 +17,7 @@ import BrowseStatesView from './BrowseStatesView';
 import BrowseMpsView from './BrowseMpsView';
 import CompareView from './CompareView';
 import FeedbackView from './FeedbackView';
+import UnifiedAiIntelligenceView from './UnifiedAiIntelligenceView';
 
 // MOCK DATA SOURCED DIRECTLY FROM README.MD SPECIFICATIONS
 const MOCK_ANOMALY_PROJECTS = [
@@ -2725,6 +2726,10 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
       case 'keyMetrics':
         return <KeyMetricsDashboard isHi={isHi} />;
 
+      case 'unifiedAnalysis':
+      case 'aiIntelligence':
+      case 'aiAnalysis':
+      case 'anomalyDetection':
       case 'financialAnomaly':
       case 'financial':
       case 'finGuard':
@@ -2734,85 +2739,21 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
       case 'budgetUtilisation':
       case 'fundRelease':
       case 'paymentPattern':
-        return <FinancialAnomalyDashboard isHi={isHi} anomalyProjects={anomalyProjects} />;
-
       case 'geospatial':
       case 'geospatialIntelligence':
       case 'geoIntel':
-      case 'nearbyComparison':
-      case 'geographicCluster':
-      case 'districtRisk':
-      case 'districtAnalysis':
-      case 'constituencyRisk':
-      case 'indiaRiskMap':
-      case 'riskHeatmap':
-      case 'riskMap':
-      case 'overallRiskScore':
-      case 'riskFactors':
-      case 'riskTrend':
-        return <GeoIntelDashboard isHi={isHi} />;
-
-      // ─────────────────────────────────────────────
-      // 2. AI INTELLIGENCE & DETECTION (FinGuard, Duplicate, GeoIntel, EvidenceAI)
-      // ─────────────────────────────────────────────
       case 'duplicateProject':
       case 'duplicate':
       case 'duplicateDetection':
       case 'duplicateCheck':
-        return <DuplicateDetectionDashboard isHi={isHi} />;
-
+      case 'delayRisk':
       case 'evidenceVerification':
       case 'evidence':
       case 'imageVerification':
       case 'documentVerification':
       case 'beforeAfterAnalysis':
       case 'evidenceIntegrity':
-        return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div className="card-light" style={{ padding: '1.5rem' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.3rem', marginBottom: '0.5rem' }}>
-                {isHi ? 'EvidenceAI: साक्ष्य एवं फोटो सत्यापन इंजन' : 'EvidenceAI: Photo & Document Integrity Verification'}
-              </h3>
-              <p style={{ fontSize: '0.88rem', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-                {isHi
-                  ? 'परसेप्टुअल हैशिंग और मेटाडेटा एक्सट्रैक्शन का उपयोग करके फोटो पुन: उपयोग, जियोटैग विसंगतियों और बिल/यूसी विसंगतियों की पहचान करता है।'
-                  : 'Perceptual hashing, EXIF metadata auditing, and OCR document verification detect photo reuse across works, coordinate discrepancies, and UC anomalies.'}
-              </p>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
-              <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                  <Camera size={18} color="var(--color-accent-teal)" />
-                  <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{isHi ? 'फोटो पुन: उपयोग पहचान' : 'Photo Reuse Detection'}</span>
-                </div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                  pHash perceptual match (Hamming distance &lt; 5) detects images submitted across multiple project claims.
-                </div>
-              </div>
-
-              <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                  <MapPin size={18} color="#D9534F" />
-                  <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{isHi ? 'जियोटैग स्थान सत्यापन' : 'Geotag Coordinates Audit'}</span>
-                </div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                  Validates whether photo GPS latitude/longitude matches sanctioned village/ward boundary radius (&lt;500m).
-                </div>
-              </div>
-
-              <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                  <FileCheck size={18} color="#0A2458" />
-                  <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{isHi ? 'उपयोगिता प्रमाणपत्र (UC) सत्यापन' : 'UC & Invoice Document Audit'}</span>
-                </div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                  Audits OCR extracted amounts against Treasury disbursed vouchers and vendor billing logs.
-                </div>
-              </div>
-            </div>
-          </div>
-        );
+        return <UnifiedAiIntelligenceView />;
 
       // ─────────────────────────────────────────────
       // 3. INVESTIGATION & RESOLUTION
@@ -3256,6 +3197,8 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                 ? (isHi ? 'निर्वाचन क्षेत्र तुलना' : 'COMPARE CONSTITUENCIES')
                 : featureId === 'feedback' || featureId === 'reportIssue'
                 ? (isHi ? 'मुद्दा / प्रतिपुष्टि दर्ज करें' : 'REPORT AN ISSUE')
+                : featureId === 'unifiedAnalysis' || featureId === 'aiIntelligence' || featureId === 'aiAnalysis' || featureId === 'anomalyDetection' || featureId === 'financialAnomaly' || featureId === 'costOverrun' || featureId === 'duplicateProject' || featureId === 'delayRisk' || featureId === 'evidenceVerification' || featureId === 'geospatialIntelligence' || featureId === 'geospatial'
+                ? (isHi ? 'एकीकृत विश्लेषण' : 'UNIFIED ANALYSIS')
                 : featureId.toUpperCase()}
             </div>
           </div>

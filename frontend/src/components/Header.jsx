@@ -210,15 +210,10 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
     },
     {
       id: 'aiIntelligence',
-      label: t('header.nav.aiIntelligence'),
+      label: 'Unified Analysis',
       target: 'ai-detection',
       items: [
-        { id: 'financialAnomaly', label: t('header.drawers.aiIntelligence.financialAnomaly'), target: 'ai-detection' },
-        { id: 'costOverrun', label: t('header.drawers.aiIntelligence.costOverrun'), target: 'ai-detection' },
-        { id: 'duplicateProject', label: t('header.drawers.aiIntelligence.duplicateProject'), target: 'ai-detection' },
-        { id: 'delayRisk', label: t('header.drawers.aiIntelligence.delayRisk'), target: 'ai-detection' },
-        { id: 'evidenceVerification', label: t('header.drawers.aiIntelligence.evidenceVerification'), target: 'ai-detection' },
-        { id: 'geospatialIntelligence', label: t('header.drawers.aiIntelligence.geospatialIntelligence'), target: 'geospatial' },
+        { id: 'unifiedAnalysis', label: 'Unified Analysis', target: 'ai-detection' },
       ]
     },
     {
@@ -450,7 +445,15 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
               >
                 <button
                   type="button"
-                  onClick={() => handleNavClick(group.target)}
+                  onClick={() => {
+                    if (group.id === 'aiIntelligence') {
+                      setIsDrawerOpen(false);
+                      setActiveDrawer(null);
+                      navigate('/features/aiIntelligence');
+                      return;
+                    }
+                    handleNavClick(group.target);
+                  }}
                   className={`nav-item-btn ${isHovered ? 'is-hovered' : ''}`}
                   style={{
                     background: 'none',

@@ -1138,26 +1138,75 @@ const MpDetailView = () => {
                       <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>
                         {p.date}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedPaymentProject(p)}
-                        className="btn-outline-dark"
-                        style={{
-                          padding: '0.4rem 0.75rem',
-                          fontSize: '0.76rem',
-                          fontWeight: 700,
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.35rem',
-                          background: '#FAF8F3',
-                          border: '1px solid #1D1E22',
-                          borderRadius: 'var(--radius-sm)',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <CreditCard size={13} />
-                        <span>Payments</span>
-                      </button>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                        <button
+                          type="button"
+                          onClick={() => navigate('/features/aiIntelligence', {
+                            state: {
+                              project: {
+                                id: p.id,
+                                title: p.title,
+                                category: p.category,
+                                state: mpData.state,
+                                district: mpData.constituency.split(',')[1]?.trim() || mpData.state,
+                                constituency: mpData.constituency,
+                                mpName: mpData.name,
+                                house: mpData.house,
+                                sanctionedCost: `₹${(p.cost / 100000).toFixed(2)} Lakhs`,
+                                sanctionedAmountNumber: p.cost,
+                                expenditure: `₹${(p.disbursed / 100000).toFixed(2)} Lakhs`,
+                                expenditureNumber: p.disbursed,
+                                expenditurePct: Math.round((p.disbursed / p.cost) * 100),
+                                physicalProgress: p.completionPct,
+                                sanctionDate: p.date,
+                                status: p.status,
+                                agency: p.agency,
+                                delayMonths: p.isCompleted ? 0 : 4,
+                                costDeviationPct: p.isCompleted ? 5 : 22,
+                                agencyPriorFlags: 0,
+                                coordinates: '25.3176° N, 82.9739° E'
+                              }
+                            }
+                          })}
+                          style={{
+                            padding: '0.4rem 0.65rem',
+                            fontSize: '0.74rem',
+                            fontWeight: 800,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                            background: '#E8F0FE',
+                            color: '#1A73E8',
+                            border: '1px solid #1A73E8',
+                            borderRadius: 'var(--radius-sm)',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Sparkles size={12} />
+                          <span>AI Scan</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPaymentProject(p)}
+                          className="btn-outline-dark"
+                          style={{
+                            padding: '0.4rem 0.75rem',
+                            fontSize: '0.76rem',
+                            fontWeight: 700,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            background: '#FAF8F3',
+                            border: '1px solid #1D1E22',
+                            borderRadius: 'var(--radius-sm)',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <CreditCard size={13} />
+                          <span>Payments</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
