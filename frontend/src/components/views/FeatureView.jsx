@@ -1,14 +1,7 @@
-<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Shield, AlertTriangle, CheckCircle, Database, TrendingUp, 
   MapPin, Clock, FileText, Search, Filter, Download, ExternalLink, 
-=======
-import React, { useState } from 'react';
-import {
-  ArrowLeft, Shield, AlertTriangle, CheckCircle, Database, TrendingUp,
-  MapPin, Clock, FileText, Search, Filter, Download, ExternalLink,
->>>>>>> 4c60b3f (feat(frontend): add Find Projects, Browse States, Browse MPs, Compare, and Feedback modules with detail views)
   Layers, Camera, ChevronRight, Eye, RefreshCw, BarChart3, AlertCircle,
   FileCheck, Users, Send, CheckSquare, Copy
 } from 'lucide-react';
@@ -2403,17 +2396,10 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
   const [verificationStatus, setVerificationStatus] = useState('Pending');
 
   // Filter projects
-<<<<<<< HEAD
   const filteredProjects = anomalyProjects.filter(p => {
     const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           p.district.toLowerCase().includes(searchQuery.toLowerCase());
-=======
-  const filteredProjects = MOCK_ANOMALY_PROJECTS.filter(p => {
-    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.district.toLowerCase().includes(searchQuery.toLowerCase());
->>>>>>> 4c60b3f (feat(frontend): add Find Projects, Browse States, Browse MPs, Compare, and Feedback modules with detail views)
     const matchesFilter = selectedFilter === 'ALL' || p.riskBand.toUpperCase() === selectedFilter;
     return matchesSearch && matchesFilter;
   });
@@ -2435,13 +2421,8 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                   {isHi ? 'MPLADS डैशबोर्ड' : 'MPLADS Dashboard'}
                 </h1>
                 <p style={{ fontSize: '0.92rem', color: 'var(--color-text-secondary)', marginTop: '0.4rem', margin: 0, maxWidth: '720px', lineHeight: 1.5 }}>
-<<<<<<< HEAD
                   {isHi 
-                    ? '543 लोकसभा and 245 राज्यसभा निर्वाचन क्षेत्रों में एमपीलैड्स विकास कार्यों, निधि उपयोग और विसंगति सत्यापन की निगरानी।'
-=======
-                  {isHi
                     ? '543 लोकसभा और 245 राज्यसभा निर्वाचन क्षेत्रों में एमपीलैड्स विकास कार्यों, निधि उपयोग और विसंगति सत्यापन की निगरानी।'
->>>>>>> 4c60b3f (feat(frontend): add Find Projects, Browse States, Browse MPs, Compare, and Feedback modules with detail views)
                     : 'Monitoring MPLADS works, fund utilization, and anomaly verification across 543 Lok Sabha and 245 Rajya Sabha constituencies.'}
                 </p>
               </div>
