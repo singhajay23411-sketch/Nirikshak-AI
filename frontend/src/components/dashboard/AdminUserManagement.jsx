@@ -8,6 +8,7 @@ const ROLES = [
   { code: 'MOSPI_OFFICER', en: 'MoSPI Officer', hi: 'MoSPI अधिकारी' },
   { code: 'STATE_OFFICER', en: 'State Officer', hi: 'राज्य अधिकारी' },
   { code: 'DISTRICT_OFFICER', en: 'District Officer', hi: 'जिला अधिकारी' },
+  { code: 'MP', en: "Hon'ble MP", hi: 'माननीय सांसद' },
   { code: 'FIELD_INSPECTOR', en: 'Field Inspector', hi: 'क्षेत्र निरीक्षक' },
   { code: 'ANALYST', en: 'Analyst', hi: 'विश्लेषक' },
   { code: 'VIEWER', en: 'Viewer', hi: 'दर्शक' },

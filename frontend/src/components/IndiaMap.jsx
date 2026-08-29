@@ -49,7 +49,6 @@ const stateRiskData = {
   'dl': { name: 'Delhi',                riskLevel: 'High',     riskScore: 61, projects: 88,  sanctionedAmount: '₹18.2 Cr', anomalies: 5 },
   'ld': { name: 'Lakshadweep',          riskLevel: 'Low',      riskScore: 8,  projects: 8,   sanctionedAmount: '₹1.6 Cr',  anomalies: 0 },
   'py': { name: 'Puducherry',           riskLevel: 'Low',      riskScore: 17, projects: 25,  sanctionedAmount: '₹5.1 Cr',  anomalies: 0 },
-  'la': { name: 'Ladakh',               riskLevel: 'Medium',   riskScore: 38, projects: 32,  sanctionedAmount: '₹6.5 Cr',  anomalies: 2 },
 };
 const IndiaMap = () => {
   const { t } = useLanguage();
