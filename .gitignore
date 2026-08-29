@@ -19,7 +19,9 @@ __pycache__/
 *.pyc
 .env
 /data/
-frontend/public/data/
+frontend/public/data/*
+!frontend/public/data/*.json
+!frontend/public/data/*.geojson
 *.zip
 nirikshak_ml_dataset.zip
 
