@@ -316,8 +316,8 @@ const FindProjectsView = () => {
   }, []);
 
   // Filters State
-  const [selectedState, setSelectedState] = useState('Bihar');
-  const [selectedConstituency, setSelectedConstituency] = useState('Buxar');
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedConstituency, setSelectedConstituency] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('completed'); // 'completed' | 'recommended'
   const [selectedYear, setSelectedYear] = useState('All Years');
@@ -334,21 +334,11 @@ const FindProjectsView = () => {
     return stateObj ? stateObj.constituencies : [];
   }, [selectedState]);
 
-  // Handle State Change: updates state and resets constituency to the first available in CSV
+  // Handle State Change: updates state and resets constituency to All Constituencies
   const handleStateChange = (newState) => {
     setSelectedState(newState);
+    setSelectedConstituency('');
     setCurrentPage(1);
-
-    if (newState) {
-      const stateObj = INDIA_STATES_AND_UT.find(s => s.state.toLowerCase() === newState.toLowerCase());
-      if (stateObj && stateObj.constituencies.length > 0) {
-        setSelectedConstituency(stateObj.constituencies[0].name);
-      } else {
-        setSelectedConstituency('');
-      }
-    } else {
-      setSelectedConstituency('');
-    }
   };
 
   // Reset Filters to initial state

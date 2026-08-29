@@ -1,0 +1,226 @@
+[
+  {
+    "vendor_name": "SML ISUZU LTD",
+    "constituencies_operated": 7,
+    "monopolies_controlled": 2,
+    "total_funds_captured": 126821556.0,
+    "risk_score": 28.57,
+    "regions": [
+      "CHANDIGARH",
+      "LADAKH",
+      "KANNUR",
+      "Kerala (Rajya Sabha Nodal District)",
+      "Goa (Rajya Sabha Nodal District)",
+      "SONEPAT",
+      "SOUTH GOA"
+    ]
+  },
+  {
+    "vendor_name": "SHRI GURU KRIPA NARSINGH ASSOCIATES",
+    "constituencies_operated": 4,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 191808493.0,
+    "risk_score": 25.0,
+    "regions": [
+      "ALIGARH",
+      "Jammu And Kashmir (Rajya Sabha Nodal District)",
+      "Goa (Rajya Sabha Nodal District)",
+      "Uttar Pradesh (Rajya Sabha Nodal District)"
+    ]
+  },
+  {
+    "vendor_name": "TATA MOTORS",
+    "constituencies_operated": 11,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 157405653.51,
+    "risk_score": 9.09,
+    "regions": [
+      "ANDAMAN AND NICOBAR ISLANDS",
+      "ALIGARH",
+      "LAKSHADWEEP(ST)",
+      "KANNUR",
+      "Punjab (Rajya Sabha Nodal District)",
+      "BHATINDA",
+      "Goa (Rajya Sabha Nodal District)",
+      "ANANTNAG",
+      "BANASKANTHA",
+      "Kerala (Rajya Sabha Nodal District)",
+      "ARAMBAG(SC)"
+    ]
+  },
+  {
+    "vendor_name": "COMPUTER SOLUTIONS",
+    "constituencies_operated": 3,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 75330000.0,
+    "risk_score": 33.33,
+    "regions": [
+      "Jammu And Kashmir (Rajya Sabha Nodal District)",
+      "Uttar Pradesh (Rajya Sabha Nodal District)",
+      "Goa (Rajya Sabha Nodal District)"
+    ]
+  },
+  {
+    "vendor_name": "Ozone Envirotech",
+    "constituencies_operated": 3,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 11355000.0,
+    "risk_score": 33.33,
+    "regions": [
+      "SOUTH GOA",
+      "Goa (Rajya Sabha Nodal District)",
+      "RAVER"
+    ]
+  },
+  {
+    "vendor_name": "ASIF ALI",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 994000.0,
+    "risk_score": 100.0,
+    "regions": [
+      "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "New Super Kitchen Appliances",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 900000.0,
+    "risk_score": 100.0,
+    "regions": [
+      "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "ANAYAT ALI",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 792982.0,
+    "risk_score": 100.0,
+    "regions": [
+      "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "Asian Traders",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 650000.0,
+    "risk_score": 100.0,
+    "regions": [
+      "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "ZEE ENTERPRISES",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 598410.0,
+    "risk_score": 100.0,
+    "regions": [
+      "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "THUKJAY DOLMA",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 449052.0,
+    "risk_score": 100.0,
+    "regions": [
+      "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "Mumtaz Ali",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 344624.0,
+    "risk_score": 100.0,
+    "regions": [
+      "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "PEACOCL FEATHERS",
+    "constituencies_operated": 2,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 317529.0,
+    "risk_score": 50.0,
+    "regions": [
+      "Goa (Rajya Sabha Nodal District)",
+      "SOUTH GOA"
+    ]
+  },
+  {
+    "vendor_name": "HIGHWAY MOTOR KARGIL",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 142457.0,
+    "risk_score": 100.0,
+    "regions": [
+      "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "Tashi Wangail",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 86500.0,
+    "risk_score": 100.0,
+    "regions": [
+      "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "Tsewang Nurboo",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 49000.0,
+    "risk_score": 100.0,
+    "regions": [
+      "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "Stanzin punchok",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 37534.0,
+    "risk_score": 100.0,
+    "regions": [
+      "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "MS MOHD ISSA PAINTER",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 13000.0,
+    "risk_score": 100.0,
+    "regions": [
+      "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "ARIF AHMED BASHARAICHUR",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 8295.0,
+    "risk_score": 100.0,
+    "regions": [
+      "Goa (Rajya Sabha Nodal District)"
+    ]
+  },
+  {
+    "vendor_name": "RAO DHIRENDRA RAVINDRA",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 5900.0,
+    "risk_score": 100.0,
+    "regions": [
+      "Goa (Rajya Sabha Nodal District)"
+    ]
+  }
+]
