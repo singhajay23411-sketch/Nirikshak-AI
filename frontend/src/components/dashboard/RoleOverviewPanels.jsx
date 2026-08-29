@@ -143,6 +143,12 @@ const RoleOverviewPanels = ({ role, activeTab, user }) => {
         { icon: Clock, label: isHi ? 'सत्यापन लंबित' : 'Pending Verification', value: '18', color: '#E5B842' },
         { icon: CheckCircle, label: isHi ? 'सत्यापित' : 'Verified', value: '196', color: '#52B79A' },
       ],
+      MP: [
+        { icon: Database, label: isHi ? 'निर्वाचन क्षेत्र परियोजनाएं' : 'Constituency Projects', value: '142', color: 'var(--color-accent-teal)' },
+        { icon: TrendingUp, label: isHi ? 'निधि उपयोग दर' : 'Fund Utilization', value: '67.4%', color: '#0A2458' },
+        { icon: AlertTriangle, label: isHi ? 'जोखिम चेतावनी' : 'Risk Alerts', value: '8', trend: 3, color: '#D9534F' },
+        { icon: CheckCircle, label: isHi ? 'पूर्ण परियोजनाएं' : 'Completed', value: '89', color: '#52B79A' },
+      ],
       FIELD_INSPECTOR: [
         { icon: Database, label: isHi ? 'सौंपी गई' : 'Assigned', value: '3', color: 'var(--color-accent-teal)' },
         { icon: Clock, label: isHi ? 'लंबित' : 'Pending', value: '1', color: '#E5B842' },
@@ -168,7 +174,7 @@ const RoleOverviewPanels = ({ role, activeTab, user }) => {
 
   const stats = renderOverviewStats();
 
-  if (activeTab !== 'overview' && activeTab !== 'risk' && activeTab !== 'projects') {
+  if (activeTab !== 'overview' && activeTab !== 'risk' && activeTab !== 'projects' && activeTab !== 'finance' && activeTab !== 'map') {
     return (
       <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
         <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🏗️</div>

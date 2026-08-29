@@ -16,12 +16,13 @@ class RoleCode:
     MOSPI_OFFICER = "MOSPI_OFFICER"
     STATE_OFFICER = "STATE_OFFICER"
     DISTRICT_OFFICER = "DISTRICT_OFFICER"
+    MP = "MP"
     FIELD_INSPECTOR = "FIELD_INSPECTOR"
     ANALYST = "ANALYST"
     VIEWER = "VIEWER"
 
     ALL = [ADMIN, MOSPI_OFFICER, STATE_OFFICER, DISTRICT_OFFICER,
-           FIELD_INSPECTOR, ANALYST, VIEWER]
+           MP, FIELD_INSPECTOR, ANALYST, VIEWER]
 
 
 # ─── Role Labels (English & Hindi) ───
@@ -31,6 +32,7 @@ ROLE_LABELS = {
     RoleCode.MOSPI_OFFICER:    {"en": "MoSPI Officer",      "hi": "MoSPI अधिकारी"},
     RoleCode.STATE_OFFICER:    {"en": "State Officer",       "hi": "राज्य अधिकारी"},
     RoleCode.DISTRICT_OFFICER: {"en": "District Officer",    "hi": "जिला अधिकारी"},
+    RoleCode.MP:               {"en": "Hon'ble MP",          "hi": "माननीय सांसद"},
     RoleCode.FIELD_INSPECTOR:  {"en": "Field Inspector",     "hi": "क्षेत्र निरीक्षक"},
     RoleCode.ANALYST:          {"en": "Analyst",             "hi": "विश्लेषक"},
     RoleCode.VIEWER:           {"en": "Viewer",              "hi": "दर्शक"},
@@ -70,6 +72,13 @@ ROLE_PERMISSIONS = {
         "investigation.view", "investigation.create",
         "reports.view",
     ],
+    RoleCode.MP: [
+        "projects.view",
+        "risk.view",
+        "evidence.view",
+        "reports.view",
+        "map.view",
+    ],
     RoleCode.FIELD_INSPECTOR: [
         "projects.view",
         "evidence.view", "evidence.upload",
@@ -98,6 +107,7 @@ class ScopeType:
     STATE = "STATE"
     DISTRICT = "DISTRICT"
     PROJECT = "PROJECT"
+    CONSTITUENCY = "CONSTITUENCY"
 
 
 ROLE_SCOPE = {
@@ -105,30 +115,34 @@ ROLE_SCOPE = {
     RoleCode.MOSPI_OFFICER:    ScopeType.NATIONAL,
     RoleCode.STATE_OFFICER:    ScopeType.STATE,
     RoleCode.DISTRICT_OFFICER: ScopeType.DISTRICT,
+    RoleCode.MP:               ScopeType.CONSTITUENCY,
     RoleCode.FIELD_INSPECTOR:  ScopeType.PROJECT,
     RoleCode.ANALYST:          ScopeType.NATIONAL,
     RoleCode.VIEWER:           ScopeType.NATIONAL,
 }
 
 
-# ─── Demo Users for Testing ───
+# ─── Demo Users for SIH 2026 Presentation ───
+# Standard password: nirikshak@2026
+
+DEMO_PASSWORD = "nirikshak@2026"
 
 DEMO_USERS = [
     {
         "email": "admin@nirikshak.gov.in",
         "username": "admin",
-        "full_name": "Dr. Priya Sharma",
-        "password": "admin123",
+        "full_name": "System Administrator",
+        "password": DEMO_PASSWORD,
         "role": RoleCode.ADMIN,
         "state": None,
         "district": None,
         "project_ids": None,
     },
     {
-        "email": "mospi@nirikshak.gov.in",
+        "email": "mospi.officer@nirikshak.gov.in",
         "username": "mospi.officer",
-        "full_name": "Shri Rajesh Kumar",
-        "password": "mospi123",
+        "full_name": "MoSPI Joint Secretary",
+        "password": DEMO_PASSWORD,
         "role": RoleCode.MOSPI_OFFICER,
         "state": None,
         "district": None,
@@ -137,8 +151,8 @@ DEMO_USERS = [
     {
         "email": "state.up@nirikshak.gov.in",
         "username": "state.officer.up",
-        "full_name": "Smt. Anita Verma",
-        "password": "state123",
+        "full_name": "State Nodal Officer (UP)",
+        "password": DEMO_PASSWORD,
         "role": RoleCode.STATE_OFFICER,
         "state": "Uttar Pradesh",
         "district": None,
@@ -147,18 +161,28 @@ DEMO_USERS = [
     {
         "email": "district.jabalpur@nirikshak.gov.in",
         "username": "district.officer.jabalpur",
-        "full_name": "Shri Rahul Sharma",
-        "password": "district123",
+        "full_name": "District Magistrate (Jabalpur)",
+        "password": DEMO_PASSWORD,
         "role": RoleCode.DISTRICT_OFFICER,
         "state": "Madhya Pradesh",
         "district": "Jabalpur",
         "project_ids": None,
     },
     {
+        "email": "mp.loksabha@nirikshak.gov.in",
+        "username": "mp.varanasi",
+        "full_name": "Hon'ble MP (Varanasi)",
+        "password": DEMO_PASSWORD,
+        "role": RoleCode.MP,
+        "state": "Uttar Pradesh",
+        "district": "Varanasi",
+        "project_ids": None,
+    },
+    {
         "email": "inspector@nirikshak.gov.in",
         "username": "field.inspector",
-        "full_name": "Shri Vikram Singh",
-        "password": "inspector123",
+        "full_name": "Field Quality Inspector",
+        "password": DEMO_PASSWORD,
         "role": RoleCode.FIELD_INSPECTOR,
         "state": "Madhya Pradesh",
         "district": "Jabalpur",
@@ -167,8 +191,8 @@ DEMO_USERS = [
     {
         "email": "analyst@nirikshak.gov.in",
         "username": "analyst",
-        "full_name": "Dr. Meena Iyer",
-        "password": "analyst123",
+        "full_name": "MoSPI Policy Analyst",
+        "password": DEMO_PASSWORD,
         "role": RoleCode.ANALYST,
         "state": None,
         "district": None,
@@ -177,8 +201,8 @@ DEMO_USERS = [
     {
         "email": "viewer@nirikshak.gov.in",
         "username": "viewer",
-        "full_name": "Shri Amit Patel",
-        "password": "viewer123",
+        "full_name": "Public Citizen / Guest Auditor",
+        "password": DEMO_PASSWORD,
         "role": RoleCode.VIEWER,
         "state": None,
         "district": None,

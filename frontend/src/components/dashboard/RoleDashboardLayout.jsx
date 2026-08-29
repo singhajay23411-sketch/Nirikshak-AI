@@ -39,6 +39,14 @@ const ROLE_NAV_CONFIG = {
     { id: 'cases', icon: Search, en: 'Case Management', hi: 'मामला प्रबंधन' },
     { id: 'reports', icon: FileText, en: 'Reports', hi: 'रिपोर्ट' },
   ],
+  MP: [
+    { id: 'overview', icon: BarChart3, en: 'MP Scorecard', hi: 'सांसद स्कोरकार्ड' },
+    { id: 'projects', icon: Database, en: 'My Constituency Projects', hi: 'मेरी निर्वाचन क्षेत्र परियोजनाएं' },
+    { id: 'finance', icon: Activity, en: 'Fund Utilization', hi: 'निधि उपयोग' },
+    { id: 'risk', icon: Shield, en: 'Risk Alerts', hi: 'जोखिम चेतावनी' },
+    { id: 'map', icon: Map, en: 'Geospatial', hi: 'भू-स्थानिक' },
+    { id: 'reports', icon: FileText, en: 'Reports', hi: 'रिपोर्ट' },
+  ],
   FIELD_INSPECTOR: [
     { id: 'overview', icon: Database, en: 'My Projects', hi: 'मेरी परियोजनाएं' },
     { id: 'verification', icon: ClipboardCheck, en: 'Site Verification', hi: 'स्थल सत्यापन' },
