@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 const AUTH_STORAGE_KEY = 'nirikshak_auth';
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = '/api';
 
 const AuthContext = createContext({
   user: null,

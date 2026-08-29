@@ -18,7 +18,8 @@ frontend/dist/
 __pycache__/
 *.pyc
 .env
-data/
+/data/
+frontend/public/data/
 *.zip
 nirikshak_ml_dataset.zip
 
