@@ -336,3 +336,141 @@ async def list_audit_logs(admin: dict = Depends(require_admin())):
     """Fetch recent audit logs (Admin only)."""
     logs = get_audit_logs(limit=200)
     return {"logs": logs}
+
+
+# ─── Inspections ───
+
+@router.get("/inspections")
+async def list_inspections(user: dict = Depends(get_current_user)):
+    """
+    Return inspection records visible to the current user.
+    - FIELD_INSPECTOR: only their own records.
+    - All other roles: all records (national scope).
+    """
+    from .database import get_db
+    with get_db() as conn:
+        if user["role"] == "FIELD_INSPECTOR":
+            rows = conn.execute(
+                """SELECT i.*, u.full_name AS inspector_name
+                   FROM inspections i
+                   LEFT JOIN users u ON i.inspector_id = u.id
+                   WHERE i.inspector_id = ?
+                   ORDER BY i.created_at DESC""",
+                (user["id"],),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                """SELECT i.*, u.full_name AS inspector_name
+                   FROM inspections i
+                   LEFT JOIN users u ON i.inspector_id = u.id
+                   ORDER BY i.created_at DESC""",
+            ).fetchall()
+
+    result = []
+    for r in rows:
+        d = dict(r)
+        # Safely parse JSON blobs
+        for field in ("checklist_data", "photos"):
+            if d.get(field):
+                try:
+                    d[field] = json.loads(d[field])
+                except (json.JSONDecodeError, TypeError):
+                    pass
+        result.append(d)
+
+    return {"inspections": result, "total": len(result)}
+
+
+@router.post("/inspections")
+async def create_inspection(
+    request: Request,
+    user: dict = Depends(get_current_user),
+):
+    """
+    Create a new inspection record.
+    Body: { project_id, status?, checklist_data?, photos?, notes? }
+    """
+    import time as _time
+    body = await request.json()
+    project_id = body.get("project_id", "").strip()
+    if not project_id:
+        raise HTTPException(status_code=400, detail="project_id is required")
+
+    status        = body.get("status", "pending")
+    checklist     = body.get("checklist_data")
+    photos        = body.get("photos")
+    notes         = body.get("notes", "")
+
+    from .database import get_db
+    with get_db() as conn:
+        cursor = conn.execute(
+            """INSERT INTO inspections
+               (project_id, inspector_id, status, checklist_data, photos, notes, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (
+                project_id,
+                user["id"],
+                status,
+                json.dumps(checklist) if checklist is not None else None,
+                json.dumps(photos)    if photos    is not None else None,
+                notes,
+                _time.time(),
+            ),
+        )
+        conn.commit()
+        new_id = cursor.lastrowid
+
+    log_audit(user["id"], "INSPECTION_CREATED", details=f"Project: {project_id}")
+    return {"message": "Inspection created", "id": new_id, "project_id": project_id}
+
+
+@router.patch("/inspections/{inspection_id}")
+async def update_inspection(
+    inspection_id: int,
+    request: Request,
+    user: dict = Depends(get_current_user),
+):
+    """
+    Update an existing inspection record.
+    Field inspectors can only update their own records.
+    Body: { status?, checklist_data?, photos?, notes? }
+    """
+    import time as _time
+    body = await request.json()
+
+    from .database import get_db
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT * FROM inspections WHERE id = ?", (inspection_id,)
+        ).fetchone()
+
+        if not row:
+            raise HTTPException(status_code=404, detail="Inspection not found")
+
+        row = dict(row)
+        if user["role"] == "FIELD_INSPECTOR" and row["inspector_id"] != user["id"]:
+            raise HTTPException(status_code=403, detail="Not authorised to update this inspection")
+
+        updates = {}
+        if "status" in body:
+            updates["status"] = body["status"]
+        if "checklist_data" in body:
+            updates["checklist_data"] = json.dumps(body["checklist_data"])
+        if "photos" in body:
+            updates["photos"] = json.dumps(body["photos"])
+        if "notes" in body:
+            updates["notes"] = body["notes"]
+
+        if not updates:
+            raise HTTPException(status_code=400, detail="No valid fields to update")
+
+        if body.get("status") in ("completed", "verified"):
+            updates["verified_at"] = _time.time()
+
+        set_clause = ", ".join(f"{k} = ?" for k in updates)
+        values = list(updates.values()) + [inspection_id]
+        conn.execute(f"UPDATE inspections SET {set_clause} WHERE id = ?", values)
+        conn.commit()
+
+    log_audit(user["id"], "INSPECTION_UPDATED", details=f"Inspection ID: {inspection_id}")
+    return {"message": "Inspection updated", "id": inspection_id}

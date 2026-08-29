@@ -12,47 +12,58 @@ const IndiaMap = () => {
 
   const [mapData, setMapData] = useState(stateRiskData);
 
+  // Pull live state analytics from the backend
   useEffect(() => {
-    fetch('/data/Ministry_View.json')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.state_wise_benchmarks) {
-          const updated = { ...stateRiskData };
-          const stateNameToId = {
-            'Andhra Pradesh': 'ap', 'Arunachal Pradesh': 'ar', 'Assam': 'as', 'Bihar': 'br',
-            'Chhattisgarh': 'ct', 'Goa': 'ga', 'Gujarat': 'gj', 'Haryana': 'hr',
-            'Himachal Pradesh': 'hp', 'Jammu and Kashmir': 'jk', 'Jharkhand': 'jh',
-            'Karnataka': 'ka', 'Kerala': 'kl', 'Madhya Pradesh': 'mp', 'Maharashtra': 'mh',
-            'Manipur': 'mn', 'Meghalaya': 'ml', 'Mizoram': 'mz', 'Nagaland': 'nl',
-            'Odisha': 'or', 'Punjab': 'pb', 'Rajasthan': 'rj', 'Sikkim': 'sk',
-            'Tamil Nadu': 'tn', 'Telangana': 'tg', 'Tripura': 'tr', 'Uttar Pradesh': 'up',
-            'Uttarakhand': 'ut', 'West Bengal': 'wb', 'Andaman and Nicobar': 'an',
-            'Chandigarh': 'ch', 'Dadra and Nagar Haveli': 'dn', 'Daman and Diu': 'dd',
-            'Delhi': 'dl', 'Lakshadweep': 'ld', 'Puducherry': 'py', 'Ladakh': 'la'
-          };
-          data.state_wise_benchmarks.forEach(item => {
-            const id = stateNameToId[item.state_name];
-            if (id && updated[id]) {
-              const score = Math.round(item.avg_risk || 0);
-              let level = 'Low';
-              if (score >= 75) level = 'Critical';
-              else if (score >= 50) level = 'High';
-              else if (score >= 25) level = 'Medium';
-              
-              updated[id] = {
-                ...updated[id],
-                riskLevel: level,
-                riskScore: score,
-                projects: item.total_projects || updated[id].projects,
-                sanctionedAmount: `₹${Math.round(item.total_sanctioned / 10000000).toFixed(1)} Cr`,
-                anomalies: Math.round((item.total_projects || 0) * (score / 100)) || 0
-              };
-            }
-          });
-          setMapData(updated);
-        }
+    // Read the auth token from localStorage (same key used by AuthContext)
+    const token = localStorage.getItem('nirikshak_token');
+
+    // state_name (from DB) → SVG state ID (from @svg-maps/india)
+    const stateNameToId = {
+      'Punjab': 'pb', 'Andhra Pradesh': 'ap', 'Arunachal Pradesh': 'ar',
+      'Assam': 'as', 'Bihar': 'br', 'Chandigarh': 'ch', 'Chhattisgarh': 'ct',
+      'The Dadra And Nagar Haveli And Daman And Diu': 'dn',
+      'Delhi': 'dl', 'Goa': 'ga', 'Mizoram': 'mz', 'Haryana': 'hr',
+      'Himachal Pradesh': 'hp', 'Jammu And Kashmir': 'jk', 'Jharkhand': 'jh',
+      'Karnataka': 'ka', 'Lakshadweep': 'ld', 'Madhya Pradesh': 'mp',
+      'Maharashtra': 'mh', 'Manipur': 'mn', 'Meghalaya': 'ml',
+      'Nagaland': 'nl', 'Odisha': 'or', 'Puducherry': 'py', 'Gujarat': 'gj',
+      'Rajasthan': 'rj', 'Sikkim': 'sk', 'Tamil Nadu': 'tn', 'Tripura': 'tr',
+      'Uttarakhand': 'ut', 'Uttar Pradesh': 'up', 'West Bengal': 'wb',
+      'Andaman And Nicobar Islands': 'an', 'Kerala': 'kl',
+      'Telangana': 'tg', 'Ladakh': 'la',
+    };
+
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+    fetch('/api/analytics/states', { headers })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
       })
-      .catch(err => console.error("Error loading map data:", err));
+      .then(data => {
+        if (!Array.isArray(data)) return;
+        const updated = { ...stateRiskData };
+        data.forEach(item => {
+          const id = stateNameToId[item.state_name];
+          if (!id || !updated[id]) return;
+          // avg_risk_score is a financial risk score (0–100 scale)
+          const score = Math.round(item.avg_risk_score || 0);
+          let level = 'Low';
+          if (score >= 75) level = 'Critical';
+          else if (score >= 50) level = 'High';
+          else if (score >= 25) level = 'Medium';
+          updated[id] = {
+            ...updated[id],
+            riskLevel: level,
+            riskScore: score,
+            projects: item.project_count || updated[id].projects,
+            sanctionedAmount: `₹${item.total_allocated.toFixed(1)} Cr`,
+            anomalies: Math.round((item.project_count || 0) * (score / 100)) || 0,
+          };
+        });
+        setMapData(updated);
+      })
+      .catch(err => console.error('IndiaMap: failed to load live state data:', err));
   }, []);
 
   const handleMouseEnter = useCallback((stateId) => {

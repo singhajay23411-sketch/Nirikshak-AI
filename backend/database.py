@@ -534,9 +534,87 @@ def get_table_counts(conn) -> dict:
     return counts
 
 
+def fetch_work_for_delay_scoring(conn, work_id: int) -> Optional[dict]:
+    """Retrieve work metadata and expenditures for delay risk scoring.
+    Excludes leakage columns (actual_end_date, actual_amount, work_stage, work_status).
+    """
+    cur = conn.cursor()
+    
+    # 1. Fetch work details
+    query = """
+        SELECT
+            work_id,
+            recommendation_date,
+            sanction_date,
+            sanction_amount,
+            recommended_amount,
+            work_category,
+            house_type,
+            tenure,
+            state_id,
+            constituency_id
+        FROM works
+        WHERE work_id = %s;
+    """
+    cur.execute(query, (work_id,))
+    row = cur.fetchone()
+    if not row:
+        cur.close()
+        return None
+        
+    work_id_val, recom_date, sanc_date, sanc_amt, recom_amt, category, house_type, tenure, state_id, const_id = row
+    
+    # Format dates to YYYY-MM-DD
+    recom_date_str = recom_date.strftime("%Y-%m-%d") if recom_date else None
+    sanc_date_str = sanc_date.strftime("%Y-%m-%d") if sanc_date else None
+    
+    # 2. Fetch expenditures
+    exp_query = """
+        SELECT
+            expenditure_date,
+            fund_disbursed_amount
+        FROM expenditures
+        WHERE work_id = %s;
+    """
+
+    cur.execute(exp_query, (work_id,))
+    exp_rows = cur.fetchall()
+    cur.close()
+    
+    expenditures = []
+    total_disbursed = 0.0
+    for exp_row in exp_rows:
+        exp_date, exp_amt = exp_row
+        exp_date_str = exp_date.strftime("%Y-%m-%d") if exp_date else None
+        exp_amt_float = float(exp_amt) if exp_amt is not None else 0.0
+        expenditures.append({
+            "expenditure_date": exp_date_str,
+            "fund_disbursed_amount": exp_amt_float
+        })
+        total_disbursed += exp_amt_float
+        
+    work_data = {
+        "work_id": work_id_val,
+        "recommendation_date": recom_date_str,
+        "sanction_date": sanc_date_str,
+        "sanction_amount": float(sanc_amt) if sanc_amt is not None else 0.0,
+        "recommended_amount": float(recom_amt) if recom_amt is not None else 0.0,
+        "work_category": category,
+        "house_type": house_type,
+        "tenure": tenure,
+        "state_id": state_id,
+        "constituency_id": const_id,
+        "expenditures": expenditures,
+        "total_disbursed": total_disbursed
+    }
+    
+    return work_data
+
+
 # ---------------------------------------------------------------------------
 # CLI sanity-check
 # ---------------------------------------------------------------------------
+
 
 if __name__ == "__main__":
     print("Ensuring database exists...")

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Camera, MapPin, CheckCircle, Clock, Upload, ClipboardCheck, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 
-const MOCK_ASSIGNED_PROJECTS = [
+// Fallback shown while API loads or if no inspections are assigned yet
+const FALLBACK_PROJECTS = [
   { id: 'MPLADS-2026-8871', name: 'Primary School Construction', nameHi: 'प्राथमिक विद्यालय निर्माण', location: 'Jabalpur, MP', status: 'in_progress', completion: 45 },
   { id: 'MPLADS-2026-4420', name: 'Community Health Center Renovation', nameHi: 'सामुदायिक स्वास्थ्य केंद्र नवीकरण', location: 'Jabalpur, MP', status: 'pending_verification', completion: 82 },
   { id: 'MPLADS-2025-1122', name: 'Village Road Widening', nameHi: 'ग्राम सड़क चौड़ीकरण', location: 'Jabalpur, MP', status: 'verified', completion: 100 },
@@ -23,11 +24,49 @@ const FieldInspectorVerification = ({ activeTab }) => {
   const { user } = useAuth();
   const isHi = language === 'hi';
 
+  const [assignedProjects, setAssignedProjects] = useState(FALLBACK_PROJECTS);
+  const [projectsLoading, setProjectsLoading] = useState(false);
+
   const [selectedProject, setSelectedProject] = useState(null);
   const [checklist, setChecklist] = useState({});
   const [notes, setNotes] = useState('');
   const [photos, setPhotos] = useState([]);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+
+  // Fetch real inspections from the backend
+  useEffect(() => {
+    const token = localStorage.getItem('nirikshak_token');
+    if (!token) return;
+    setProjectsLoading(true);
+    fetch('/api/inspections', {
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
+      .then(data => {
+        if (data.inspections && data.inspections.length > 0) {
+          // Map DB inspection records into the shape the UI expects
+          const mapped = data.inspections.map(ins => ({
+            id: ins.project_id,
+            inspectionId: ins.id,
+            name: ins.project_id,
+            nameHi: ins.project_id,
+            location: ins.inspector_name || 'N/A',
+            status: ins.status === 'completed' ? 'verified'
+                  : ins.status === 'in_progress' ? 'in_progress'
+                  : 'pending_verification',
+            completion: ins.status === 'completed' ? 100
+                      : ins.status === 'in_progress' ? 50 : 0,
+            existingNotes: ins.notes || '',
+            existingChecklist: ins.checklist_data || {},
+          }));
+          setAssignedProjects(mapped);
+        }
+        // else keep FALLBACK_PROJECTS as placeholder
+      })
+      .catch(err => console.error('FieldInspector: inspections fetch failed:', err))
+      .finally(() => setProjectsLoading(false));
+  }, []);
 
   const handleChecklistToggle = (id) => {
     setChecklist(prev => ({ ...prev, [id]: !prev[id] }));
@@ -43,9 +82,42 @@ const FieldInspectorVerification = ({ activeTab }) => {
     setPhotos(prev => [...prev, newPhoto]);
   };
 
-  const handleSubmitVerification = () => {
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+  const handleSubmitVerification = async () => {
+    const token = localStorage.getItem('nirikshak_token');
+    if (!token || !selectedProject) return;
+    setSubmitError(null);
+    try {
+      // If there's an existing DB record, PATCH it; otherwise POST a new one
+      if (selectedProject.inspectionId) {
+        await fetch(`/api/inspections/${selectedProject.inspectionId}`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            status: Object.keys(checklist).length === CHECKLIST_ITEMS.length ? 'completed' : 'in_progress',
+            checklist_data: checklist,
+            photos: photos,
+            notes,
+          }),
+        });
+      } else {
+        await fetch('/api/inspections', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            project_id: selectedProject.id,
+            status: 'in_progress',
+            checklist_data: checklist,
+            photos: photos,
+            notes,
+          }),
+        });
+      }
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 3000);
+    } catch (err) {
+      console.error('FieldInspector: submit failed:', err);
+      setSubmitError('Submission failed. Please try again.');
+    }
   };
 
   const getStatusBadge = (status) => {
@@ -78,9 +150,10 @@ const FieldInspectorVerification = ({ activeTab }) => {
         <div>
           <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#4A4D55', marginBottom: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
             {isHi ? 'सौंपी गई परियोजनाएं' : 'Assigned Projects'}
+            {projectsLoading && <span style={{ fontWeight: 400, opacity: 0.6, fontSize: '0.72rem' }}> ({isHi ? 'लोड हो रहा...' : 'loading...'})</span>}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-            {MOCK_ASSIGNED_PROJECTS.map(project => (
+            {assignedProjects.map(project => (
               <div
                 key={project.id}
                 onClick={() => setSelectedProject(project)}
@@ -178,6 +251,9 @@ const FieldInspectorVerification = ({ activeTab }) => {
               <CheckCircle size={16} />
               {submitted ? (isHi ? '✓ सत्यापन रिपोर्ट सबमिट हो गई' : '✓ Verification Report Submitted') : (isHi ? 'सत्यापन रिपोर्ट सबमिट करें' : 'Submit Verification Report')}
             </button>
+            {submitError && (
+              <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#D9534F', textAlign: 'center' }}>{submitError}</div>
+            )}
           </div>
         )}
       </div>

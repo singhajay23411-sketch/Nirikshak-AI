@@ -20,6 +20,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.auth.routes import router as auth_router
+from backend.works_routes import router as works_router
+from backend.analytics_routes import router as analytics_router
 from backend.auth.database import init_database
 
 # ─── Logging Setup ───
@@ -61,6 +63,9 @@ app.add_middleware(
 # ─── Include Routers ───
 
 app.include_router(auth_router)
+app.include_router(works_router)
+app.include_router(analytics_router)
+
 
 
 # ─── Startup Event ───

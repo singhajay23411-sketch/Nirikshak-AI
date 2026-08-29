@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Shield, AlertTriangle, TrendingUp, Users, Database, Clock, CheckCircle, BarChart3, Map, FileText, Eye } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -77,6 +77,29 @@ const RoleOverviewPanels = ({ role, activeTab, user }) => {
 
   const [highRiskProjects, setHighRiskProjects] = React.useState(MOCK_HIGH_RISK);
 
+  // ── Live analytics summary ─────────────────────────────────────────────────
+  const [analyticsData, setAnalyticsData] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('nirikshak_token');
+    if (!token) return;
+    fetch('/api/analytics/summary', {
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
+      .then(data => setAnalyticsData(data))
+      .catch(err => console.error('RoleOverviewPanels: analytics/summary failed:', err));
+  }, []);
+
+  // Derive display values — fall back to hardcoded strings when API not yet loaded
+  const totalProjects   = analyticsData ? analyticsData.total_projects.toLocaleString('en-IN') : '2,18,913';
+  const totalCompleted  = analyticsData ? analyticsData.total_completed.toLocaleString('en-IN') : '1,94,210';
+  const totalPending    = analyticsData ? analyticsData.total_pending.toLocaleString('en-IN') : '24,703';
+  const totalHighRisk   = analyticsData ? analyticsData.total_high_risk.toLocaleString('en-IN') : '667';
+  const totalModRisk    = analyticsData ? analyticsData.total_moderate_risk.toLocaleString('en-IN') : '7,099';
+  const sanctionedCr    = analyticsData ? `₹${analyticsData.total_sanctioned_cr.toLocaleString('en-IN')} Cr` : '₹42,721 Cr';
+  const utilRate        = analyticsData ? `${analyticsData.utilization_rate_pct.toFixed(1)}%` : '89.6%';
+
   React.useEffect(() => {
     fetch('/data/unified_project_evaluations.json')
       .then(res => res.json())
@@ -120,46 +143,46 @@ const RoleOverviewPanels = ({ role, activeTab, user }) => {
   const renderOverviewStats = () => {
     const configs = {
       ADMIN: [
-        { icon: Users, label: isHi ? 'कुल उपयोगकर्ता' : 'Total Users', value: '7', color: '#0A2458' },
-        { icon: Database, label: isHi ? 'कुल परियोजनाएं' : 'Total Projects', value: '2,18,913', color: 'var(--color-accent-teal)' },
-        { icon: AlertTriangle, label: isHi ? 'उच्च जोखिम' : 'High Risk', value: '667', trend: 8, color: '#D9534F' },
-        { icon: Shield, label: isHi ? 'जांच सक्रिय' : 'Active Investigations', value: '28', color: '#E5B842' },
+        { icon: Users,         label: isHi ? 'कुल उपयोगकर्ता' : 'Total Users',            value: '7',              color: '#0A2458' },
+        { icon: Database,      label: isHi ? 'कुल परियोजनाएं' : 'Total Projects',         value: totalProjects,    color: 'var(--color-accent-teal)' },
+        { icon: AlertTriangle, label: isHi ? 'उच्च जोखिम' : 'High Risk',               value: totalHighRisk,    trend: 8, color: '#D9534F' },
+        { icon: Shield,        label: isHi ? 'जांच सक्रिय' : 'Active Investigations',  value: '28',             color: '#E5B842' },
       ],
       MOSPI_OFFICER: [
-        { icon: Database, label: isHi ? 'राष्ट्रीय परियोजनाएं' : 'National Projects', value: '2,18,913', color: 'var(--color-accent-teal)' },
-        { icon: AlertTriangle, label: isHi ? 'उच्च जोखिम' : 'High Risk', value: '667', trend: 8, color: '#D9534F' },
-        { icon: TrendingUp, label: isHi ? 'वित्तीय विसंगतियां' : 'Financial Anomalies', value: '1,420', trend: -3, color: '#E5B842' },
-        { icon: CheckCircle, label: isHi ? 'सत्यापित' : 'Verified', value: '1,94,210', color: '#52B79A' },
+        { icon: Database,      label: isHi ? 'राष्ट्रीय परियोजनाएं' : 'National Projects',    value: totalProjects,    color: 'var(--color-accent-teal)' },
+        { icon: AlertTriangle, label: isHi ? 'उच्च जोखिम' : 'High Risk',               value: totalHighRisk,    trend: 8, color: '#D9534F' },
+        { icon: TrendingUp,    label: isHi ? 'वित्तीय विसंगतियां' : 'Financial Anomalies',  value: totalModRisk,    trend: -3, color: '#E5B842' },
+        { icon: CheckCircle,   label: isHi ? 'सत्यापित' : 'Verified',                value: totalCompleted,   color: '#52B79A' },
       ],
       STATE_OFFICER: [
-        { icon: Database, label: isHi ? 'राज्य परियोजनाएं' : 'State Projects', value: '1,847', color: 'var(--color-accent-teal)' },
-        { icon: AlertTriangle, label: isHi ? 'जोखिम चिह्नित' : 'Risk Flagged', value: '43', trend: 5, color: '#D9534F' },
-        { icon: Clock, label: isHi ? 'विलंबित' : 'Delayed', value: '127', color: '#E5B842' },
-        { icon: CheckCircle, label: isHi ? 'पूर्ण' : 'Completed', value: '982', color: '#52B79A' },
+        { icon: Database,      label: isHi ? 'राज्य परियोजनाएं' : 'State Projects',        value: '1,847',          color: 'var(--color-accent-teal)' },
+        { icon: AlertTriangle, label: isHi ? 'जोखिम चिह्नित' : 'Risk Flagged',           value: '43',             trend: 5, color: '#D9534F' },
+        { icon: Clock,         label: isHi ? 'विलंबित' : 'Delayed',                 value: '127',            color: '#E5B842' },
+        { icon: CheckCircle,   label: isHi ? 'पूर्ण' : 'Completed',               value: '982',            color: '#52B79A' },
       ],
       DISTRICT_OFFICER: [
-        { icon: Database, label: isHi ? 'जिला परियोजनाएं' : 'District Projects', value: '284', color: 'var(--color-accent-teal)' },
-        { icon: AlertTriangle, label: isHi ? 'जोखिम चिह्नित' : 'Risk Flagged', value: '12', trend: 2, color: '#D9534F' },
-        { icon: Clock, label: isHi ? 'सत्यापन लंबित' : 'Pending Verification', value: '18', color: '#E5B842' },
-        { icon: CheckCircle, label: isHi ? 'सत्यापित' : 'Verified', value: '196', color: '#52B79A' },
+        { icon: Database,      label: isHi ? 'जिला परियोजनाएं' : 'District Projects',     value: '284',            color: 'var(--color-accent-teal)' },
+        { icon: AlertTriangle, label: isHi ? 'जोखिम चिह्नित' : 'Risk Flagged',           value: '12',             trend: 2, color: '#D9534F' },
+        { icon: Clock,         label: isHi ? 'सत्यापन लंबित' : 'Pending Verification',  value: '18',             color: '#E5B842' },
+        { icon: CheckCircle,   label: isHi ? 'सत्यापित' : 'Verified',                value: '196',            color: '#52B79A' },
       ],
       FIELD_INSPECTOR: [
-        { icon: Database, label: isHi ? 'सौंपी गई' : 'Assigned', value: '3', color: 'var(--color-accent-teal)' },
-        { icon: Clock, label: isHi ? 'लंबित' : 'Pending', value: '1', color: '#E5B842' },
-        { icon: CheckCircle, label: isHi ? 'सत्यापित' : 'Verified', value: '1', color: '#52B79A' },
-        { icon: BarChart3, label: isHi ? 'प्रगति में' : 'In Progress', value: '1', color: '#0A2458' },
+        { icon: Database,      label: isHi ? 'सौंपी गई' : 'Assigned',                value: '3',              color: 'var(--color-accent-teal)' },
+        { icon: Clock,         label: isHi ? 'लंबित' : 'Pending',                 value: '1',              color: '#E5B842' },
+        { icon: CheckCircle,   label: isHi ? 'सत्यापित' : 'Verified',                value: '1',              color: '#52B79A' },
+        { icon: BarChart3,     label: isHi ? 'प्रगति में' : 'In Progress',             value: '1',              color: '#0A2458' },
       ],
       ANALYST: [
-        { icon: Shield, label: isHi ? 'विसंगतियां ज्ञात' : 'Anomalies Detected', value: '1,420', color: '#D9534F' },
-        { icon: Database, label: isHi ? 'डुप्लिकेट संदिग्ध' : 'Duplicate Suspects', value: '482', color: '#E5B842' },
-        { icon: TrendingUp, label: isHi ? 'लागत विचलन' : 'Cost Deviations', value: '89', trend: -12, color: 'var(--color-accent-teal)' },
-        { icon: BarChart3, label: isHi ? 'मॉडल सटीकता' : 'Model Accuracy', value: '94.2%', color: '#52B79A' },
+        { icon: Shield,        label: isHi ? 'विसंगतियां ज्ञात' : 'Anomalies Detected',   value: totalModRisk,     color: '#D9534F' },
+        { icon: Database,      label: isHi ? 'डुप्लिकेट संदिग्ध' : 'Duplicate Suspects',   value: '482',            color: '#E5B842' },
+        { icon: TrendingUp,    label: isHi ? 'लागत विचलन' : 'Cost Deviations',        value: '89',             trend: -12, color: 'var(--color-accent-teal)' },
+        { icon: BarChart3,     label: isHi ? 'मॉडल सटीकता' : 'Model Accuracy',         value: '94.2%',          color: '#52B79A' },
       ],
       VIEWER: [
-        { icon: Database, label: isHi ? 'कुल परियोजनाएं' : 'Total Projects', value: '2,18,913', color: 'var(--color-accent-teal)' },
-        { icon: AlertTriangle, label: isHi ? 'जोखिम चिह्नित' : 'Risk Flagged', value: '667', color: '#D9534F' },
-        { icon: Map, label: isHi ? 'राज्य कवर' : 'States Covered', value: '28', color: '#0A2458' },
-        { icon: FileText, label: isHi ? 'रिपोर्ट उपलब्ध' : 'Reports Available', value: '47', color: '#E5B842' },
+        { icon: Database,      label: isHi ? 'कुल परियोजनाएं' : 'Total Projects',         value: totalProjects,    color: 'var(--color-accent-teal)' },
+        { icon: AlertTriangle, label: isHi ? 'जोखिम चिह्नित' : 'Risk Flagged',           value: totalHighRisk,    color: '#D9534F' },
+        { icon: Map,           label: isHi ? 'राज्य कवर' : 'States Covered',          value: '36',             color: '#0A2458' },
+        { icon: FileText,      label: isHi ? 'रिपोर्ट उपलब्ध' : 'Reports Available',      value: '47',             color: '#E5B842' },
       ],
     };
 

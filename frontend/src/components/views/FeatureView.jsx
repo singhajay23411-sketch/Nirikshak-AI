@@ -216,34 +216,42 @@ const KeyMetricsDashboard = ({ isHi }) => {
   });
 
   useEffect(() => {
-    fetch('/data/Ministry_View.json')
-      .then(res => res.json())
+    const token = localStorage.getItem('nirikshak_token');
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    let active = true;
+
+    // Fetch state-level data for the bar chart
+    fetch('/api/analytics/states', { headers })
+      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
       .then(data => {
-        if (data && data.state_wise_benchmarks) {
-          const formatted = data.state_wise_benchmarks.map(item => ({
-            state: item.state_name || 'N/A',
-            util: parseFloat(((item.utilization_rate || 0) * 100).toFixed(1)),
-            allocated: Math.round((item.total_sanctioned || 0) / 10000000),
-            spent: Math.round((item.total_spent || 0) / 10000000)
-          }));
-          formatted.sort((a, b) => b.util - a.util);
-          setStatesData(formatted.slice(0, 10));
-        }
-        if (data && data.national_stats) {
-          const stats = data.national_stats;
-          const sanctionedCr = Math.round(stats.total_sanctioned / 10000000);
-          const spentCr = Math.round(stats.total_disbursed / 10000000);
-          const utilRate = ((stats.total_disbursed / (stats.total_sanctioned || 1)) * 100).toFixed(1);
-          setKpis({
-            totalProjects: stats.total_projects.toLocaleString(),
-            totalAllocated: `₹${sanctionedCr.toLocaleString()} Cr`,
-            totalSpent: `₹${spentCr.toLocaleString()} Cr`,
-            utilizationRate: `${utilRate}%`,
-            completedVsPending: '194K / 24K'
-          });
-        }
+        if (!active || !Array.isArray(data)) return;
+        const formatted = data.map(item => ({
+          state: item.state_name,
+          util: item.avg_risk_score !== null ? parseFloat(item.avg_risk_score.toFixed(1)) : 0,
+          allocated: parseFloat(item.total_allocated.toFixed(1)),
+          spent: parseFloat((item.total_allocated * (item.avg_risk_score || 0) / 100).toFixed(1)),
+        }));
+        formatted.sort((a, b) => b.allocated - a.allocated);
+        setStatesData(formatted.slice(0, 10));
       })
-      .catch(err => console.error("Error loading metrics dashboard:", err));
+      .catch(err => console.error('KeyMetrics: states fetch failed:', err));
+
+    // Fetch national summary KPIs
+    fetch('/api/analytics/summary', { headers })
+      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
+      .then(data => {
+        if (!active) return;
+        setKpis({
+          totalProjects: data.total_projects.toLocaleString('en-IN'),
+          totalAllocated: `₹${data.total_sanctioned_cr.toLocaleString('en-IN')} Cr`,
+          totalSpent: `₹${(data.total_sanctioned_cr * data.utilization_rate_pct / 100).toFixed(0)} Cr`,
+          utilizationRate: `${data.utilization_rate_pct.toFixed(1)}%`,
+          completedVsPending: `${(data.total_completed / 1000).toFixed(0)}K / ${(data.total_pending / 1000).toFixed(0)}K`,
+        });
+      })
+      .catch(err => console.error('KeyMetrics: summary fetch failed:', err));
+
+    return () => { active = false; };
   }, []);
 
   const TOP_STATES_DATA = statesData.length > 0 ? statesData : [
@@ -658,12 +666,39 @@ const FinancialAnomalyDashboard = ({ isHi, anomalyProjects = MOCK_ANOMALY_PROJEC
   const [analysisStatus, setAnalysisStatus] = useState('Last Run: Today, 10:45 AM • 218K Records Scanned');
   const [selectedAnomaly, setSelectedAnomaly] = useState(null);
 
+  // ── Live KPI state from /api/analytics/summary ─────────────────────────────────
+  const [finGuardKpis, setFinGuardKpis] = useState({
+    projectsAnalyzed: '2,18,913',
+    anomaliesDetected: '7,100',
+    highRisk: '1',
+    exposureCr: '184.5',
+  });
+
+  useEffect(() => {
+    const token = localStorage.getItem('nirikshak_token');
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    fetch('/api/analytics/summary', { headers })
+      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
+      .then(data => {
+        const totalAnomalies = (data.total_high_risk || 0) + (data.total_moderate_risk || 0);
+        const exposureCr = (data.total_sanctioned_cr * 0.015).toFixed(1); // ~1.5% flagged mismatch
+        setFinGuardKpis({
+          projectsAnalyzed: data.total_projects.toLocaleString('en-IN'),
+          anomaliesDetected: totalAnomalies.toLocaleString('en-IN'),
+          highRisk: data.total_high_risk.toLocaleString('en-IN'),
+          exposureCr,
+        });
+        setAnalysisStatus(`Last Run: Live • ${data.total_projects.toLocaleString('en-IN')} Records Scanned`);
+      })
+      .catch(err => console.error('FinGuard: analytics/summary failed:', err));
+  }, []);
+
   const handleRunAnalysis = () => {
     setIsAnalyzing(true);
     setTimeout(() => {
       setIsAnalyzing(false);
-      setAnalysisStatus('Last Run: Just now • 218,490 Records Scanned');
-      alert(isHi ? 'FinGuard एआई वित्तीय विश्लेषण पूर्ण हुआ! 1,420 विसंगतियां पहचानी गईं।' : 'FinGuard AI Financial Analysis completed! 1,420 anomalies identified.');
+      setAnalysisStatus(`Last Run: Just now • ${finGuardKpis.projectsAnalyzed} Records Scanned`);
+      alert(isHi ? `FinGuard एआई वित्तीय विश्लेषण पूर्ण हुआ! ${finGuardKpis.anomaliesDetected} विसंगतियां पहचानी गईं।` : `FinGuard AI Financial Analysis completed! ${finGuardKpis.anomaliesDetected} anomalies identified.`);
     }, 1200);
   };
 
@@ -750,25 +785,25 @@ const FinancialAnomalyDashboard = ({ isHi, anomalyProjects = MOCK_ANOMALY_PROJEC
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.15rem' }}>
         <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.25rem', boxShadow: '2px 3px 0px #1D1E22' }}>
           <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Projects Analyzed</div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#1D1E22' }}>5,25,000+</div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#1D1E22' }}>{finGuardKpis.projectsAnalyzed}</div>
           <div style={{ fontSize: '0.76rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>16-17th Lok Sabha Records</div>
         </div>
 
         <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.25rem', boxShadow: '2px 3px 0px #1D1E22' }}>
           <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#D9534F', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Financial Anomalies</div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#D9534F' }}>1,420</div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#D9534F' }}>{finGuardKpis.anomaliesDetected}</div>
           <div style={{ fontSize: '0.76rem', color: '#D9534F', fontWeight: 700, marginTop: '0.25rem' }}>Flagged for Audit</div>
         </div>
 
         <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.25rem', boxShadow: '2px 3px 0px #1D1E22' }}>
           <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B8860B', textTransform: 'uppercase', marginBottom: '0.35rem' }}>High Risk Projects</div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#B8860B' }}>342</div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#B8860B' }}>{finGuardKpis.highRisk}</div>
           <div style={{ fontSize: '0.76rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>Critical Mismatch (&gt;30% Gap)</div>
         </div>
 
         <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.25rem', boxShadow: '2px 3px 0px #1D1E22' }}>
           <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#0A2458', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Total Financial Exposure</div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0A2458' }}>₹184.5 Cr</div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0A2458' }}>₹{finGuardKpis.exposureCr} Cr</div>
           <div style={{ fontSize: '0.76rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>At-Risk Sanctioned Allocation</div>
         </div>
       </div>
@@ -1676,8 +1711,21 @@ const DuplicateDetectionDashboard = ({ isHi }) => {
   const [scanStatus, setScanStatus] = useState('Last Scan: Today, 11:30 AM • 218K Works Scanned');
   const [selectedPair, setSelectedPair] = useState(null);
   const [duplicatePairs, setDuplicatePairs] = useState([]);
+  const [dupKpiProjects, setDupKpiProjects] = useState('2,18,913');
 
   useEffect(() => {
+    // Fetch live total_projects for the KPI card
+    const token = localStorage.getItem('nirikshak_token');
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    fetch('/api/analytics/summary', { headers })
+      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
+      .then(data => {
+        setDupKpiProjects(data.total_projects.toLocaleString('en-IN'));
+        setScanStatus(`Last Scan: Live • ${data.total_projects.toLocaleString('en-IN')} Works Scanned`);
+      })
+      .catch(err => console.error('DupDetect: analytics/summary failed:', err));
+
+    // Also load the duplicate pair list from the pre-computed JSON file
     fetch('/data/duplicate_project_alerts.json')
       .then(res => res.json())
       .then(data => {
@@ -1737,8 +1785,9 @@ const DuplicateDetectionDashboard = ({ isHi }) => {
           setDuplicatePairs(formatted);
         }
       })
-      .catch(err => console.error("Error loading duplicate pairs:", err));
+      .catch(err => console.error('Error loading duplicate pairs:', err));
   }, []);
+
 
   const handleRunDetection = () => {
     setIsScanning(true);
@@ -1972,7 +2021,7 @@ const DuplicateDetectionDashboard = ({ isHi }) => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.15rem' }}>
         <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.25rem', boxShadow: '2px 3px 0px #1D1E22' }}>
           <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Projects Compared</div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#1D1E22' }}>5,25,000+</div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#1D1E22' }}>{dupKpiProjects}</div>
           <div style={{ fontSize: '0.76rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>16-17th Lok Sabha Database</div>
         </div>
 
@@ -2288,7 +2337,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
   const featureId = propFeatureId || paramFeatureId || 'overview';
 
   const { t, language } = useLanguage();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const isHi = language === 'hi';
 
   const handleBack = () => {
@@ -2306,6 +2355,145 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
   const [anomalyProjects, setAnomalyProjects] = useState(MOCK_ANOMALY_PROJECTS);
   const [selectedProject, setSelectedProject] = useState(MOCK_ANOMALY_PROJECTS[0]);
 
+  const [delayRiskData, setDelayRiskData] = useState(null);
+  const [delayRiskLoading, setDelayRiskLoading] = useState(false);
+  const [delayRiskError, setDelayRiskError] = useState(null);
+
+  const [financialRiskData, setFinancialRiskData] = useState(null);
+  const [financialRiskLoading, setFinancialRiskLoading] = useState(false);
+  const [financialRiskError, setFinancialRiskError] = useState(null);
+
+  const [progressRiskData, setProgressRiskData] = useState(null);
+  const [progressRiskLoading, setProgressRiskLoading] = useState(false);
+  const [progressRiskError, setProgressRiskError] = useState(null);
+
+  const [costRiskData, setCostRiskData] = useState(null);
+  const [costRiskLoading, setCostRiskLoading] = useState(false);
+  const [costRiskError, setCostRiskError] = useState(null);
+
+  const [agencyRiskData, setAgencyRiskData] = useState(null);
+  const [agencyRiskLoading, setAgencyRiskLoading] = useState(false);
+  const [agencyRiskError, setAgencyRiskError] = useState(null);
+
+  const [paymentRiskData, setPaymentRiskData] = useState(null);
+  const [paymentRiskLoading, setPaymentRiskLoading] = useState(false);
+  const [paymentRiskError, setPaymentRiskError] = useState(null);
+
+  const [duplicateRiskData, setDuplicateRiskData] = useState(null);
+  const [duplicateRiskLoading, setDuplicateRiskLoading] = useState(false);
+  const [duplicateRiskError, setDuplicateRiskError] = useState(null);
+
+  const [evidenceRiskData, setEvidenceRiskData] = useState(null);
+  const [evidenceRiskLoading, setEvidenceRiskLoading] = useState(false);
+  const [evidenceRiskError, setEvidenceRiskError] = useState(null);
+
+  const [unifiedRiskData, setUnifiedRiskData] = useState(null);
+  const [unifiedRiskLoading, setUnifiedRiskLoading] = useState(false);
+  const [unifiedRiskError, setUnifiedRiskError] = useState(null);
+
+  // Helper: resolve numeric work_id from the selectedProject shape
+  const _resolveWorkId = (proj) => {
+    if (!proj) return null;
+    if (proj.workId) return proj.workId;
+    if (proj.id) {
+      const numericPart = proj.id.replace('MPLADS-', '');
+      if (/^\d+$/.test(numericPart)) return parseInt(numericPart, 10);
+    }
+    return null;
+  };
+
+  // Helper: build auth header
+  const _authHeaders = () => ({ 'Authorization': `Bearer ${token}` });
+
+  // Helper: create a standard fetch hook for a single risk endpoint
+  const _fetchRisk = (workId, path, setter, setLoading, setError) => {
+    let active = true;
+    setLoading(true);
+    setError(null);
+    fetch(`/api/works/${workId}/${path}`, { headers: _authHeaders() })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => { if (active) { setter(data); setLoading(false); } })
+      .catch(err => { if (active) { setError(err.message || `Failed to fetch ${path}`); setLoading(false); setter(null); } });
+    return () => { active = false; };
+  };
+
+  // ─── Delay Risk (original) ───────────────────────────────────────────────
+  useEffect(() => {
+    const workId = _resolveWorkId(selectedProject);
+    if (!workId) {
+      setDelayRiskData(null);
+      setDelayRiskError(workId === null && selectedProject ? 'Offline mock data (live Delay Risk unavailable)' : null);
+      setDelayRiskLoading(false);
+      return;
+    }
+    if (!token) {
+      setDelayRiskData(null);
+      setDelayRiskError('Authentication token missing. Please sign in.');
+      setDelayRiskLoading(false);
+      return;
+    }
+    return _fetchRisk(workId, 'delay-risk', setDelayRiskData, setDelayRiskLoading, setDelayRiskError);
+  }, [selectedProject?.id, token]);
+
+  // ─── Financial Risk ───────────────────────────────────────────────────────
+  useEffect(() => {
+    const workId = _resolveWorkId(selectedProject);
+    if (!workId || !token) { setFinancialRiskData(null); setFinancialRiskLoading(false); return; }
+    return _fetchRisk(workId, 'financial-risk', setFinancialRiskData, setFinancialRiskLoading, setFinancialRiskError);
+  }, [selectedProject?.id, token]);
+
+  // ─── Progress Risk ────────────────────────────────────────────────────────
+  useEffect(() => {
+    const workId = _resolveWorkId(selectedProject);
+    if (!workId || !token) { setProgressRiskData(null); setProgressRiskLoading(false); return; }
+    return _fetchRisk(workId, 'progress-risk', setProgressRiskData, setProgressRiskLoading, setProgressRiskError);
+  }, [selectedProject?.id, token]);
+
+  // ─── Cost Risk ────────────────────────────────────────────────────────────
+  useEffect(() => {
+    const workId = _resolveWorkId(selectedProject);
+    if (!workId || !token) { setCostRiskData(null); setCostRiskLoading(false); return; }
+    return _fetchRisk(workId, 'cost-risk', setCostRiskData, setCostRiskLoading, setCostRiskError);
+  }, [selectedProject?.id, token]);
+
+  // ─── Agency Risk ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    const workId = _resolveWorkId(selectedProject);
+    if (!workId || !token) { setAgencyRiskData(null); setAgencyRiskLoading(false); return; }
+    return _fetchRisk(workId, 'agency-risk', setAgencyRiskData, setAgencyRiskLoading, setAgencyRiskError);
+  }, [selectedProject?.id, token]);
+
+  // ─── Payment Risk ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    const workId = _resolveWorkId(selectedProject);
+    if (!workId || !token) { setPaymentRiskData(null); setPaymentRiskLoading(false); return; }
+    return _fetchRisk(workId, 'payment-risk', setPaymentRiskData, setPaymentRiskLoading, setPaymentRiskError);
+  }, [selectedProject?.id, token]);
+
+  // ─── Duplicate Risk ───────────────────────────────────────────────────────
+  useEffect(() => {
+    const workId = _resolveWorkId(selectedProject);
+    if (!workId || !token) { setDuplicateRiskData(null); setDuplicateRiskLoading(false); return; }
+    return _fetchRisk(workId, 'duplicate-risk', setDuplicateRiskData, setDuplicateRiskLoading, setDuplicateRiskError);
+  }, [selectedProject?.id, token]);
+
+  // ─── Evidence Risk ────────────────────────────────────────────────────────
+  useEffect(() => {
+    const workId = _resolveWorkId(selectedProject);
+    if (!workId || !token) { setEvidenceRiskData(null); setEvidenceRiskLoading(false); return; }
+    return _fetchRisk(workId, 'evidence-risk', setEvidenceRiskData, setEvidenceRiskLoading, setEvidenceRiskError);
+  }, [selectedProject?.id, token]);
+
+  // ─── Unified Risk ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    const workId = _resolveWorkId(selectedProject);
+    if (!workId || !token) { setUnifiedRiskData(null); setUnifiedRiskLoading(false); return; }
+    return _fetchRisk(workId, 'risk', setUnifiedRiskData, setUnifiedRiskLoading, setUnifiedRiskError);
+  }, [selectedProject?.id, token]);
+
   const [nationalStats, setNationalStats] = useState({
     totalProjects: '2,18,913',
     totalAllocated: '₹42,721 Cr',
@@ -2322,28 +2510,38 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
   });
 
   useEffect(() => {
-    fetch('/data/Ministry_View.json')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.national_stats) {
-          const stats = data.national_stats;
-          const sanctionedCr = Math.round(stats.total_sanctioned / 10000000);
-          const spentCr = Math.round(stats.total_disbursed / 10000000);
-          const utilRate = ((stats.total_disbursed / (stats.total_sanctioned || 1)) * 100).toFixed(1);
-          setNationalStats(prev => ({
-            ...prev,
-            totalProjects: stats.total_projects.toLocaleString(),
-            totalAllocated: `₹${sanctionedCr.toLocaleString()} Cr`,
-            totalSpent: `₹${spentCr.toLocaleString()} Cr`,
-            utilizationRate: `${utilRate}%`,
-          }));
-        }
-      })
-      .catch(err => console.error("Error loading national stats in FeatureView:", err));
+    const _token = localStorage.getItem('nirikshak_token');
+    const _headers = _token ? { 'Authorization': `Bearer ${_token}` } : {};
+    let _active = true;
 
+    // Replace Ministry_View national_stats with live analytics/summary
+    fetch('/api/analytics/summary', { headers: _headers })
+      .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
+      .then(data => {
+        if (!_active) return;
+        const sanctionedCr = data.total_sanctioned_cr;
+        const spentCr = parseFloat((sanctionedCr * data.utilization_rate_pct / 100).toFixed(2));
+        setNationalStats(prev => ({
+          ...prev,
+          totalProjects: data.total_projects.toLocaleString('en-IN'),
+          totalAllocated: `₹${sanctionedCr.toLocaleString('en-IN')} Cr`,
+          totalSpent: `₹${spentCr.toLocaleString('en-IN')} Cr`,
+          utilizationRate: `${data.utilization_rate_pct.toFixed(1)}%`,
+          completedWorks: data.total_completed.toLocaleString('en-IN'),
+          pendingWorks: data.total_pending.toLocaleString('en-IN'),
+          riskHigh: data.total_high_risk.toLocaleString('en-IN'),
+          riskMedium: data.total_moderate_risk.toLocaleString('en-IN'),
+          riskLow: data.total_low_risk.toLocaleString('en-IN'),
+        }));
+      })
+      .catch(err => console.error('FeatureView: analytics/summary fetch failed:', err));
+
+    // Keep the unified_project_evaluations.json for anomaly project list
+    // (requires a dedicated /api/works?filter=high-risk endpoint which is out of scope)
     fetch('/data/unified_project_evaluations.json')
       .then(res => res.json())
       .then(data => {
+        if (!_active) return;
         if (Array.isArray(data) && data.length > 0) {
           const formatted = data.map(item => {
             const riskBand = item.risk_tier ? (item.risk_tier.charAt(0).toUpperCase() + item.risk_tier.slice(1).toLowerCase()) : 'Low';
@@ -2365,6 +2563,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
             
             return {
               id: `MPLADS-${item.work_id}`,
+              workId: item.work_id,
               title: item.activity_name || item.work_description || 'MPLADS Project',
               category: item.work_category || 'Normal/Others',
               state: item.state_name || 'N/A',
@@ -2389,7 +2588,9 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
           setSelectedProject(formatted[0]);
         }
       })
-      .catch(err => console.error("Error loading anomaly projects:", err));
+      .catch(err => console.error('Error loading anomaly projects:', err));
+
+    return () => { _active = false; };
   }, []);
 
   const [verificationNotes, setVerificationNotes] = useState('');
@@ -2403,6 +2604,323 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
     const matchesFilter = selectedFilter === 'ALL' || p.riskBand.toUpperCase() === selectedFilter;
     return matchesSearch && matchesFilter;
   });
+
+  // Helper to render reused Project Detail Dossier panel
+  const renderDossierDetail = () => {
+    if (!selectedProject) return null;
+    return (
+      <div style={{ background: '#FFFFFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-lg)', padding: '1.75rem', boxShadow: '3px 4px 0px #1D1E22' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', borderBottom: '1px solid #EAEAEA', paddingBottom: '1rem' }}>
+          <div>
+            <span className="badge" style={{ background: '#FEF2F2', color: '#D9534F', border: '1px solid #D9534F', marginBottom: '0.3rem' }}>
+              {selectedProject.riskBand} RISK — {selectedProject.riskScore}/100
+            </span>
+            <h3 style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.25rem', color: '#1D1E22', marginTop: '0.4rem' }}>
+              {selectedProject.title}
+            </h3>
+            <div style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)', marginTop: '0.2rem' }}>
+              ID: <span style={{ fontFamily: 'monospace' }}>{selectedProject.id}</span> • {selectedProject.constituency}
+            </div>
+          </div>
+        </div>
+
+        {/* Financial & Physical Metrics Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginBottom: '1.25rem' }}>
+          <div style={{ background: '#FAF8F3', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid #1D1E22' }}>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>SANCTIONED</div>
+            <div style={{ fontSize: '1.05rem', fontWeight: 800 }}>{selectedProject.sanctionedCost}</div>
+          </div>
+          <div style={{ background: '#FAF8F3', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid #1D1E22' }}>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#D9534F' }}>EXPENDITURE</div>
+            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#D9534F' }}>{selectedProject.expenditurePct}%</div>
+          </div>
+          <div style={{ background: '#FAF8F3', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid #1D1E22' }}>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-accent-teal)' }}>PROGRESS</div>
+            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-accent-teal)' }}>{selectedProject.physicalProgress}%</div>
+          </div>
+        </div>
+
+        {/* ── LIVE RISK ASSESSMENT PANEL (All 8 modules) ── */}
+
+        {/* Helper: Inline score pill */}
+        {/* Unified Risk Summary Bar */}
+        <div style={{ background: unifiedRiskData?.status === 'LIVE' ? '#E8F5E9' : '#FAF8F3', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '0.85rem 1rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0A2458', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            {isHi ? 'एकीकृत AI जोखिम स्कोर' : 'Unified AI Risk Score'}
+          </div>
+          {unifiedRiskLoading ? (
+            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>Computing…</span>
+          ) : unifiedRiskError ? (
+            <span style={{ fontSize: '0.8rem', color: '#D9534F' }}>Error: {unifiedRiskError}</span>
+          ) : unifiedRiskData ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <span style={{
+                fontSize: '1.4rem', fontWeight: 800,
+                color: unifiedRiskData.unified_risk_score == null ? '#888' : unifiedRiskData.unified_risk_score > 60 ? '#D9534F' : unifiedRiskData.unified_risk_score > 30 ? '#E5B842' : '#1E7E34'
+              }}>
+                {unifiedRiskData.unified_risk_score != null ? `${unifiedRiskData.unified_risk_score.toFixed(1)}/100` : 'Pending'}
+              </span>
+              <span style={{
+                padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 800,
+                background: unifiedRiskData.status === 'LIVE' ? '#E8F5E9' : '#FFF8E1',
+                color: unifiedRiskData.status === 'LIVE' ? '#1E7E34' : '#B8860B',
+                border: `1px solid ${unifiedRiskData.status === 'LIVE' ? '#52B79A' : '#E5B842'}`
+              }}>
+                {unifiedRiskData.status || 'PARTIAL'}
+              </span>
+              {unifiedRiskData.risk_tier && (
+                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1D1E22' }}>({unifiedRiskData.risk_tier})</span>
+              )}
+            </div>
+          ) : (
+            <span style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)' }}>
+              {isHi ? 'कोई डेटा उपलब्ध नहीं' : 'No live data'}
+            </span>
+          )}
+        </div>
+
+        {/* 8-module grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem', marginBottom: '1.25rem' }}>
+
+          {/* 1 ── Delay Risk */}
+          <div style={{ background: '#FAF8F3', border: '1px solid #1D1E22', borderRadius: 'var(--radius-sm)', padding: '0.7rem' }}>
+            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0A2458', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+              {isHi ? 'विलंब जोखिम (15%)' : 'Delay Risk (15%)'}
+              {delayRiskLoading && <span style={{ color: '#888', marginLeft: '0.4rem' }}>…</span>}
+            </div>
+            {delayRiskError ? (
+              <div style={{ fontSize: '0.75rem', color: '#D9534F' }}>Error</div>
+            ) : delayRiskData ? (
+              <div style={{ fontSize: '0.78rem' }}>
+                <strong style={{ color: delayRiskData.delay_risk_tier === 'HIGH' || delayRiskData.delay_risk_tier === 'CRITICAL' ? '#D9534F' : '#1E7E34' }}>
+                  {delayRiskData.delay_risk_score?.toFixed(1) ?? 'N/A'}/100
+                </strong> · {delayRiskData.delay_risk_tier}
+                <div style={{ color: 'var(--color-text-secondary)', marginTop: '0.15rem' }}>
+                  Prob: {((delayRiskData.delay_probability ?? 0) * 100).toFixed(1)}% · Status: {delayRiskData.operational_status?.replace(/_/g, ' ')}
+                </div>
+              </div>
+            ) : (
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>—</div>
+            )}
+          </div>
+
+          {/* 2 ── Financial Risk */}
+          <div style={{ background: '#FAF8F3', border: '1px solid #1D1E22', borderRadius: 'var(--radius-sm)', padding: '0.7rem' }}>
+            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0A2458', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+              {isHi ? 'वित्तीय जोखिम (20%)' : 'Financial Risk (20%)'}
+              {financialRiskLoading && <span style={{ color: '#888', marginLeft: '0.4rem' }}>…</span>}
+            </div>
+            {financialRiskError ? (
+              <div style={{ fontSize: '0.75rem', color: '#D9534F' }}>Error</div>
+            ) : financialRiskData ? (
+              <div style={{ fontSize: '0.78rem' }}>
+                <strong style={{ color: financialRiskData.financial_risk_tier === 'HIGH' || financialRiskData.financial_risk_tier === 'CRITICAL' ? '#D9534F' : '#1E7E34' }}>
+                  {financialRiskData.financial_risk_score?.toFixed(1) ?? 'N/A'}/100
+                </strong> · {financialRiskData.financial_risk_tier}
+                {financialRiskData.anomaly_reasons?.length > 0 && (
+                  <div style={{ color: 'var(--color-text-secondary)', marginTop: '0.15rem', fontSize: '0.72rem' }}>
+                    {financialRiskData.anomaly_reasons[0]}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>—</div>
+            )}
+          </div>
+
+          {/* 3 ── Progress Risk */}
+          <div style={{ background: '#FAF8F3', border: '1px solid #1D1E22', borderRadius: 'var(--radius-sm)', padding: '0.7rem' }}>
+            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0A2458', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+              {isHi ? 'प्रगति जोखिम (20%)' : 'Progress Risk (20%)'}
+              {progressRiskLoading && <span style={{ color: '#888', marginLeft: '0.4rem' }}>…</span>}
+            </div>
+            {progressRiskError ? (
+              <div style={{ fontSize: '0.75rem', color: '#D9534F' }}>Error</div>
+            ) : progressRiskData ? (
+              <div style={{ fontSize: '0.78rem' }}>
+                <strong style={{ color: progressRiskData.progress_risk_tier === 'HIGH' || progressRiskData.progress_risk_tier === 'CRITICAL' ? '#D9534F' : '#1E7E34' }}>
+                  {progressRiskData.progress_risk_score?.toFixed(1) ?? 'N/A'}/100
+                </strong> · {progressRiskData.progress_risk_tier}
+                <div style={{ color: 'var(--color-text-secondary)', marginTop: '0.15rem' }}>
+                  Stall: {((progressRiskData.stall_probability ?? 0) * 100).toFixed(1)}%
+                </div>
+              </div>
+            ) : (
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>—</div>
+            )}
+          </div>
+
+          {/* 4 ── Cost Risk */}
+          <div style={{ background: '#FAF8F3', border: '1px solid #1D1E22', borderRadius: 'var(--radius-sm)', padding: '0.7rem' }}>
+            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0A2458', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+              {isHi ? 'लागत जोखिम (15%)' : 'Cost Risk (15%)'}
+              {costRiskLoading && <span style={{ color: '#888', marginLeft: '0.4rem' }}>…</span>}
+            </div>
+            {costRiskError ? (
+              <div style={{ fontSize: '0.75rem', color: '#D9534F' }}>Error</div>
+            ) : costRiskData ? (
+              <div style={{ fontSize: '0.78rem' }}>
+                <strong style={{ color: costRiskData.cost_risk_tier === 'HIGH' || costRiskData.cost_risk_tier === 'CRITICAL' ? '#D9534F' : '#1E7E34' }}>
+                  {costRiskData.cost_risk_score?.toFixed(1) ?? 'N/A'}/100
+                </strong> · {costRiskData.cost_risk_tier}
+                <div style={{ color: 'var(--color-text-secondary)', marginTop: '0.15rem' }}>Z: {costRiskData.cost_z_score?.toFixed(2)}</div>
+              </div>
+            ) : (
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>—</div>
+            )}
+          </div>
+
+          {/* 5 ── Agency Risk */}
+          <div style={{ background: '#FAF8F3', border: '1px solid #1D1E22', borderRadius: 'var(--radius-sm)', padding: '0.7rem' }}>
+            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0A2458', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+              {isHi ? 'एजेंसी जोखिम (5%)' : 'Agency Risk (5%)'}
+              {agencyRiskLoading && <span style={{ color: '#888', marginLeft: '0.4rem' }}>…</span>}
+            </div>
+            {agencyRiskError ? (
+              <div style={{ fontSize: '0.75rem', color: '#D9534F' }}>Error</div>
+            ) : agencyRiskData ? (
+              <div style={{ fontSize: '0.78rem' }}>
+                <strong style={{ color: agencyRiskData.agency_risk_tier === 'HIGH' || agencyRiskData.agency_risk_tier === 'CRITICAL' ? '#D9534F' : '#1E7E34' }}>
+                  {agencyRiskData.agency_risk_score?.toFixed(1) ?? 'N/A'}/100
+                </strong> · {agencyRiskData.agency_risk_tier ?? 'N/A'}
+              </div>
+            ) : (
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>—</div>
+            )}
+          </div>
+
+          {/* 6 ── Payment Risk */}
+          <div style={{ background: '#FAF8F3', border: '1px solid #1D1E22', borderRadius: 'var(--radius-sm)', padding: '0.7rem' }}>
+            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0A2458', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+              {isHi ? 'भुगतान जोखिम (5%)' : 'Payment Risk (5%)'}
+              {paymentRiskLoading && <span style={{ color: '#888', marginLeft: '0.4rem' }}>…</span>}
+            </div>
+            {paymentRiskError ? (
+              <div style={{ fontSize: '0.75rem', color: '#D9534F' }}>Error</div>
+            ) : paymentRiskData ? (
+              <div style={{ fontSize: '0.78rem' }}>
+                <strong style={{ color: paymentRiskData.payment_risk_tier === 'HIGH' ? '#D9534F' : '#1E7E34' }}>
+                  {paymentRiskData.payment_risk_score?.toFixed(1) ?? 'N/A'}/100
+                </strong> · {paymentRiskData.payment_risk_tier}
+                <div style={{ color: 'var(--color-text-secondary)', marginTop: '0.15rem' }}>HHI: {paymentRiskData.hhi?.toFixed(0)}</div>
+              </div>
+            ) : (
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>—</div>
+            )}
+          </div>
+
+          {/* 7 ── Duplicate Risk */}
+          <div style={{ background: '#FAF8F3', border: '1px solid #1D1E22', borderRadius: 'var(--radius-sm)', padding: '0.7rem' }}>
+            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0A2458', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+              {isHi ? 'डुप्लीकेट जोखिम (10%)' : 'Duplicate Risk (10%)'}
+              {duplicateRiskLoading && <span style={{ color: '#888', marginLeft: '0.4rem' }}>…</span>}
+            </div>
+            {duplicateRiskError ? (
+              <div style={{ fontSize: '0.75rem', color: '#D9534F' }}>Error</div>
+            ) : duplicateRiskData ? (
+              duplicateRiskData.status === 'UNAVAILABLE' ? (
+                <div style={{ fontSize: '0.75rem', color: '#B8860B', fontWeight: 600 }}>Data Unavailable</div>
+              ) : (
+                <div style={{ fontSize: '0.78rem' }}>
+                  <strong>{duplicateRiskData.risk_confidence_score?.toFixed(1) ?? 'N/A'}/100</strong>
+                  {duplicateRiskData.alert_type && <span> · {duplicateRiskData.alert_type}</span>}
+                </div>
+              )
+            ) : (
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>—</div>
+            )}
+          </div>
+
+          {/* 8 ── Evidence Risk */}
+          <div style={{ background: '#FAF8F3', border: '1px solid #1D1E22', borderRadius: 'var(--radius-sm)', padding: '0.7rem' }}>
+            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0A2458', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+              {isHi ? 'साक्ष्य जोखिम (10%)' : 'Evidence Risk (10%)'}
+              {evidenceRiskLoading && <span style={{ color: '#888', marginLeft: '0.4rem' }}>…</span>}
+            </div>
+            {evidenceRiskError ? (
+              <div style={{ fontSize: '0.75rem', color: '#D9534F' }}>Error</div>
+            ) : evidenceRiskData ? (
+              evidenceRiskData.status === 'UNAVAILABLE' ? (
+                <div style={{ fontSize: '0.75rem', color: '#B8860B', fontWeight: 600 }}>Data Unavailable</div>
+              ) : (
+                <div style={{ fontSize: '0.78rem' }}>
+                  <strong style={{ color: evidenceRiskData.evidence_risk_tier === 'HIGH' ? '#D9534F' : '#1E7E34' }}>
+                    {evidenceRiskData.evidence_risk_score?.toFixed(1) ?? 'N/A'}/100
+                  </strong> · {evidenceRiskData.evidence_risk_tier}
+                </div>
+              )
+            ) : (
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>—</div>
+            )}
+          </div>
+
+        </div>
+
+        {/* Explainable Reasons */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0A2458', textTransform: 'uppercase', marginBottom: '0.4rem', letterSpacing: '0.06em' }}>
+            {isHi ? 'AI व्याख्या और जोखिम कारण' : 'Explainable Risk Factors'}
+          </div>
+          <ul style={{ paddingLeft: '1.2rem', margin: 0, fontSize: '0.82rem', color: '#2A2C32', lineHeight: 1.55 }}>
+            {selectedProject.reasons.map((r, i) => (
+              <li key={i} style={{ marginBottom: '0.3rem' }}>{r}</li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Recommended Action */}
+        <div style={{ background: '#FFF8E1', border: '1px solid #E5B842', borderRadius: 'var(--radius-sm)', padding: '0.75rem 1rem', marginBottom: '1.5rem', fontSize: '0.82rem' }}>
+          <strong style={{ color: '#B8860B' }}>{isHi ? 'सिफारिशित सत्यापन कार्रवाई:' : 'Recommended Action:'} </strong>
+          <span style={{ color: '#4A4D55' }}>{selectedProject.recommendedAction}</span>
+        </div>
+
+        {/* Officer Investigation Action Box */}
+        <div style={{ borderTop: '1px solid #EAEAEA', paddingTop: '1rem' }}>
+          <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#1D1E22', marginBottom: '0.4rem' }}>
+            {isHi ? 'अधिकारी जांच नोट्स एवं निर्देश' : 'Official Investigation Notes & Action'}
+          </label>
+          <textarea
+            rows={3}
+            value={verificationNotes}
+            onChange={(e) => setVerificationNotes(e.target.value)}
+            placeholder={isHi ? 'सत्यापन अवलोकन या निर्देश यहाँ दर्ज करें...' : 'Enter inspection findings or verification dispatch notes...'}
+            style={{
+              width: '100%',
+              padding: '0.65rem 0.8rem',
+              border: '1.5px solid #1D1E22',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '0.82rem',
+              marginBottom: '0.75rem',
+              boxSizing: 'border-box'
+            }}
+          />
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+            <button
+              type="button"
+              onClick={() => alert(isHi ? 'जांच रिपोर्ट निर्यात की जा रही है...' : 'Exporting Investigation Dossier PDF...')}
+              className="btn-outline-dark"
+              style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', gap: '0.4rem' }}
+            >
+              <Download size={14} />
+              <span>{isHi ? 'डोज़ियर डाउनलोड' : 'Download Dossier'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setVerificationStatus('Dispatched');
+                alert(isHi ? 'भौतिक सत्यापन कार्य क्षेत्र निरीक्षक को भेजा गया!' : 'Physical verification task dispatched to Field Inspector!');
+              }}
+              className="btn-teal"
+              style={{ padding: '0.5rem 1.2rem', fontSize: '0.82rem', gap: '0.4rem' }}
+            >
+              <Send size={14} />
+              <span>{isHi ? 'सत्यापन कार्य सौंपें' : 'Dispatch Field Task'}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // RENDER DYNAMIC CONTENT BASED ON THE SELECTED FEATURE
   const renderFeatureContent = () => {
@@ -2647,67 +3165,70 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
               </div>
             </div>
             {/* High-Risk Projects Registry Table */}
-            <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: '3px 4px 0px #1D1E22' }}>
-              <div style={{ padding: '1.15rem 1.5rem', background: '#F3EFE6', borderBottom: '1px solid #1D1E22', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.25rem', color: '#1D1E22', margin: 0 }}>
-                  {isHi ? 'उच्च जोखिम परियोजनाएं' : 'High-Risk Projects Registry'}
-                </h3>
-                <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
-                  Prioritized for Physical Field Inspection
-                </span>
-              </div>
+            <div style={{ display: 'grid', gridTemplateColumns: selectedProject ? '1fr minmax(380px, 1.2fr)' : '1fr', gap: '1.5rem', alignItems: 'start' }}>
+              <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: '3px 4px 0px #1D1E22' }}>
+                <div style={{ padding: '1.15rem 1.5rem', background: '#F3EFE6', borderBottom: '1px solid #1D1E22', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.25rem', color: '#1D1E22', margin: 0 }}>
+                    {isHi ? 'उच्च जोखिम परियोजनाएं' : 'High-Risk Projects Registry'}
+                  </h3>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
+                    Prioritized for Physical Field Inspection
+                  </span>
+                </div>
 
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.84rem' }}>
-                  <thead>
-                    <tr style={{ background: '#FAFAFA', borderBottom: '1px solid #EAEAEA', textAlign: 'left' }}>
-                      <th style={{ padding: '0.85rem 1.15rem' }}>Work ID</th>
-                      <th style={{ padding: '0.85rem 1.15rem' }}>Project Title & Category</th>
-                      <th style={{ padding: '0.85rem 1.15rem' }}>District & State</th>
-                      <th style={{ padding: '0.85rem 1.15rem' }}>Sanctioned Amount</th>
-                      <th style={{ padding: '0.85rem 1.15rem' }}>Spent / Progress</th>
-                      <th style={{ padding: '0.85rem 1.15rem' }}>Risk Score</th>
-                      <th style={{ padding: '0.85rem 1.15rem', textAlign: 'right' }}>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {anomalyProjects.map((project) => (
-                      <tr key={project.id} style={{ borderBottom: '1px solid #F0F0F0' }}>
-                        <td style={{ padding: '0.85rem 1.15rem', fontFamily: 'monospace', fontWeight: 700 }}>{project.id}</td>
-                        <td style={{ padding: '0.85rem 1.15rem', maxWidth: '280px' }}>
-                          <div style={{ fontWeight: 700, color: '#1D1E22', marginBottom: '0.15rem' }}>{project.title.substring(0, 80)}...</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{project.category}</div>
-                        </td>
-                        <td style={{ padding: '0.85rem 1.15rem' }}>{project.district}, {project.state}</td>
-                        <td style={{ padding: '0.85rem 1.15rem', fontWeight: 700 }}>{project.sanctionedCost}</td>
-                        <td style={{ padding: '0.85rem 1.15rem' }}>
-                          <span style={{ color: '#D9534F', fontWeight: 700 }}>{project.expenditurePct}% spent</span> / <span style={{ color: 'var(--color-accent-teal-hover)', fontWeight: 700 }}>{project.physicalProgress}% done</span>
-                        </td>
-                        <td style={{ padding: '0.85rem 1.15rem' }}>
-                          <span style={{
-                            padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.76rem', fontWeight: 800,
-                            background: project.riskScore > 80 ? '#FEF2F2' : '#FFF8E1',
-                            color: project.riskScore > 80 ? '#D9534F' : '#E5B842',
-                            border: `1px solid ${project.riskScore > 80 ? '#D9534F' : '#E5B842'}`
-                          }}>
-                            {project.riskScore}/100 ({project.riskBand})
-                          </span>
-                        </td>
-                        <td style={{ padding: '0.85rem 1.15rem', textAlign: 'right' }}>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedProject(project)}
-                            className="btn-outline-dark"
-                            style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem' }}
-                          >
-                            View Dossier
-                          </button>
-                        </td>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.84rem' }}>
+                    <thead>
+                      <tr style={{ background: '#FAFAFA', borderBottom: '1px solid #EAEAEA', textAlign: 'left' }}>
+                        <th style={{ padding: '0.85rem 1.15rem' }}>Work ID</th>
+                        <th style={{ padding: '0.85rem 1.15rem' }}>Project Title & Category</th>
+                        <th style={{ padding: '0.85rem 1.15rem' }}>District & State</th>
+                        <th style={{ padding: '0.85rem 1.15rem' }}>Sanctioned Amount</th>
+                        <th style={{ padding: '0.85rem 1.15rem' }}>Spent / Progress</th>
+                        <th style={{ padding: '0.85rem 1.15rem' }}>Risk Score</th>
+                        <th style={{ padding: '0.85rem 1.15rem', textAlign: 'right' }}>Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {anomalyProjects.map((project) => (
+                        <tr key={project.id} style={{ borderBottom: '1px solid #F0F0F0' }}>
+                          <td style={{ padding: '0.85rem 1.15rem', fontFamily: 'monospace', fontWeight: 700 }}>{project.id}</td>
+                          <td style={{ padding: '0.85rem 1.15rem', maxWidth: '280px' }}>
+                            <div style={{ fontWeight: 700, color: '#1D1E22', marginBottom: '0.15rem' }}>{project.title.substring(0, 80)}...</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{project.category}</div>
+                          </td>
+                          <td style={{ padding: '0.85rem 1.15rem' }}>{project.district}, {project.state}</td>
+                          <td style={{ padding: '0.85rem 1.15rem', fontWeight: 700 }}>{project.sanctionedCost}</td>
+                          <td style={{ padding: '0.85rem 1.15rem' }}>
+                            <span style={{ color: '#D9534F', fontWeight: 700 }}>{project.expenditurePct}% spent</span> / <span style={{ color: 'var(--color-accent-teal-hover)', fontWeight: 700 }}>{project.physicalProgress}% done</span>
+                          </td>
+                          <td style={{ padding: '0.85rem 1.15rem' }}>
+                            <span style={{
+                              padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.76rem', fontWeight: 800,
+                              background: project.riskScore > 80 ? '#FEF2F2' : '#FFF8E1',
+                              color: project.riskScore > 80 ? '#D9534F' : '#E5B842',
+                              border: `1px solid ${project.riskScore > 80 ? '#D9534F' : '#E5B842'}`
+                            }}>
+                              {project.riskScore}/100 ({project.riskBand})
+                            </span>
+                          </td>
+                          <td style={{ padding: '0.85rem 1.15rem', textAlign: 'right' }}>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedProject(project)}
+                              className="btn-outline-dark"
+                              style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem' }}
+                            >
+                              View Dossier
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
+              {selectedProject && renderDossierDetail()}
             </div>
 
             {/* Reusing Landing Page Footer at the bottom with CTA buttons hidden */}
@@ -2908,102 +3429,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
               </div>
 
               {/* Investigation Dossier Detail */}
-              {selectedProject && (
-                <div style={{ background: '#FFFFFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-lg)', padding: '1.75rem', boxShadow: '3px 4px 0px #1D1E22' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', borderBottom: '1px solid #EAEAEA', paddingBottom: '1rem' }}>
-                    <div>
-                      <span className="badge" style={{ background: '#FEF2F2', color: '#D9534F', border: '1px solid #D9534F', marginBottom: '0.3rem' }}>
-                        {selectedProject.riskBand} RISK — {selectedProject.riskScore}/100
-                      </span>
-                      <h3 style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.25rem', color: '#1D1E22', marginTop: '0.4rem' }}>
-                        {selectedProject.title}
-                      </h3>
-                      <div style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)', marginTop: '0.2rem' }}>
-                        ID: <span style={{ fontFamily: 'monospace' }}>{selectedProject.id}</span> • {selectedProject.constituency}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Financial & Physical Metrics Grid */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginBottom: '1.25rem' }}>
-                    <div style={{ background: '#FAF8F3', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid #1D1E22' }}>
-                      <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>SANCTIONED</div>
-                      <div style={{ fontSize: '1.05rem', fontWeight: 800 }}>{selectedProject.sanctionedCost}</div>
-                    </div>
-                    <div style={{ background: '#FAF8F3', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid #1D1E22' }}>
-                      <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#D9534F' }}>EXPENDITURE</div>
-                      <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#D9534F' }}>{selectedProject.expenditurePct}%</div>
-                    </div>
-                    <div style={{ background: '#FAF8F3', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid #1D1E22' }}>
-                      <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-accent-teal)' }}>PROGRESS</div>
-                      <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-accent-teal)' }}>{selectedProject.physicalProgress}%</div>
-                    </div>
-                  </div>
-
-                  {/* Explainable Reasons */}
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0A2458', textTransform: 'uppercase', marginBottom: '0.4rem', letterSpacing: '0.06em' }}>
-                      {isHi ? 'AI व्याख्या और जोखिम कारण' : 'Explainable Risk Factors'}
-                    </div>
-                    <ul style={{ paddingLeft: '1.2rem', margin: 0, fontSize: '0.82rem', color: '#2A2C32', lineHeight: 1.55 }}>
-                      {selectedProject.reasons.map((r, i) => (
-                        <li key={i} style={{ marginBottom: '0.3rem' }}>{r}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Recommended Action */}
-                  <div style={{ background: '#FFF8E1', border: '1px solid #E5B842', borderRadius: 'var(--radius-sm)', padding: '0.75rem 1rem', marginBottom: '1.5rem', fontSize: '0.82rem' }}>
-                    <strong style={{ color: '#B8860B' }}>{isHi ? 'सिफारिशित सत्यापन कार्रवाई:' : 'Recommended Action:'} </strong>
-                    <span style={{ color: '#4A4D55' }}>{selectedProject.recommendedAction}</span>
-                  </div>
-
-                  {/* Officer Investigation Action Box */}
-                  <div style={{ borderTop: '1px solid #EAEAEA', paddingTop: '1rem' }}>
-                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#1D1E22', marginBottom: '0.4rem' }}>
-                      {isHi ? 'अधिकारी जांच नोट्स एवं निर्देश' : 'Official Investigation Notes & Action'}
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={verificationNotes}
-                      onChange={(e) => setVerificationNotes(e.target.value)}
-                      placeholder={isHi ? 'सत्यापन अवलोकन या निर्देश यहाँ दर्ज करें...' : 'Enter inspection findings or verification dispatch notes...'}
-                      style={{
-                        width: '100%',
-                        padding: '0.65rem 0.8rem',
-                        border: '1.5px solid #1D1E22',
-                        borderRadius: 'var(--radius-sm)',
-                        fontSize: '0.82rem',
-                        marginBottom: '0.75rem',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                    <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-                      <button
-                        type="button"
-                        onClick={() => alert(isHi ? 'जांच रिपोर्ट निर्यात की जा रही है...' : 'Exporting Investigation Dossier PDF...')}
-                        className="btn-outline-dark"
-                        style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', gap: '0.4rem' }}
-                      >
-                        <Download size={14} />
-                        <span>{isHi ? 'डोज़ियर डाउनलोड' : 'Download Dossier'}</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setVerificationStatus('Dispatched');
-                          alert(isHi ? 'भौतिक सत्यापन कार्य क्षेत्र निरीक्षक को भेजा गया!' : 'Physical verification task dispatched to Field Inspector!');
-                        }}
-                        className="btn-teal"
-                        style={{ padding: '0.5rem 1.2rem', fontSize: '0.82rem', gap: '0.4rem' }}
-                      >
-                        <Send size={14} />
-                        <span>{isHi ? 'सत्यापन कार्य सौंपें' : 'Dispatch Field Task'}</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {selectedProject && renderDossierDetail()}
             </div>
           </div>
         );
@@ -3193,14 +3619,26 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
             <h3 style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.4rem', color: '#1D1E22', marginBottom: '0.5rem' }}>
               {isHi ? 'निरीक्षक एआई पोर्टल' : 'Nirikshak AI Intelligence Portal'}
             </h3>
-            <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', maxWidth: '500px', margin: '0 auto 1.5rem auto' }}>
+            <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', maxWidth: '500px', margin: '0 auto 1rem auto' }}>
               {isHi
-                ? 'यह मॉड्यूल सांख्यिकी एवं कार्यक्रम कार्यान्वयन मंत्रालय (MoSPI) के एमपीलैड्स डेटा मानकों के साथ एकीकृत है।'
-                : 'This module is integrated with Ministry of Statistics and Programme Implementation (MoSPI) MPLADS data standards.'}
+                ? 'यह मॉड्यूल उपलब्ध नहीं है या आपके रोल के लिए एक्सेस नहीं है।'
+                : 'This module is not yet available or your role does not have access to this view.'}
             </p>
-            <button onClick={onBack} className="btn-teal" style={{ padding: '0.6rem 1.4rem' }}>
-              {isHi ? 'सार्वजनिक पोर्टल पर वापस जाएं' : 'Back to Public Portal'}
-            </button>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+              fontSize: '0.78rem', fontWeight: 700, color: '#52B79A',
+              background: '#F0FDF4', padding: '0.4rem 0.9rem',
+              border: '1px solid #52B79A', borderRadius: 'var(--radius-full)',
+              marginBottom: '1.5rem'
+            }}>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#52B79A', display: 'inline-block' }} />
+              {isHi ? 'Backend API सक्रिय — Live डेटा तैयार' : 'Backend API Connected — Live Data Ready'}
+            </div>
+            <div>
+              <button onClick={onBack} className="btn-teal" style={{ padding: '0.6rem 1.4rem' }}>
+                {isHi ? 'सार्वजनिक पोर्टल पर वापस जाएं' : 'Back to Public Portal'}
+              </button>
+            </div>
           </div>
         );
     }
