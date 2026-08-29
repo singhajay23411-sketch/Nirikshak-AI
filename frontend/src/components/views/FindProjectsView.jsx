@@ -291,352 +291,7 @@ const NirikshakDropdown = ({
 };
 
 // ─── EXTENSIVE MPLADS PROJECTS MOCK DATA ───
-const ALL_MOCK_PROJECTS = [
-  // BUXAR, BIHAR (20+ works for full dynamic pagination demonstration)
-  {
-    id: 'MPLADS-BX-01',
-    title: 'Construction of road from Sowan Kali Mandir (Chota pul) to Baburajmohan Singh House door',
-    category: 'Normal/Others',
-    cost: 1496846,
-    agency: 'BUXAR (DISTRICT PLANNING OFFICER BUXAR_IDA)',
-    date: '26 Nov 2024',
-    year: 2024,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 1496846,
-    installments: 3,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-BX-02',
-    title: "Construction of road from Raju Singh's Agricultural Plot to Nara (Barsadi Nadi).",
-    category: 'Normal/Others',
-    cost: 1497484,
-    agency: 'BUXAR (DISTRICT PLANNING OFFICER BUXAR_IDA)',
-    date: '26 Nov 2024',
-    year: 2024,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 1497484,
-    installments: 3,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-BX-03',
-    title: 'Development of Mahuar Stadium by adding soil and drainage system for Park.',
-    category: 'Normal/Others',
-    cost: 1491632,
-    agency: 'KAIMUR (BHABUA) (DISTRICT PLANNING OFFICER KAIMUR BHABUA_IDA)',
-    date: '27 Dec 2024',
-    year: 2024,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 1491632,
-    installments: 3,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-BX-04',
-    title: 'Purchase 4 Tricycle for Differently Abled Citizens at Block Headquarters',
-    category: 'Normal/Others',
-    cost: 180000,
-    agency: 'BUXAR (DISTRICT PLANNING OFFICER BUXAR_IDA)',
-    date: '20 Jan 2025',
-    year: 2025,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 180000,
-    installments: 1,
-    status: 'Completed & Delivered'
-  },
-  {
-    id: 'MPLADS-BX-05',
-    title: 'Construction of boundary of Urdu Primary School, Ramgarh',
-    category: 'Normal/Others',
-    cost: 494868,
-    agency: 'KAIMUR (BHABUA) (DISTRICT PLANNING OFFICER KAIMUR BHABUA_IDA)',
-    date: '14 Oct 2024',
-    year: 2024,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 494868,
-    installments: 2,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-BX-06',
-    title: 'Construction of new road from Kota PMGSY road to Idgah at village Kota',
-    category: 'Normal/Others',
-    cost: 498672,
-    agency: 'KAIMUR (BHABUA) (DISTRICT PLANNING OFFICER KAIMUR BHABUA_IDA)',
-    date: '18 Nov 2024',
-    year: 2024,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 498672,
-    installments: 2,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-BX-07',
-    title: "Construction of new road from house of Atal Bind to Chandan Bind's house",
-    category: 'Normal/Others',
-    cost: 495133,
-    agency: 'KAIMUR (BHABUA) (DISTRICT PLANNING OFFICER KAIMUR BHABUA_IDA)',
-    date: '05 Dec 2024',
-    year: 2024,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 495133,
-    installments: 2,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-BX-08',
-    title: 'Repair Of Community Hall at Pariari with Solar Lighting Installation',
-    category: 'Repair and Renovation',
-    cost: 272034,
-    agency: 'KAIMUR (BHABUA) (DISTRICT PLANNING OFFICER KAIMUR BHABUA_IDA)',
-    date: '12 Jan 2025',
-    year: 2025,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 272034,
-    installments: 2,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-BX-09',
-    title: 'Installation of Solar High-Mast Lights at 8 Gram Panchayat Junctions',
-    category: 'Renewable Energy',
-    cost: 1650000,
-    agency: 'BUXAR (DISTRICT PLANNING OFFICER BUXAR_IDA)',
-    date: '15 Feb 2025',
-    year: 2025,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 1650000,
-    installments: 2,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-BX-10',
-    title: 'Construction of Drinking Water RO Plant and 5000L Overhead Tank, Ward 4',
-    category: 'Drinking Water',
-    cost: 1280000,
-    agency: 'BUXAR (DISTRICT PLANNING OFFICER BUXAR_IDA)',
-    date: '02 Mar 2025',
-    year: 2025,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 1280000,
-    installments: 3,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-BX-11',
-    title: 'Paving of Interlocking CC Road from Main Market to Government Hospital',
-    category: 'Roads & Pathways',
-    cost: 2150000,
-    agency: 'BUXAR (DISTRICT PLANNING OFFICER BUXAR_IDA)',
-    date: '10 Nov 2024',
-    year: 2024,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 2150000,
-    installments: 3,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-BX-12',
-    title: 'Setup of Science & Digital Computer Learning Lab in High School, Itarhi',
-    category: 'Education & Schools',
-    cost: 1120000,
-    agency: 'BUXAR (DISTRICT PLANNING OFFICER BUXAR_IDA)',
-    date: '19 Aug 2024',
-    year: 2024,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 1120000,
-    installments: 2,
-    status: 'Completed & Verified'
-  },
-  // Additional BUXAR Works to trigger Page 2
-  {
-    id: 'MPLADS-BX-13',
-    title: 'Construction of Covered Drainage System from Purana Chowk to Canal Bridge',
-    category: 'Sanitation & Drainage',
-    cost: 1840000,
-    agency: 'BUXAR (DISTRICT PLANNING OFFICER BUXAR_IDA)',
-    date: '08 Jan 2025',
-    year: 2025,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 1840000,
-    installments: 3,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-BX-14',
-    title: 'Construction of Open Gymnasium and Youth Sports Complex at Chausa',
-    category: 'Sports & Youth Welfare',
-    cost: 950000,
-    agency: 'BUXAR (DISTRICT PLANNING OFFICER BUXAR_IDA)',
-    date: '22 Feb 2025',
-    year: 2025,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 950000,
-    installments: 2,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-BX-15',
-    title: 'Proposed Modern Anganwadi Center Building with Child Friendly Amenities',
-    category: 'Community Infrastructure',
-    cost: 1350000,
-    agency: 'BUXAR (DISTRICT PLANNING OFFICER BUXAR_IDA)',
-    date: '10 Feb 2026',
-    year: 2026,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'recommended',
-    disbursed: 0,
-    installments: 0,
-    status: 'Under Sanction Review'
-  },
-  {
-    id: 'MPLADS-BX-16',
-    title: 'Proposed High-Yield Deep Tube-well & Solar Pump System in Drought Prone Ward 11',
-    category: 'Drinking Water',
-    cost: 1580000,
-    agency: 'BUXAR (DISTRICT PLANNING OFFICER BUXAR_IDA)',
-    date: '18 Feb 2026',
-    year: 2026,
-    mp: 'SUDHAKAR SINGH',
-    constituency: 'BUXAR',
-    state: 'Bihar',
-    type: 'recommended',
-    disbursed: 0,
-    installments: 0,
-    status: 'Technical Feasibility Approved'
-  },
-
-  // PATNA SAHIB, BIHAR
-  {
-    id: 'MPLADS-PS-01',
-    title: 'Installation of 50 Solar Street Lights along Ashok Rajpath & Riverfront',
-    category: 'Renewable Energy',
-    cost: 2450000,
-    agency: 'PATNA (DISTRICT PLANNING OFFICE PATNA)',
-    date: '14 Oct 2024',
-    year: 2024,
-    mp: 'RAVI SHANKAR PRASAD',
-    constituency: 'PATNA_SAHIB',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 2450000,
-    installments: 3,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-PS-02',
-    title: 'Development of Modern Science Laboratory Equipment in Rajendra Smarak Inter College',
-    category: 'Education & Schools',
-    cost: 1500000,
-    agency: 'PATNA (DISTRICT PLANNING OFFICE PATNA)',
-    date: '12 Jan 2025',
-    year: 2025,
-    mp: 'RAVI SHANKAR PRASAD',
-    constituency: 'PATNA_SAHIB',
-    state: 'Bihar',
-    type: 'completed',
-    disbursed: 1500000,
-    installments: 2,
-    status: 'Completed & Verified'
-  },
-
-  // VARANASI, UTTAR PRADESH
-  {
-    id: 'MPLADS-VN-01',
-    title: 'Solar High-Mast Lighting System at Assi Ghat & Dashashwamedh Approaches',
-    category: 'Renewable Energy',
-    cost: 3200000,
-    agency: 'VARANASI (DISTRICT RURAL DEVELOPMENT AGENCY VARANASI)',
-    date: '15 Sep 2024',
-    year: 2024,
-    mp: 'NARENDRA MODI',
-    constituency: 'VARANASI',
-    state: 'Uttar Pradesh',
-    type: 'completed',
-    disbursed: 3200000,
-    installments: 4,
-    status: 'Completed & Verified'
-  },
-  {
-    id: 'MPLADS-VN-02',
-    title: 'Construction of Skill Development & Weaver Community Center, Chowk',
-    category: 'Community Infrastructure',
-    cost: 4500000,
-    agency: 'VARANASI (DISTRICT PLANNING OFFICER VARANASI)',
-    date: '20 Nov 2024',
-    year: 2024,
-    mp: 'NARENDRA MODI',
-    constituency: 'VARANASI',
-    state: 'Uttar Pradesh',
-    type: 'completed',
-    disbursed: 4500000,
-    installments: 4,
-    status: 'Completed & Verified'
-  },
-
-  // JABALPUR, MADHYA PRADESH
-  {
-    id: 'MPLADS-JB-01',
-    title: 'Construction of Community Hall & Skill Center at Ward 14, Jabalpur',
-    category: 'Community Infrastructure',
-    cost: 4850000,
-    agency: 'JABALPUR (DISTRICT PLANNING COMMITTEE JABALPUR)',
-    date: '18 Aug 2024',
-    year: 2024,
-    mp: 'ASHISH DUBEY',
-    constituency: 'JABALPUR',
-    state: 'Madhya Pradesh',
-    type: 'completed',
-    disbursed: 4365000,
-    installments: 3,
-    status: 'Completed & Verified'
-  }
-];
+const ALL_MOCK_PROJECTS = [];
 
 const ITEMS_PER_PAGE = 12;
 
@@ -644,9 +299,25 @@ const FindProjectsView = () => {
   const { language } = useLanguage();
   const isHi = language === 'hi';
 
+  const [allProjects, setAllProjects] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/data/real_projects.json')
+      .then(res => res.json())
+      .then(data => {
+        setAllProjects(data);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error("Error loading real projects:", err);
+        setIsLoading(false);
+      });
+  }, []);
+
   // Filters State
-  const [selectedState, setSelectedState] = useState('Bihar');
-  const [selectedConstituency, setSelectedConstituency] = useState('Buxar');
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedConstituency, setSelectedConstituency] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('completed'); // 'completed' | 'recommended'
   const [selectedYear, setSelectedYear] = useState('All Years');
@@ -663,21 +334,11 @@ const FindProjectsView = () => {
     return stateObj ? stateObj.constituencies : [];
   }, [selectedState]);
 
-  // Handle State Change: updates state and resets constituency to the first available in CSV
+  // Handle State Change: updates state and resets constituency to All Constituencies
   const handleStateChange = (newState) => {
     setSelectedState(newState);
+    setSelectedConstituency('');
     setCurrentPage(1);
-
-    if (newState) {
-      const stateObj = INDIA_STATES_AND_UT.find(s => s.state.toLowerCase() === newState.toLowerCase());
-      if (stateObj && stateObj.constituencies.length > 0) {
-        setSelectedConstituency(stateObj.constituencies[0].name);
-      } else {
-        setSelectedConstituency('');
-      }
-    } else {
-      setSelectedConstituency('');
-    }
   };
 
   // Reset Filters to initial state
@@ -693,7 +354,7 @@ const FindProjectsView = () => {
 
   // Filtered dataset
   const filteredProjects = useMemo(() => {
-    return ALL_MOCK_PROJECTS.filter((p) => {
+    return allProjects.filter((p) => {
       // State match
       if (selectedState && p.state.toLowerCase() !== selectedState.toLowerCase()) {
         return false;
@@ -735,7 +396,7 @@ const FindProjectsView = () => {
 
       return true;
     });
-  }, [selectedState, selectedConstituency, activeTab, selectedYear, costMax, searchQuery]);
+  }, [allProjects, selectedState, selectedConstituency, activeTab, selectedYear, costMax, searchQuery]);
 
   // Aggregate Metrics for Header Badges
   const totalProjectsCount = filteredProjects.length;
@@ -1191,7 +852,28 @@ const FindProjectsView = () => {
       </div>
 
       {/* ─── BOTTOM SECTION: 4-COLUMN PROJECT CARDS GRID (MATCHING SCREENSHOT 2) ─── */}
-      {paginatedProjects.length === 0 ? (
+      {isLoading ? (
+        <div
+          style={{
+            background: '#FFFFFF',
+            border: '1.5px solid #1D1E22',
+            borderRadius: 'var(--radius-lg)',
+            boxShadow: '3px 4px 0px #1D1E22',
+            padding: '3rem',
+            textAlign: 'center'
+          }}
+        >
+          <div className="animate-spin" style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🔄</div>
+          <h3 style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.35rem', color: '#1D1E22', marginBottom: '0.5rem' }}>
+            {isHi ? 'परियोजनाएं लोड हो रही हैं...' : 'Loading Real Projects...'}
+          </h3>
+          <p style={{ fontSize: '0.88rem', color: 'var(--color-text-secondary)' }}>
+            {isHi
+              ? 'कृपया प्रतीक्षा करें, डेटाबेस से वास्तविक परियोजनाएं लोड की जा रही हैं।'
+              : 'Please wait while we load real project records from the dataset.'}
+          </p>
+        </div>
+      ) : paginatedProjects.length === 0 ? (
         <div
           style={{
             background: '#FFFFFF',

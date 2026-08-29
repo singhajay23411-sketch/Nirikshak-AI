@@ -304,6 +304,9 @@ def main():
         """, updated_allocs, page_size=500)
 
     print(f"Flushing {len(new_exps)} new and {len(updated_exps)} updated expenditures to DB...")
+    unique_vendors = {rec[1] for rec in new_exps} | {rec[9] for rec in updated_exps}
+    if unique_vendors:
+        psycopg2.extras.execute_values(cur, "INSERT INTO vendors (vendor_id, vendor_name) VALUES %s ON CONFLICT (vendor_id) DO NOTHING", [(v, f"Vendor {v}") for v in unique_vendors], page_size=500)
     if new_exps:
         psycopg2.extras.execute_values(cur, """
             INSERT INTO expenditures (

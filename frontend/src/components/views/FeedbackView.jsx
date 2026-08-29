@@ -156,52 +156,42 @@ const FeedbackView = () => {
         </p>
       </div>
 
-      {/* ─── 3. TAB SWITCHER (GENERAL FEEDBACK | REPORT DATA ISSUE) ─── */}
-      <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.75rem' }}>
+      {/* ─── 3. TAB SWITCHER (PRIMARY GREEN BTN-TEAL & SECONDARY BTN-OUTLINE-DARK) ─── */}
+      <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
         <button
           type="button"
           onClick={() => { setActiveTab('general'); setSubmitSuccess(null); setErrors({}); }}
+          className={activeTab === 'general' ? 'btn-teal' : 'btn-outline-dark'}
           style={{
             padding: '0.65rem 1.4rem',
             fontSize: '0.88rem',
-            fontWeight: 800,
-            borderRadius: 'var(--radius-sm)',
-            border: '1.5px solid #1D1E22',
-            background: activeTab === 'general' ? '#1A73E8' : '#FFFFFF',
-            color: activeTab === 'general' ? '#FFFFFF' : '#1D1E22',
-            boxShadow: activeTab === 'general' ? '2px 3px 0px #1D1E22' : 'none',
-            display: 'flex',
+            fontWeight: 700,
+            display: 'inline-flex',
             alignItems: 'center',
             gap: '0.45rem',
-            cursor: 'pointer',
-            transition: 'all 0.15s ease'
+            cursor: 'pointer'
           }}
         >
           <MessageSquare size={16} />
-          <span>General Feedback</span>
+          <span>{isHi ? 'सामान्य प्रतिक्रिया' : 'General Feedback'}</span>
         </button>
 
         <button
           type="button"
           onClick={() => { setActiveTab('dataIssue'); setSubmitSuccess(null); setErrors({}); }}
+          className={activeTab === 'dataIssue' ? 'btn-teal' : 'btn-outline-dark'}
           style={{
             padding: '0.65rem 1.4rem',
             fontSize: '0.88rem',
-            fontWeight: 800,
-            borderRadius: 'var(--radius-sm)',
-            border: '1.5px solid #1D1E22',
-            background: activeTab === 'dataIssue' ? '#1A73E8' : '#FFFFFF',
-            color: activeTab === 'dataIssue' ? '#FFFFFF' : '#1D1E22',
-            boxShadow: activeTab === 'dataIssue' ? '2px 3px 0px #1D1E22' : 'none',
-            display: 'flex',
+            fontWeight: 700,
+            display: 'inline-flex',
             alignItems: 'center',
             gap: '0.45rem',
-            cursor: 'pointer',
-            transition: 'all 0.15s ease'
+            cursor: 'pointer'
           }}
         >
           <AlertTriangle size={16} />
-          <span>Report Data Issue</span>
+          <span>{isHi ? 'डेटा विसंगति रिपोर्ट' : 'Report Data Issue'}</span>
         </button>
       </div>
 
@@ -445,24 +435,24 @@ const FeedbackView = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
+                className="btn-teal"
                 style={{
-                  background: '#1A73E8',
-                  color: '#FFFFFF',
-                  border: '1.5px solid #1D1E22',
-                  borderRadius: 'var(--radius-sm)',
-                  boxShadow: '2.5px 3.5px 0px #1D1E22',
-                  padding: '0.7rem 1.6rem',
-                  fontSize: '0.88rem',
-                  fontWeight: 800,
+                  padding: '0.75rem 1.75rem',
+                  fontSize: '0.9rem',
+                  fontWeight: 700,
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.45rem',
+                  gap: '0.5rem',
                   cursor: isSubmitting ? 'not-allowed' : 'pointer',
                   opacity: isSubmitting ? 0.7 : 1
                 }}
               >
                 <Send size={15} />
-                <span>{isSubmitting ? 'Submitting Feedback...' : 'Submit Feedback'}</span>
+                <span>
+                  {isSubmitting
+                    ? (isHi ? 'प्रतिक्रिया सबमिट की जा रही है...' : 'Submitting Feedback...')
+                    : (isHi ? 'प्रतिक्रिया सबमिट करें' : 'Submit Feedback')}
+                </span>
               </button>
             </div>
           </form>
@@ -705,24 +695,24 @@ const FeedbackView = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
+                className="btn-teal"
                 style={{
-                  background: '#1A73E8',
-                  color: '#FFFFFF',
-                  border: '1.5px solid #1D1E22',
-                  borderRadius: 'var(--radius-sm)',
-                  boxShadow: '2.5px 3.5px 0px #1D1E22',
-                  padding: '0.7rem 1.6rem',
-                  fontSize: '0.88rem',
-                  fontWeight: 800,
+                  padding: '0.75rem 1.75rem',
+                  fontSize: '0.9rem',
+                  fontWeight: 700,
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.45rem',
+                  gap: '0.5rem',
                   cursor: isSubmitting ? 'not-allowed' : 'pointer',
                   opacity: isSubmitting ? 0.7 : 1
                 }}
               >
                 <AlertTriangle size={15} />
-                <span>{isSubmitting ? 'Logging Issue...' : 'Submit Issue'}</span>
+                <span>
+                  {isSubmitting
+                    ? (isHi ? 'मुद्दा दर्ज किया जा रहा है...' : 'Logging Issue...')
+                    : (isHi ? 'मुद्दा दर्ज करें' : 'Submit Issue')}
+                </span>
               </button>
             </div>
           </form>

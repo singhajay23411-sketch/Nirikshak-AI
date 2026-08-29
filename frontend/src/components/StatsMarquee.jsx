@@ -1,20 +1,47 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useData } from '../context/DataContext';
 
-export const getMarqueeStats = (t) => [
-  { value: '2,18,913', label: t('marquee.projects') },
-  { value: '₹12,129 Cr', label: t('marquee.sanctioned') },
-  { value: '₹8,007 Cr', label: t('marquee.utilized') },
-  { value: '1,07,301', label: t('marquee.activeProjects') },
-  { value: '1,11,612', label: t('marquee.completed') },
-  { value: '1,105', label: t('marquee.highRiskProjects'), highlight: '#FF6B6B' },
-  { value: '43,894', label: t('marquee.anomaliesDetected'), highlight: '#E5B842' },
-  { value: '36', label: t('marquee.statesMonitored') }
-];
+const formatCr = (val) => {
+  if (!val) return '₹0 Cr';
+  return `₹${(val / 10000000).toLocaleString('en-IN', { maximumFractionDigits: 0 })} Cr`;
+};
+
+const formatNum = (val) => {
+  if (!val) return '0';
+  return val.toLocaleString('en-IN');
+};
 
 const StatsMarquee = ({ customStats = null, speedSeconds = 32 }) => {
   const { t } = useLanguage();
-  const stats = customStats || getMarqueeStats(t);
+  const { ministryView, duplicateAlerts, costAnomalies, isLoading } = useData();
+
+  let stats = customStats;
+
+  if (!stats) {
+    if (isLoading || !ministryView) {
+      // Fallback while loading
+      stats = [
+        { value: '...', label: t('marquee.projects') },
+        { value: '...', label: t('marquee.sanctioned') },
+        { value: '...', label: t('marquee.utilized') },
+        { value: '...', label: t('marquee.highRiskProjects'), highlight: '#FF6B6B' },
+        { value: '...', label: t('marquee.anomaliesDetected'), highlight: '#E5B842' },
+      ];
+    } else {
+      const { national_stats, state_wise_benchmarks, top_national_risk_alerts } = ministryView;
+      const totalAnomalies = (duplicateAlerts?.length || 0) + (costAnomalies?.length || 0);
+
+      stats = [
+        { value: formatNum(national_stats?.total_projects), label: t('marquee.projects') },
+        { value: formatCr(national_stats?.total_sanctioned), label: t('marquee.sanctioned') },
+        { value: formatCr(national_stats?.total_disbursed), label: t('marquee.utilized') },
+        { value: formatNum(top_national_risk_alerts?.length || 0), label: t('marquee.highRiskProjects'), highlight: '#FF6B6B' },
+        { value: formatNum(totalAnomalies), label: t('marquee.anomaliesDetected'), highlight: '#E5B842' },
+        { value: formatNum(state_wise_benchmarks?.length || 36), label: t('marquee.statesMonitored') }
+      ];
+    }
+  }
 
   // Render a single stats item sequence
   const renderStatsSequence = (keyPrefix) => (

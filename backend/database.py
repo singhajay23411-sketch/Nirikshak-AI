@@ -189,6 +189,8 @@ def initialise_schema(conn) -> None:
             tenure           TEXT,
             allocated_amount NUMERIC(15, 2),
             house_name       TEXT,
+            record_hash      TEXT,
+            updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (mp_id, house_type, tenure) REFERENCES mps(mp_id, house_type, tenure) ON DELETE CASCADE
         );
     """)
@@ -220,6 +222,8 @@ def initialise_schema(conn) -> None:
             agency_risk_score        DOUBLE PRECISION,
             agency_risk_tier         TEXT,
             agency_risk_contribution DOUBLE PRECISION,
+            record_hash              TEXT,
+            updated_at               TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (mp_id, house_type, tenure) REFERENCES mps(mp_id, house_type, tenure) ON DELETE SET NULL
         );
     """)
@@ -247,6 +251,8 @@ def initialise_schema(conn) -> None:
             tenure                TEXT,
             constituency          TEXT,
             work_status           TEXT,
+            record_hash           TEXT,
+            updated_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (mp_id, house_type, tenure) REFERENCES mps(mp_id, house_type, tenure) ON DELETE SET NULL
         );
     """)

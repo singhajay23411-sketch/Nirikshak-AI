@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Shield, AlertTriangle, TrendingUp, Users, Database, Clock, CheckCircle, BarChart3, Map, FileText, Eye } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useData } from '../../context/DataContext';
 
 const StatCard = ({ icon: Icon, label, value, trend, color = 'var(--color-accent-teal)' }) => (
   <div style={{
@@ -73,9 +74,8 @@ const MOCK_HIGH_RISK = [
 
 const RoleOverviewPanels = ({ role, activeTab, user }) => {
   const { language } = useLanguage();
+  const { unifiedProjects, ministryView, duplicateAlerts, finguardAnomalies, isLoading } = useData();
   const isHi = language === 'hi';
-
-  const [highRiskProjects, setHighRiskProjects] = React.useState(MOCK_HIGH_RISK);
 
   // ── Live analytics summary ─────────────────────────────────────────────────
   const [analyticsData, setAnalyticsData] = useState(null);
@@ -91,68 +91,60 @@ const RoleOverviewPanels = ({ role, activeTab, user }) => {
       .catch(err => console.error('RoleOverviewPanels: analytics/summary failed:', err));
   }, []);
 
-  // Derive display values — fall back to hardcoded strings when API not yet loaded
-  const totalProjects   = analyticsData ? analyticsData.total_projects.toLocaleString('en-IN') : '2,18,913';
-  const totalCompleted  = analyticsData ? analyticsData.total_completed.toLocaleString('en-IN') : '1,94,210';
-  const totalPending    = analyticsData ? analyticsData.total_pending.toLocaleString('en-IN') : '24,703';
-  const totalHighRisk   = analyticsData ? analyticsData.total_high_risk.toLocaleString('en-IN') : '667';
-  const totalModRisk    = analyticsData ? analyticsData.total_moderate_risk.toLocaleString('en-IN') : '7,099';
-  const sanctionedCr    = analyticsData ? `₹${analyticsData.total_sanctioned_cr.toLocaleString('en-IN')} Cr` : '₹42,721 Cr';
-  const utilRate        = analyticsData ? `${analyticsData.utilization_rate_pct.toFixed(1)}%` : '89.6%';
-
-  React.useEffect(() => {
-    fetch('/data/unified_project_evaluations.json')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          const formatted = data.slice(0, 5).map(item => {
-            let factor = "General risk factors";
-            if (item.top_risk_drivers) {
-              const drivers = typeof item.top_risk_drivers === 'string' ? JSON.parse(item.top_risk_drivers) : item.top_risk_drivers;
-              if (drivers && drivers.length > 0) {
-                const pillars = {
-                  'financial_risk_score': 'Financial over-disbursements',
-                  'progress_risk_score': 'High project stall probability',
-                  'cost_risk_score': 'Severe cost escalation',
-                  'delay_risk_score': 'Chronic completion delays',
-                  'duplicate_risk_score': 'Duplicate/split-work alerts',
-                  'evidence_risk_score': 'Prohibited guidelines violation',
-                  'agency_risk_score': 'Poor executing agency track record',
-                  'payment_risk_score': 'High cartel or payment fragmentation'
-                };
-                factor = pillars[drivers[0].pillar] || factor;
-              }
-            }
-            return {
-              id: `MPLADS-${item.work_id}`,
-              constituency: item.const_name || item.state_name || 'N/A',
-              score: Math.round(item.final_risk_score),
-              factor: factor
-            };
-          });
-          setHighRiskProjects(formatted);
+  const highRiskProjects = useMemo(() => {
+    if (!unifiedProjects) return [];
+    return unifiedProjects.slice(0, 5).map(item => {
+      let factor = "General risk factors";
+      if (item.anomaly_reasons && item.anomaly_reasons.length > 0) {
+        const drivers = typeof item.anomaly_reasons === 'string' ? JSON.parse(item.anomaly_reasons) : item.anomaly_reasons;
+        if (drivers && drivers.length > 0) {
+          const pillars = {
+            'financial_risk_score': 'Financial over-disbursements',
+            'progress_risk_score': 'High project stall probability',
+            'cost_risk_score': 'Severe cost escalation',
+            'delay_risk_score': 'Chronic completion delays',
+            'duplicate_risk_score': 'Duplicate/split-work alerts',
+            'evidence_risk_score': 'Prohibited guidelines violation',
+            'agency_risk_score': 'Poor executing agency track record',
+            'payment_risk_score': 'High cartel or payment fragmentation'
+          };
+          factor = pillars[drivers[0].pillar] || factor;
         }
-      })
-      .catch(err => console.error("Error loading high risk overview:", err));
-  }, []);
+      }
+      return {
+        id: `MPLADS-${item.work_id}`,
+        constituency: item.const_name || item.state_name || 'N/A',
+        score: Math.round(item.final_risk_score),
+        factor: factor
+      };
+    });
+  }, [unifiedProjects]);
 
   const scopeLabel = user?.district && user?.state
     ? `${user.district}, ${user.state}`
     : user?.state || (isHi ? 'राष्ट्रीय' : 'National');
 
   const renderOverviewStats = () => {
+    if (isLoading || !ministryView) return [];
+    
+    const { national_stats } = ministryView;
+    const totalProjects = analyticsData ? analyticsData.total_projects.toLocaleString('en-IN') : (national_stats?.total_projects?.toLocaleString('en-IN') || '2,18,913');
+    const topRisk = analyticsData ? analyticsData.total_high_risk.toLocaleString('en-IN') : (ministryView?.top_national_risk_alerts?.length || '667');
+    const totalAnomalies = analyticsData ? (analyticsData.total_moderate_risk + analyticsData.total_high_risk).toLocaleString('en-IN') : (((duplicateAlerts?.length || 0) + (finguardAnomalies?.length || 0)).toLocaleString('en-IN') || '1,420');
+    const totalCompleted = analyticsData ? analyticsData.total_completed.toLocaleString('en-IN') : '1,94,210';
+
     const configs = {
       ADMIN: [
-        { icon: Users,         label: isHi ? 'कुल उपयोगकर्ता' : 'Total Users',            value: '7',              color: '#0A2458' },
-        { icon: Database,      label: isHi ? 'कुल परियोजनाएं' : 'Total Projects',         value: totalProjects,    color: 'var(--color-accent-teal)' },
-        { icon: AlertTriangle, label: isHi ? 'उच्च जोखिम' : 'High Risk',               value: totalHighRisk,    trend: 8, color: '#D9534F' },
-        { icon: Shield,        label: isHi ? 'जांच सक्रिय' : 'Active Investigations',  value: '28',             color: '#E5B842' },
+        { icon: Users, label: isHi ? 'कुल उपयोगकर्ता' : 'Total Users', value: '7', color: '#0A2458' },
+        { icon: Database, label: isHi ? 'कुल परियोजनाएं' : 'Total Projects', value: totalProjects, color: 'var(--color-accent-teal)' },
+        { icon: AlertTriangle, label: isHi ? 'उच्च जोखिम' : 'High Risk', value: topRisk, trend: 8, color: '#D9534F' },
+        { icon: Shield, label: isHi ? 'जांच सक्रिय' : 'Active Investigations', value: '28', color: '#E5B842' },
       ],
       MOSPI_OFFICER: [
-        { icon: Database,      label: isHi ? 'राष्ट्रीय परियोजनाएं' : 'National Projects',    value: totalProjects,    color: 'var(--color-accent-teal)' },
-        { icon: AlertTriangle, label: isHi ? 'उच्च जोखिम' : 'High Risk',               value: totalHighRisk,    trend: 8, color: '#D9534F' },
-        { icon: TrendingUp,    label: isHi ? 'वित्तीय विसंगतियां' : 'Financial Anomalies',  value: totalModRisk,    trend: -3, color: '#E5B842' },
-        { icon: CheckCircle,   label: isHi ? 'सत्यापित' : 'Verified',                value: totalCompleted,   color: '#52B79A' },
+        { icon: Database, label: isHi ? 'राष्ट्रीय परियोजनाएं' : 'National Projects', value: totalProjects, color: 'var(--color-accent-teal)' },
+        { icon: AlertTriangle, label: isHi ? 'उच्च जोखिम' : 'High Risk', value: topRisk, trend: 8, color: '#D9534F' },
+        { icon: TrendingUp, label: isHi ? 'वित्तीय विसंगतियां' : 'Financial Anomalies', value: totalAnomalies, trend: -3, color: '#E5B842' },
+        { icon: CheckCircle, label: isHi ? 'सत्यापित' : 'Verified', value: totalCompleted, color: '#52B79A' },
       ],
       STATE_OFFICER: [
         { icon: Database,      label: isHi ? 'राज्य परियोजनाएं' : 'State Projects',        value: '1,847',          color: 'var(--color-accent-teal)' },
@@ -173,16 +165,16 @@ const RoleOverviewPanels = ({ role, activeTab, user }) => {
         { icon: BarChart3,     label: isHi ? 'प्रगति में' : 'In Progress',             value: '1',              color: '#0A2458' },
       ],
       ANALYST: [
-        { icon: Shield,        label: isHi ? 'विसंगतियां ज्ञात' : 'Anomalies Detected',   value: totalModRisk,     color: '#D9534F' },
-        { icon: Database,      label: isHi ? 'डुप्लिकेट संदिग्ध' : 'Duplicate Suspects',   value: '482',            color: '#E5B842' },
-        { icon: TrendingUp,    label: isHi ? 'लागत विचलन' : 'Cost Deviations',        value: '89',             trend: -12, color: 'var(--color-accent-teal)' },
-        { icon: BarChart3,     label: isHi ? 'मॉडल सटीकता' : 'Model Accuracy',         value: '94.2%',          color: '#52B79A' },
+        { icon: Shield, label: isHi ? 'विसंगतियां ज्ञात' : 'Anomalies Detected', value: totalAnomalies, color: '#D9534F' },
+        { icon: Database, label: isHi ? 'डुप्लिकेट संदिग्ध' : 'Duplicate Suspects', value: duplicateAlerts?.length || '482', color: '#E5B842' },
+        { icon: TrendingUp, label: isHi ? 'लागत विचलन' : 'Cost Deviations', value: '89', trend: -12, color: 'var(--color-accent-teal)' },
+        { icon: BarChart3, label: isHi ? 'मॉडल सटीकता' : 'Model Accuracy', value: '94.2%', color: '#52B79A' },
       ],
       VIEWER: [
-        { icon: Database,      label: isHi ? 'कुल परियोजनाएं' : 'Total Projects',         value: totalProjects,    color: 'var(--color-accent-teal)' },
-        { icon: AlertTriangle, label: isHi ? 'जोखिम चिह्नित' : 'Risk Flagged',           value: totalHighRisk,    color: '#D9534F' },
-        { icon: Map,           label: isHi ? 'राज्य कवर' : 'States Covered',          value: '36',             color: '#0A2458' },
-        { icon: FileText,      label: isHi ? 'रिपोर्ट उपलब्ध' : 'Reports Available',      value: '47',             color: '#E5B842' },
+        { icon: Database, label: isHi ? 'कुल परियोजनाएं' : 'Total Projects', value: totalProjects, color: 'var(--color-accent-teal)' },
+        { icon: AlertTriangle, label: isHi ? 'जोखिम चिह्नित' : 'Risk Flagged', value: topRisk, color: '#D9534F' },
+        { icon: Map, label: isHi ? 'राज्य कवर' : 'States Covered', value: '36', color: '#0A2458' },
+        { icon: FileText, label: isHi ? 'रिपोर्ट उपलब्ध' : 'Reports Available', value: '47', color: '#E5B842' },
       ],
     };
 
