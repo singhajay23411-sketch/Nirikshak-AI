@@ -672,35 +672,58 @@ async def get_work_unified_risk(work_id: int):
             if comp.get("status") == "UNAVAILABLE":
                 is_partial = True
                 break
-                
-        if is_partial:
-            return UnifiedRiskResponse(
-                work_id=work_id,
-                status="PARTIAL",
-                components=components,
-                unified_risk_score=None,
-                risk_tier=None,
-                reason="Unified score cannot be finalized because required component results are unavailable."
-            )
-            
-        score = (
-            0.20 * fin_risk.financial_risk_score +
-            0.20 * prog_risk.progress_risk_score +
-            0.15 * cost_risk.cost_risk_score +
-            0.15 * delay_risk.delay_risk_score +
-            0.10 * dup_risk.risk_confidence_score +
-            0.10 * ev_risk.evidence_risk_score +
-            0.05 * agency_risk.agency_risk_score +
-            0.05 * pay_risk.payment_risk_score
-        )
-        score = round(score, 2)
+
+        weights = {
+            "financial": 0.20,
+            "progress": 0.20,
+            "cost": 0.15,
+            "delay": 0.15,
+            "duplicate": 0.10,
+            "evidence": 0.10,
+            "agency": 0.05,
+            "payment": 0.05
+        }
         
+        score_val = 0.0
+        total_weight = 0.0
+        
+        if fin_risk and fin_risk.status != "UNAVAILABLE":
+            score_val += weights["financial"] * fin_risk.financial_risk_score
+            total_weight += weights["financial"]
+        if prog_risk and prog_risk.status != "UNAVAILABLE":
+            score_val += weights["progress"] * prog_risk.progress_risk_score
+            total_weight += weights["progress"]
+        if cost_risk and cost_risk.status != "UNAVAILABLE":
+            score_val += weights["cost"] * cost_risk.cost_risk_score
+            total_weight += weights["cost"]
+        if delay_risk and delay_risk.status != "UNAVAILABLE":
+            score_val += weights["delay"] * delay_risk.delay_risk_score
+            total_weight += weights["delay"]
+        if dup_risk and dup_risk.status != "UNAVAILABLE":
+            score_val += weights["duplicate"] * dup_risk.risk_confidence_score
+            total_weight += weights["duplicate"]
+        if ev_risk and ev_risk.status != "UNAVAILABLE":
+            score_val += weights["evidence"] * ev_risk.evidence_risk_score
+            total_weight += weights["evidence"]
+        if agency_risk and agency_risk.status != "UNAVAILABLE":
+            score_val += weights["agency"] * agency_risk.agency_risk_score
+            total_weight += weights["agency"]
+        if pay_risk and pay_risk.status != "UNAVAILABLE":
+            score_val += weights["payment"] * pay_risk.payment_risk_score
+            total_weight += weights["payment"]
+            
+        if total_weight > 0:
+            score = round(score_val / total_weight, 2)
+        else:
+            score = 0.0
+            
         return UnifiedRiskResponse(
             work_id=work_id,
-            status="COMPLETED",
+            status="PARTIAL" if is_partial else "COMPLETED",
             components=components,
             unified_risk_score=score,
-            risk_tier=map_score_to_tier(score)
+            risk_tier=map_score_to_tier(score),
+            reason="Unified score generated with partial components." if is_partial else "Unified score completed."
         )
         
     except Exception as e:

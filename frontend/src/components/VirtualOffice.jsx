@@ -1,12 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShieldAlert, AlertCircle, CheckCircle2, ChevronDown, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useData } from '../context/DataContext';
 
 const VirtualOffice = () => {
   const { t } = useLanguage();
+  const { unifiedProjects } = useData();
   const [openAccordion, setOpenAccordion] = useState('docket');
   const [submittedForm, setSubmittedForm] = useState(false);
-  const [inspectionData, setInspectionData] = useState({ officerName: '', district: '', projectRef: 'MPLADS-2026-8871', date: '' });
+  const [inspectionData, setInspectionData] = useState({ officerName: '', district: '', projectRef: '', date: '' });
+  
+  // Get top 2 highest risk projects dynamically
+  const highRiskTop2 = (unifiedProjects || [])
+    .filter(p => p.risk_tier === 'HIGH' || p.risk_tier === 'CRITICAL')
+    .sort((a, b) => b.delay_risk_score - a.delay_risk_score)
+    .slice(0, 2);
+    
+  // Default fallbacks if none exist yet
+  const proj1 = highRiskTop2[0] || { work_id: 'MPLADS-2026-8871', activity_name: t('investigation.project1Title'), risk_tier: 'CRITICAL', delay_risk_score: 87, state_name: 'Madhya Pradesh' };
+  const proj2 = highRiskTop2[1] || { work_id: 'MPLADS-2026-1049', activity_name: t('investigation.project2Title'), risk_tier: 'HIGH', delay_risk_score: 76, state_name: 'Rajasthan' };
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash.startsWith('#investigation-')) {
+        const tab = hash.replace('#investigation-', '');
+        // Map feature IDs from Header.jsx to accordion IDs in VirtualOffice.jsx
+        if (tab === 'highRiskProjects') setOpenAccordion('docket');
+        else if (tab === 'evidenceReview') setOpenAccordion('docket');
+        else if (tab === 'fieldVerification') setOpenAccordion('schedule');
+        else if (tab === 'resolution') setOpenAccordion('resolution');
+      }
+    };
+    
+    // Check on mount
+    handleHashChange();
+    
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   const toggleAccordion = (id) => {
     setOpenAccordion(openAccordion === id ? null : id);
@@ -324,20 +356,20 @@ const VirtualOffice = () => {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', border: '1px solid #1D1E22', padding: '0.8rem 1.2rem', borderRadius: 'var(--radius-sm)' }}>
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{t('investigation.project1Title')}</div>
-                        <div style={{ fontSize: '0.78rem', color: '#D9534F', fontWeight: 600 }}>{t('investigation.project1Sub')}</div>
+                        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{proj1.activity_name || proj1.work_id}</div>
+                        <div style={{ fontSize: '0.78rem', color: '#D9534F', fontWeight: 600 }}>ID: {proj1.work_id} • Score: {proj1.delay_risk_score || 0}/100</div>
                       </div>
-                      <button onClick={() => alert(t('investigation.alerts.dossier1'))} className="btn-teal" style={{ padding: '0.4rem 0.9rem', fontSize: '0.8rem' }}>
+                      <button onClick={() => alert(`Generated Dossier for ${proj1.work_id}`)} className="btn-teal" style={{ padding: '0.4rem 0.9rem', fontSize: '0.8rem', whiteSpace: 'nowrap', marginLeft: '1rem' }}>
                         {t('investigation.generateDossierBtn')}
                       </button>
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFFFF', border: '1px solid #1D1E22', padding: '0.8rem 1.2rem', borderRadius: 'var(--radius-sm)' }}>
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{t('investigation.project2Title')}</div>
-                        <div style={{ fontSize: '0.78rem', color: '#E5B842', fontWeight: 600 }}>{t('investigation.project2Sub')}</div>
+                        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{proj2.activity_name || proj2.work_id}</div>
+                        <div style={{ fontSize: '0.78rem', color: '#E5B842', fontWeight: 600 }}>ID: {proj2.work_id} • Score: {proj2.delay_risk_score || 0}/100</div>
                       </div>
-                      <button onClick={() => alert(t('investigation.alerts.dossier2'))} className="btn-teal" style={{ padding: '0.4rem 0.9rem', fontSize: '0.8rem' }}>
+                      <button onClick={() => alert(`Generated Dossier for ${proj2.work_id}`)} className="btn-teal" style={{ padding: '0.4rem 0.9rem', fontSize: '0.8rem', whiteSpace: 'nowrap', marginLeft: '1rem' }}>
                         {t('investigation.generateDossierBtn')}
                       </button>
                     </div>
