@@ -447,17 +447,8 @@
       const laptopBadge = document.getElementById('laptopRecBadge');
       const phoneBtn = document.getElementById('phoneBtn');
 
-      if (isMobile) {
-        // Mobile Mode
-        phoneBox.classList.add('recommended');
-        phoneBadge.style.display = 'inline-block';
-        phoneBtn.className = 'btn-primary';
-      } else {
-        // Desktop / Laptop Mode
-        laptopBox.classList.add('recommended');
-        laptopBadge.style.display = 'inline-block';
-        phoneBtn.className = 'btn-secondary';
-      }
+      laptopBox.classList.add('recommended');
+      laptopBadge.style.display = 'inline-block';
     }
 
     // ─── Clipboard Copy Functionality ───

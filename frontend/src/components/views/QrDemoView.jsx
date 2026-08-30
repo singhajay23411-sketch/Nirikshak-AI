@@ -139,33 +139,10 @@ const QrDemoView = () => {
               border: '1.5px solid #1D1E22',
               borderRadius: '16px',
               padding: '1.25rem',
-              background: isMobile ? '#EBF8F4' : '#FFFFFF',
-              boxShadow: isMobile ? '3px 4px 0px #1D1E22' : 'none',
+              background: '#FFFFFF',
               position: 'relative'
             }}
           >
-            {isMobile && (
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '-10px',
-                  right: '14px',
-                  background: '#52B79A',
-                  border: '1.5px solid #1D1E22',
-                  borderRadius: '9999px',
-                  fontSize: '0.68rem',
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  padding: '0.15rem 0.6rem',
-                  color: '#1D1E22',
-                  boxShadow: '1.5px 2px 0px #1D1E22'
-                }}
-              >
-                {isHi ? 'अनुशंसित' : 'Recommended'}
-              </span>
-            )}
-
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
               <div
                 style={{
@@ -212,38 +189,36 @@ const QrDemoView = () => {
             </button>
           </div>
 
-          {/* Option 2: Open on Laptop */}
+          {/* Option 2: Open on Laptop (Recommended) */}
           <div
             style={{
               border: '1.5px solid #1D1E22',
               borderRadius: '16px',
               padding: '1.25rem',
-              background: !isMobile ? '#EBF8F4' : '#FFFFFF',
-              boxShadow: !isMobile ? '3px 4px 0px #1D1E22' : 'none',
+              background: '#EBF8F4',
+              boxShadow: '3px 4px 0px #1D1E22',
               position: 'relative'
             }}
           >
-            {!isMobile && (
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '-10px',
-                  right: '14px',
-                  background: '#52B79A',
-                  border: '1.5px solid #1D1E22',
-                  borderRadius: '9999px',
-                  fontSize: '0.68rem',
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  padding: '0.15rem 0.6rem',
-                  color: '#1D1E22',
-                  boxShadow: '1.5px 2px 0px #1D1E22'
-                }}
-              >
-                {isHi ? 'अनुशंसित' : 'Recommended'}
-              </span>
-            )}
+            <span
+              style={{
+                position: 'absolute',
+                top: '-10px',
+                right: '14px',
+                background: '#52B79A',
+                border: '1.5px solid #1D1E22',
+                borderRadius: '9999px',
+                fontSize: '0.68rem',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                padding: '0.15rem 0.6rem',
+                color: '#1D1E22',
+                boxShadow: '1.5px 2px 0px #1D1E22'
+              }}
+            >
+              {isHi ? 'अनुशंसित' : 'Recommended'}
+            </span>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
               <div
