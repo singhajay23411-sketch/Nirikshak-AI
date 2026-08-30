@@ -17,25 +17,36 @@ log = logging.getLogger("nirikshak.assistant.registry")
 def get_data_dir() -> str:
     """
     Resolve the data directory from environment variable or safe fallback.
-    Never hardcodes a Windows/Oracle/personal path.
+    Never hardcodes a single OS path. Supports OCI Linux and local environments.
     """
     env_dir = os.environ.get("NIRIKSHAK_DATA_DIR")
     if env_dir and os.path.isdir(env_dir):
         return os.path.abspath(env_dir)
 
-    # Safe repository-relative fallback
     backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     project_root = os.path.dirname(backend_dir)
+    
+    candidates = [
+        os.path.join(project_root, "frontend", "public", "data"),
+        os.path.join(project_root, "frontend", "data"),
+        os.path.join(project_root, "data", "live_exports"),
+        os.path.join(project_root, "data"),
+        "/var/www/nirikshak/frontend/data",
+        "/var/www/nirikshak/frontend/public/data",
+        "/var/www/nirikshak/data/live_exports",
+        "/var/www/nirikshak/data",
+    ]
+
+    for cand in candidates:
+        if os.path.isdir(cand) and os.path.isfile(os.path.join(cand, "real_projects.json")):
+            return os.path.abspath(cand)
+
+    for cand in candidates:
+        if os.path.isdir(cand):
+            return os.path.abspath(cand)
+
     fallback = os.path.join(project_root, "frontend", "public", "data")
-    if os.path.isdir(fallback):
-        return fallback
-
-    # Secondary fallback: live_exports
-    live_exports = os.path.join(project_root, "data", "live_exports")
-    if os.path.isdir(live_exports):
-        return live_exports
-
-    log.warning("No valid data directory found. Using frontend/public/data as default.")
+    log.warning(f"No fully matched data directory found. Using {fallback}")
     return fallback
 
 
@@ -232,6 +243,24 @@ def resolve_artifact_path(safe_name: str, data_dir: Optional[str] = None) -> Opt
 
     if os.path.isfile(candidate):
         return candidate
+
+    # Search in all known fallback locations if not in primary base_dir
+    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    project_root = os.path.dirname(backend_dir)
+    alt_dirs = [
+        os.path.join(project_root, "frontend", "public", "data"),
+        os.path.join(project_root, "frontend", "data"),
+        os.path.join(project_root, "data", "live_exports"),
+        os.path.join(project_root, "data"),
+        "/var/www/nirikshak/frontend/data",
+        "/var/www/nirikshak/frontend/public/data",
+        "/var/www/nirikshak/data/live_exports",
+        "/var/www/nirikshak/data",
+    ]
+    for alt in alt_dirs:
+        alt_cand = os.path.abspath(os.path.join(alt, spec.filename))
+        if os.path.isfile(alt_cand):
+            return alt_cand
 
     return None
 

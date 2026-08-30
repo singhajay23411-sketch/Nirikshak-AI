@@ -174,14 +174,17 @@ const FloatingWidgets = ({ onLoginClick, selectedWorkId, selectedMpId, selectedC
         });
 
         if (response.ok) {
-          data = await response.json();
+          const resJson = await response.json();
+          if (resJson && resJson.answer && !resJson.answer.includes("That information is not available in the current precomputed") && !resJson.answer.includes("I could not find")) {
+            data = resJson;
+          }
         }
       } catch (fetchErr) {
         // Backend not reachable, fall through to client-side fallback
         data = null;
       }
 
-      // 2. If backend was unreachable or returned non-200, use client-side analytics processor
+      // 2. If backend was unreachable or returned non-200/empty, use client-side analytics processor
       if (!data) {
         data = await processQueryClientSide(textToSend.trim(), context);
       }
