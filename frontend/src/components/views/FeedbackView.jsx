@@ -123,38 +123,31 @@ const FeedbackView = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', minHeight: '100vh', width: '100%', maxWidth: '1000px', margin: '0 auto', padding: '0 1rem' }}>
-      {/* ─── 1. BREADCRUMB ─── */}
-      <div style={{ paddingTop: '1.25rem', borderBottom: '1px solid rgba(29,30,34,0.08)', paddingBottom: '0.75rem' }}>
-        <div style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          <span style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>Home</span>
-          <span>/</span>
-          <span>MPLADS</span>
-          <span>/</span>
-          <span style={{ color: '#0A2458', fontWeight: 700 }}>Feedback</span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '3.5rem', width: '100%', padding: '0.5rem 0 3rem 0' }}>
+      
+      {/* ─── CENTERED FORM CONTAINER (MAX-WIDTH 880px) ─── */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', maxWidth: '880px', width: '100%', margin: '0 auto' }}>
+        
+        {/* ─── 1. CENTERED PAGE HEADER ─── */}
+        <div style={{ textAlign: 'center', margin: '0.25rem 0 0.5rem 0' }}>
+          <h1
+            style={{
+              fontFamily: 'var(--font-serif-primary)',
+              fontSize: 'clamp(2rem, 3.5vw, 2.75rem)',
+              fontWeight: 800,
+              color: '#1D1E22',
+              margin: '0 0 0.5rem 0',
+              lineHeight: 1.2
+            }}
+          >
+            {isHi ? 'मुद्दा / प्रतिपुष्टि दर्ज करें' : 'Report an Issue'}
+          </h1>
+          <p style={{ fontSize: '0.96rem', color: 'var(--color-text-secondary)', maxWidth: '520px', margin: '0 auto', lineHeight: 1.5 }}>
+            {isHi
+              ? 'डेटा विसंगतियों की रिपोर्ट करके या प्रतिक्रिया देकर प्लेटफ़ॉर्म को बेहतर बनाने में हमारी सहायता करें'
+              : 'Help us improve by reporting data issues or providing feedback'}
+          </p>
         </div>
-      </div>
-
-      {/* ─── 2. CENTERED PAGE HEADER ─── */}
-      <div style={{ textAlign: 'center', margin: '0.5rem 0' }}>
-        <h1
-          style={{
-            fontFamily: 'var(--font-serif-primary)',
-            fontSize: 'clamp(2rem, 3.5vw, 2.75rem)',
-            fontWeight: 800,
-            color: '#1D1E22',
-            margin: '0 0 0.5rem 0',
-            lineHeight: 1.2
-          }}
-        >
-          {isHi ? 'मुद्दा / प्रतिपुष्टि दर्ज करें' : 'Report an Issue'}
-        </h1>
-        <p style={{ fontSize: '0.96rem', color: 'var(--color-text-secondary)', maxWidth: '520px', margin: '0 auto' }}>
-          {isHi
-            ? 'डेटा विसंगतियों की रिपोर्ट करके या प्रतिक्रिया देकर प्लेटफ़ॉर्म को बेहतर बनाने में हमारी सहायता करें'
-            : 'Help us improve by reporting data issues or providing feedback'}
-        </p>
-      </div>
 
       {/* ─── 3. TAB SWITCHER (PRIMARY GREEN BTN-TEAL & SECONDARY BTN-OUTLINE-DARK) ─── */}
       <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -743,6 +736,8 @@ const FeedbackView = () => {
             All reports and suggestions are reviewed by Nirikshak AI analysts and cross-checked against official MoSPI e-Saksham records to maintain public data integrity.
           </p>
         </div>
+      </div>
+
       </div>
 
       {/* ─── FOOTER ─── */}

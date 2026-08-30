@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   MessageSquare, X, Send, ShieldAlert, ArrowRight, RotateCcw,
   ChevronDown, ChevronUp, Database, Sparkles, AlertCircle, CheckCircle2, User, Bot
@@ -81,9 +82,10 @@ const FormattedMessage = ({ text }) => {
 };
 
 const FloatingWidgets = ({ onLoginClick, selectedWorkId, selectedMpId, selectedConstituency, selectedState }) => {
+  const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const isHi = language === 'hi';
   const { token, isAuthenticated, user } = useAuth();
-  
   const [chatOpen, setChatOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
@@ -254,7 +256,7 @@ const FloatingWidgets = ({ onLoginClick, selectedWorkId, selectedMpId, selectedC
     if (onLoginClick) {
       onLoginClick();
     } else {
-      alert(t('footer.alerts.login'));
+      navigate('/login');
     }
   };
 
@@ -419,19 +421,25 @@ const FloatingWidgets = ({ onLoginClick, selectedWorkId, selectedMpId, selectedC
           gap: '0.85rem'
         }}
       >
-        {/* Floating Login Button matching landing-page footer design */}
+        {/* Floating Login Button matching landing-page green button style */}
         <button
           onClick={handleLoginClick}
           className="btn-teal"
           style={{
+            display: 'inline-flex',
+            alignItems: 'center',
             justifyContent: 'space-between',
             padding: '0.7rem 1.4rem',
             fontSize: '0.92rem',
-            gap: '0.75rem',
-            whiteSpace: 'nowrap'
+            fontWeight: 700,
+            gap: '0.65rem',
+            whiteSpace: 'nowrap',
+            boxShadow: '3px 4px 0px #1D1E22',
+            cursor: 'pointer'
           }}
+          title={isHi ? 'लॉगिन' : 'Login'}
         >
-          <span>{isAuthenticated ? `${user?.name || user?.email}` : t('footer.actions.login')}</span>
+          <span>{isAuthenticated ? (user?.full_name || user?.username || user?.email || 'Account') : (isHi ? 'लॉगिन' : 'Login')}</span>
           <ArrowRight size={16} />
         </button>
 

@@ -197,6 +197,36 @@ button:active,
   box-shadow: 3px 4px 0px #1D1E22;
 }
 
+/* Consistent Back to Portal Navigation Button across all internal screens */
+.btn-back-portal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #1D1E22 !important;
+  background-color: #FFFFFF;
+  border: 1.5px solid #1D1E22;
+  border-radius: var(--radius-full);
+  box-shadow: 1.5px 2px 0px #1D1E22;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-back-portal:hover {
+  transform: translate(-1.5px, -2px);
+  box-shadow: 3px 4px 0px #1D1E22;
+  background-color: var(--color-accent-teal);
+  color: #1D1E22 !important;
+}
+
+.btn-back-portal:active {
+  transform: translate(1.5px, 2px) !important;
+  box-shadow: 0px 0px 0px #1D1E22 !important;
+}
+
 /* Scroll Reveal Animations Across Website */
 .scroll-reveal {
   opacity: 0;
@@ -224,13 +254,46 @@ button:active,
   color: var(--color-accent-teal-hover);
 }
 
-/* Card Styling */
-.card-light {
+/* Card Styling & Premium Hover Interactions */
+.card-light,
+.landing-card,
+.process-step-card,
+.district-risk-card {
   background: var(--color-bg-card);
   border: 1.5px solid var(--color-border-dark);
   border-radius: var(--radius-lg);
   padding: 2.2rem;
-  box-shadow: var(--shadow-card);
+  box-shadow: 2px 3px 0px #1D1E22, var(--shadow-card);
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 300ms cubic-bezier(0.16, 1, 0.3, 1), border-color 300ms ease, background-color 300ms ease;
+  will-change: transform, box-shadow;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card-light:hover,
+  .landing-card:hover,
+  .process-step-card:hover,
+  .district-risk-card:hover {
+    transform: translateY(-8px) scale(1.015);
+    box-shadow: 4px 10px 0px #1D1E22, 0 16px 32px rgba(29, 30, 34, 0.08);
+    border-color: var(--color-border-dark);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-light,
+  .landing-card,
+  .process-step-card,
+  .district-risk-card {
+    transition: none !important;
+    transform: none !important;
+  }
+  .card-light:hover,
+  .landing-card:hover,
+  .process-step-card:hover,
+  .district-risk-card:hover {
+    transform: none !important;
+    box-shadow: 2px 3px 0px #1D1E22, var(--shadow-card) !important;
+  }
 }
 
 .container {
@@ -392,5 +455,39 @@ svg {
 @media (max-width: 640px) {
   .unified-models-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Meet Team SAGE Strict 3-Column Grid (3 cols desktop, 2 tablet, 1 mobile) */
+.team-grid-desktop {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  align-items: start;
+}
+
+@media (max-width: 1024px) and (min-width: 641px) {
+  .team-grid-desktop {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .team-grid-desktop {
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
+  }
+}
+
+/* Accessibility: respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+
+  .team-member-card,
+  .team-member-card * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    transform: none !important;
   }
 }

@@ -21,6 +21,7 @@ import FeedbackView from './FeedbackView';
 import UnifiedAiIntelligenceView from './UnifiedAiIntelligenceView';
 import ProjectStatusView from './ProjectStatusView';
 import ProjectTimelineView from './ProjectTimelineView';
+import MeetTheTeamView from './MeetTheTeamView';
 
 // MOCK DATA SOURCED DIRECTLY FROM README.MD SPECIFICATIONS
 const MOCK_ANOMALY_PROJECTS = [
@@ -2762,11 +2763,8 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
   const isHi = language === 'hi';
 
   const handleBack = () => {
-    if (onBack) {
-      onBack();
-    } else {
-      navigate('/');
-    }
+    navigate('/', { replace: false });
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -4913,6 +4911,19 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
       case 'projecttimeline':
         return <ProjectTimelineView />;
 
+      case 'team':
+      case 'teamSage':
+      case 'team-sage':
+      case 'teamsage':
+      case 'team_sage':
+      case 'meetTheTeam':
+      case 'meet-the-team':
+      case 'meet_the_team':
+      case 'meetTeamSage':
+      case 'meet-team-sage':
+      case 'meet_team_sage':
+        return <MeetTheTeamView />;
+
       // Default fallback
       default:
         return (
@@ -4968,16 +4979,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
           <button
             type="button"
             onClick={handleBack}
-            className="btn-outline-dark"
-            style={{
-              padding: '0.45rem 0.95rem',
-              fontSize: '0.82rem',
-              gap: '0.45rem',
-              color: '#1D1E22 !important',
-              background: '#FFFFFF',
-              border: '1.5px solid #1D1E22',
-              boxShadow: '1.5px 2px 0px #1D1E22'
-            }}
+            className="btn-back-portal"
           >
             <ArrowLeft size={15} />
             <span>{isHi ? 'मुख्य पोर्टल' : 'Back to Portal'}</span>
@@ -5002,11 +5004,13 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                           ? (isHi ? 'परियोजना स्थिति' : 'PROJECT STATUS')
                           : featureId === 'projectTimeline' || featureId === 'timeline' || featureId === 'timelines' || featureId === 'project-timeline' || featureId === 'project_timeline' || featureId === 'projecttimeline'
                             ? (isHi ? 'परियोजना समयरेखा' : 'PROJECT TIMELINE')
-                            : featureId === 'resolution' || featureId === 'investigation' || featureId === 'highRiskProjects' || featureId === 'evidenceReview' || featureId === 'fieldVerification'
-                              ? (isHi ? 'समाधान एवं जांच' : 'RESOLUTION')
-                              : featureId === 'unifiedAnalysis' || featureId === 'aiIntelligence' || featureId === 'aiAnalysis' || featureId === 'anomalyDetection' || featureId === 'financialAnomaly' || featureId === 'costOverrun' || featureId === 'duplicateProject' || featureId === 'delayRisk' || featureId === 'evidenceVerification' || featureId === 'geospatialIntelligence' || featureId === 'geospatial'
-                                ? (isHi ? 'एकीकृत विश्लेषण' : 'UNIFIED ANALYSIS')
-                                : featureId.toUpperCase()}
+                            : featureId === 'team' || featureId === 'teamSage' || featureId === 'team-sage' || featureId === 'teamsage' || featureId === 'team_sage' || featureId === 'meetTheTeam' || featureId === 'meet-the-team' || featureId === 'meet_the_team' || featureId === 'meetTeamSage' || featureId === 'meet-team-sage' || featureId === 'meet_team_sage'
+                              ? (isHi ? 'टीम (TEAM)' : 'TEAM')
+                              : featureId === 'resolution' || featureId === 'investigation' || featureId === 'highRiskProjects' || featureId === 'evidenceReview' || featureId === 'fieldVerification'
+                                ? (isHi ? 'समाधान एवं जांच' : 'RESOLUTION')
+                                : featureId === 'unifiedAnalysis' || featureId === 'aiIntelligence' || featureId === 'aiAnalysis' || featureId === 'anomalyDetection' || featureId === 'financialAnomaly' || featureId === 'costOverrun' || featureId === 'duplicateProject' || featureId === 'delayRisk' || featureId === 'evidenceVerification' || featureId === 'geospatialIntelligence' || featureId === 'geospatial'
+                                  ? (isHi ? 'एकीकृत विश्लेषण' : 'UNIFIED ANALYSIS')
+                                  : featureId.toUpperCase()}
             </div>
           </div>
         </div>

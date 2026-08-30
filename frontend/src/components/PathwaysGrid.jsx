@@ -1,5 +1,5 @@
 import React from 'react';
-import { Database, DollarSign, Activity, FileCheck, ShieldCheck, Cpu, AlertTriangle, BarChart3, Search, ChevronRight } from 'lucide-react';
+import { Database, DollarSign, Activity, FileCheck, ShieldCheck, Cpu, AlertTriangle, BarChart3, Search } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const PathwaysGrid = () => {
@@ -192,6 +192,7 @@ const PathwaysGrid = () => {
               return (
                 <div
                   key={idx}
+                  className="process-step-card"
                   style={{
                     background: '#FFFFFF',
                     border: '1.5px solid #1D1E22',
@@ -200,8 +201,7 @@ const PathwaysGrid = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    position: 'relative',
-                    boxShadow: 'var(--shadow-card)'
+                    position: 'relative'
                   }}
                 >
                   <div>
@@ -231,12 +231,6 @@ const PathwaysGrid = () => {
                       {step.desc}
                     </p>
                   </div>
-
-                  {idx < processSteps.length - 1 && (
-                    <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end', color: '#1D1E22' }}>
-                      <ChevronRight size={18} strokeWidth={2.5} />
-                    </div>
-                  )}
                 </div>
               );
             })}

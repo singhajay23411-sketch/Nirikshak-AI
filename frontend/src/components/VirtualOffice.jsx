@@ -88,6 +88,7 @@ const VirtualOffice = () => {
 
           {/* Project Risk Card Container */}
           <div
+            className="landing-card"
             style={{
               maxWidth: '920px',
               margin: '0 auto',
@@ -318,6 +319,7 @@ const VirtualOffice = () => {
 
           {/* Investigation Accordion Box */}
           <div
+            className="landing-card"
             style={{
               maxWidth: '900px',
               margin: '0 auto',

@@ -9,12 +9,11 @@ import bgImage from '../../assets/image.png';
 const DEMO_ACCOUNTS = [
   { label: 'Admin', labelHi: 'प्रशासक', email: 'admin@nirikshak.gov.in', password: 'nirikshak@2026' },
   { label: 'MoSPI Officer', labelHi: 'MoSPI अधिकारी', email: 'mospi.officer@nirikshak.gov.in', password: 'nirikshak@2026' },
-  { label: 'State Officer (UP)', labelHi: 'राज्य अधिकारी (UP)', email: 'state.up@nirikshak.gov.in', password: 'nirikshak@2026' },
-  { label: 'District Officer (Jabalpur)', labelHi: 'जिला अधिकारी (जबलपुर)', email: 'district.jabalpur@nirikshak.gov.in', password: 'nirikshak@2026' },
-  { label: "Hon'ble MP (Varanasi)", labelHi: 'माननीय सांसद (वाराणसी)', email: 'mp.loksabha@nirikshak.gov.in', password: 'nirikshak@2026' },
+  { label: 'State Officer', labelHi: 'राज्य अधिकारी', email: 'state.up@nirikshak.gov.in', password: 'nirikshak@2026' },
+  { label: 'District Officer', labelHi: 'जिला अधिकारी', email: 'district.jabalpur@nirikshak.gov.in', password: 'nirikshak@2026' },
+  { label: "Hon'ble MP", labelHi: 'माननीय सांसद', email: 'mp.loksabha@nirikshak.gov.in', password: 'nirikshak@2026' },
   { label: 'Field Inspector', labelHi: 'क्षेत्र निरीक्षक', email: 'inspector@nirikshak.gov.in', password: 'nirikshak@2026' },
   { label: 'Analyst', labelHi: 'विश्लेषक', email: 'analyst@nirikshak.gov.in', password: 'nirikshak@2026' },
-  { label: 'Viewer', labelHi: 'दर्शक', email: 'viewer@nirikshak.gov.in', password: 'nirikshak@2026' },
 ];
 
 const LoginView = ({ onBack, onLoginSuccess }) => {
