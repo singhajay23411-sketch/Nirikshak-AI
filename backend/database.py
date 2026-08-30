@@ -466,8 +466,9 @@ def batch_insert_expenditures(conn, expenditures: List[Expenditure]) -> None:
 # Analytics helpers
 # ---------------------------------------------------------------------------
 
-def fetch_all_for_analytics(conn) -> pd.DataFrame:
+def fetch_all_for_analytics(conn):
     """Return a denormalised DataFrame joining works with states, constituencies, and MPs."""
+    import pandas as pd
     query = """
         SELECT
             w.work_id,
@@ -499,8 +500,9 @@ def fetch_all_for_analytics(conn) -> pd.DataFrame:
     return pd.read_sql_query(query, conn)
 
 
-def fetch_expenditure_analytics(conn) -> pd.DataFrame:
+def fetch_expenditure_analytics(conn):
     """Return expenditure records joined with vendors and works."""
+    import pandas as pd
     query = """
         SELECT
             e.expenditure_id,
