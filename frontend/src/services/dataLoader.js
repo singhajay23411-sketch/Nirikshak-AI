@@ -7,7 +7,7 @@
 
 const cache = new Map();
 
-async function fetchFromDataDir(filename) {
+export async function fetchFromDataDir(filename) {
   if (cache.has(filename)) {
     return cache.get(filename);
   }
@@ -22,7 +22,7 @@ async function fetchFromDataDir(filename) {
     return data;
   } catch (error) {
     console.error(`Error loading data from ${filename}:`, error);
-    return null; // Return null gracefully so components can handle it
+    return null;
   }
 }
 
@@ -58,6 +58,10 @@ export async function getFinGuardAnomalies() {
   return fetchFromDataDir('finguard_anomalies.json');
 }
 
+export async function getFinGuardConstituencySummary() {
+  return fetchFromDataDir('finguard_constituency_summary.json');
+}
+
 export async function getGeoIntelHeatmap() {
   return fetchFromDataDir('geointel_heatmap.geojson');
 }
@@ -66,10 +70,30 @@ export async function getConstituencyHHI() {
   return fetchFromDataDir('constituency_hhi.json');
 }
 
+export async function getConstituencyRiskHeatmap() {
+  return fetchFromDataDir('constituency_risk_heatmap.json');
+}
+
 export async function getVendorRiskNetwork() {
   return fetchFromDataDir('vendor_risk_network.json');
 }
 
 export async function getVendorCartelGroups() {
   return fetchFromDataDir('vendor_cartel_groups.json');
+}
+
+export async function getMpScorecardSummary() {
+  return fetchFromDataDir('mp_scorecard_summary.json');
+}
+
+export async function getRealProjects() {
+  return fetchFromDataDir('real_projects.json');
+}
+
+export async function getExportManifest() {
+  return fetchFromDataDir('export_manifest.json');
+}
+
+export async function getAssistantManifest() {
+  return fetchFromDataDir('assistant_manifest.json');
 }
