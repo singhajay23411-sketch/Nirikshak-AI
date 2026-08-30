@@ -337,4 +337,26 @@ img, video, canvas, svg {
   }
 }
 
+/* Unified Analysis Strict 3-Column Models Grid (3 cols on desktop, 2 on tablet, 1 on mobile) */
+.unified-models-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+  align-items: stretch;
+}
+
+@media (max-width: 1024px) and (min-width: 641px) {
+  .unified-models-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .unified-models-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 
