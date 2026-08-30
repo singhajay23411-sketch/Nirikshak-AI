@@ -439,7 +439,7 @@ const FloatingWidgets = ({ onLoginClick, selectedWorkId, selectedMpId, selectedC
           }}
           title={isHi ? 'लॉगिन' : 'Login'}
         >
-          <span>{isAuthenticated ? (user?.full_name || user?.username || user?.email || 'Account') : (isHi ? 'लॉगिन' : 'Login')}</span>
+          <span>{isHi ? 'लॉगिन' : 'Login'}</span>
           <ArrowRight size={16} />
         </button>
 
