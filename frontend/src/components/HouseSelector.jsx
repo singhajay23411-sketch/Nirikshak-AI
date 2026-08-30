@@ -1,21 +1,29 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-const HouseSelector = () => {
+const HouseSelector = ({ value = 'both', onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedHouseId, setSelectedHouseId] = useState('both');
+  const [internalHouseId, setInternalHouseId] = useState(value || 'both');
   const timeoutRef = useRef(null);
   const { language } = useLanguage();
   const isHi = language === 'hi';
 
+  const selectedHouseId = value !== undefined ? value : internalHouseId;
+
+  useEffect(() => {
+    if (value !== undefined) {
+      setInternalHouseId(value);
+    }
+  }, [value]);
+
   const houses = [
+    { id: 'both', en: 'Both Houses', hi: 'दोनों सदन' },
     { id: 'lok-sabha', en: 'Lok Sabha', hi: 'लोकसभा' },
     { id: 'rajya-sabha', en: 'Rajya Sabha', hi: 'राज्यसभा' },
-    { id: 'both', en: 'Both Houses', hi: 'दोनों सदन' },
   ];
 
-  const currentHouse = houses.find(h => h.id === selectedHouseId) || houses[2];
+  const currentHouse = houses.find(h => h.id === selectedHouseId) || houses[0];
   const displayLabel = isHi ? currentHouse.hi : currentHouse.en.toUpperCase();
 
   const handleMouseEnter = () => {
@@ -33,7 +41,10 @@ const HouseSelector = () => {
   };
 
   const handleSelect = (houseId) => {
-    setSelectedHouseId(houseId);
+    setInternalHouseId(houseId);
+    if (onChange) {
+      onChange(houseId);
+    }
     setIsOpen(false);
   };
 

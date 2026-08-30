@@ -2772,6 +2772,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('ALL');
   const [activeTab, setActiveTab] = useState('overview');
+  const [selectedHouse, setSelectedHouse] = useState('both');
 
   const [anomalyProjects, setAnomalyProjects] = useState(MOCK_ANOMALY_PROJECTS);
   const [selectedProject, setSelectedProject] = useState(MOCK_ANOMALY_PROJECTS[0]);
@@ -3378,7 +3379,84 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
       // 1. HOME & OVERVIEW FEATURES
       // ─────────────────────────────────────────────
       case 'overview':
-      case 'home':
+      case 'home': {
+        const HOUSE_DATA = {
+          both: {
+            subtitleEn: 'Monitoring MPLADS works, fund utilization, and anomaly verification across 543 Lok Sabha and 245 Rajya Sabha constituencies.',
+            subtitleHi: '543 लोकसभा और 245 राज्यसभा निर्वाचन क्षेत्रों में एमपीलैड्स विकास कार्यों, निधि उपयोग और विसंगति सत्यापन की निगरानी।',
+            allocated: '₹12,129 Cr',
+            allocatedSub: 'National (Lok Sabha + Rajya Sabha)',
+            allocatedSubHi: 'राष्ट्रीय (लोकसभा + राज्यसभा)',
+            spent: '₹8,008 Cr',
+            spentSub: 'Disbursed Vouchers',
+            spentSubHi: 'संवितरित वाउचर',
+            utilization: '66.0%',
+            utilizationSub: 'National Average',
+            utilizationSubHi: 'राष्ट्रीय औसत',
+            completed: '1,94,210',
+            completedSub: 'Verified Finish (88.7%)',
+            completedSubHi: 'सत्यापित पूर्ण (88.7%)',
+            riskCritical: '18',
+            riskCriticalPct: '0.01%',
+            riskHigh: '667',
+            riskHighPct: '0.30%',
+            riskMedium: '90,435',
+            riskMediumPct: '41.3%',
+            riskLow: '1,27,793',
+            riskLowPct: '58.4%',
+          },
+          'lok-sabha': {
+            subtitleEn: 'Monitoring MPLADS works, fund utilization, and anomaly verification across 543 Lok Sabha constituencies.',
+            subtitleHi: '543 लोकसभा निर्वाचन क्षेत्रों में एमपीलैड्स विकास कार्यों, निधि उपयोग और विसंगति सत्यापन की निगरानी।',
+            allocated: '₹8,491 Cr',
+            allocatedSub: '16th & 17th Lok Sabha (543 MPs)',
+            allocatedSubHi: '16वीं और 17वीं लोकसभा (543 सांसद)',
+            spent: '₹5,686 Cr',
+            spentSub: 'Disbursed Vouchers',
+            spentSubHi: 'संवितरित वाउचर',
+            utilization: '67.0%',
+            utilizationSub: 'Lok Sabha Average',
+            utilizationSubHi: 'लोकसभा औसत',
+            completed: '1,36,810',
+            completedSub: 'Verified Finish (89.3%)',
+            completedSubHi: 'सत्यापित पूर्ण (89.3%)',
+            riskCritical: '13',
+            riskCriticalPct: '0.01%',
+            riskHigh: '473',
+            riskHighPct: '0.31%',
+            riskMedium: '63,304',
+            riskMediumPct: '41.3%',
+            riskLow: '89,449',
+            riskLowPct: '58.4%',
+          },
+          'rajya-sabha': {
+            subtitleEn: 'Monitoring MPLADS works, fund utilization, and anomaly verification across 245 Rajya Sabha nodal districts.',
+            subtitleHi: '245 राज्यसभा नोडल जिलों में एमपीलैड्स विकास कार्यों, निधि उपयोग और विसंगति सत्यापन की निगरानी।',
+            allocated: '₹3,639 Cr',
+            allocatedSub: 'Rajya Sabha Nodal Districts (245 MPs)',
+            allocatedSubHi: 'राज्यसभा नोडल जिले (245 सांसद)',
+            spent: '₹2,322 Cr',
+            spentSub: 'Disbursed Vouchers',
+            spentSubHi: 'संवितरित वाउचर',
+            utilization: '63.8%',
+            utilizationSub: 'Rajya Sabha Average',
+            utilizationSubHi: 'राज्यसभा औसत',
+            completed: '57,400',
+            completedSub: 'Verified Finish (87.4%)',
+            completedSubHi: 'सत्यापित पूर्ण (87.4%)',
+            riskCritical: '5',
+            riskCriticalPct: '0.01%',
+            riskHigh: '194',
+            riskHighPct: '0.30%',
+            riskMedium: '27,131',
+            riskMediumPct: '41.3%',
+            riskLow: '38,344',
+            riskLowPct: '58.4%',
+          }
+        };
+
+        const currentHouseData = HOUSE_DATA[selectedHouse] || HOUSE_DATA.both;
+
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {/* Dashboard Header Bar */}
@@ -3388,9 +3466,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                   {isHi ? 'MPLADS डैशबोर्ड' : 'MPLADS Dashboard'}
                 </h1>
                 <p style={{ fontSize: '0.92rem', color: 'var(--color-text-secondary)', marginTop: '0.4rem', margin: 0, maxWidth: '720px', lineHeight: 1.5 }}>
-                  {isHi
-                    ? '543 लोकसभा और 245 राज्यसभा निर्वाचन क्षेत्रों में एमपीलैड्स विकास कार्यों, निधि उपयोग और विसंगति सत्यापन की निगरानी।'
-                    : 'Monitoring MPLADS works, fund utilization, and anomaly verification across 543 Lok Sabha and 245 Rajya Sabha constituencies.'}
+                  {isHi ? currentHouseData.subtitleHi : currentHouseData.subtitleEn}
                 </p>
               </div>
 
@@ -3430,8 +3506,10 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                 <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'कुल आवंटित निधि' : 'Total Allocated'}
                 </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#1D1E22' }}>{nationalStats.totalAllocated}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>16-17 Lok Sabha</div>
+                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#1D1E22' }}>{currentHouseData.allocated}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>
+                  {isHi ? currentHouseData.allocatedSubHi : currentHouseData.allocatedSub}
+                </div>
               </div>
 
               {/* Card 2: Total Expenditure */}
@@ -3439,8 +3517,10 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                 <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'कुल व्यय' : 'Total Expenditure'}
                 </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#0A2458' }}>{nationalStats.totalSpent}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>Disbursed Vouchers</div>
+                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#0A2458' }}>{currentHouseData.spent}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>
+                  {isHi ? currentHouseData.spentSubHi : currentHouseData.spentSub}
+                </div>
               </div>
 
               {/* Card 3: Fund Utilization */}
@@ -3448,8 +3528,10 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                 <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--color-accent-teal)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'निधि उपयोग दर' : 'Fund Utilization'}
                 </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: 'var(--color-accent-teal-hover)' }}>{nationalStats.utilizationRate}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>National Average</div>
+                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: 'var(--color-accent-teal-hover)' }}>{currentHouseData.utilization}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>
+                  {isHi ? currentHouseData.utilizationSubHi : currentHouseData.utilizationSub}
+                </div>
               </div>
 
               {/* Card 4: Works Completed */}
@@ -3457,8 +3539,10 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                 <div style={{ fontSize: '0.74rem', fontWeight: 800, color: '#1E7E34', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {isHi ? 'पूर्ण कार्य' : 'Works Completed'}
                 </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#1E7E34' }}>{nationalStats.completedWorks}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>Verified Finish</div>
+                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#1E7E34' }}>{currentHouseData.completed}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>
+                  {isHi ? currentHouseData.completedSubHi : currentHouseData.completedSub}
+                </div>
               </div>
             </div>
 
@@ -3477,40 +3561,40 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.25rem' }}>
                       <span style={{ color: '#D9534F' }}>Critical Risk (81 - 100)</span>
-                      <span>{nationalStats.riskCritical} works (0.0%)</span>
+                      <span>{currentHouseData.riskCritical} works ({currentHouseData.riskCriticalPct})</span>
                     </div>
                     <div style={{ height: '8px', background: '#FAF8F3', borderRadius: '4px', border: '1px solid #1D1E22', overflow: 'hidden' }}>
-                      <div style={{ width: '0%', height: '100%', background: '#D9534F' }}></div>
+                      <div style={{ width: '0.5%', height: '100%', background: '#D9534F' }}></div>
                     </div>
                   </div>
 
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.25rem' }}>
                       <span style={{ color: '#E07A5F' }}>High Risk (61 - 80)</span>
-                      <span>{nationalStats.riskHigh} works (0.3%)</span>
+                      <span>{currentHouseData.riskHigh} works ({currentHouseData.riskHighPct})</span>
                     </div>
                     <div style={{ height: '8px', background: '#FAF8F3', borderRadius: '4px', border: '1px solid #1D1E22', overflow: 'hidden' }}>
-                      <div style={{ width: '1%', height: '100%', background: '#E07A5F' }}></div>
+                      <div style={{ width: '1.2%', height: '100%', background: '#E07A5F' }}></div>
                     </div>
                   </div>
 
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.25rem' }}>
                       <span style={{ color: '#E5B842' }}>Medium Risk (31 - 60)</span>
-                      <span>{nationalStats.riskMedium} works (41.3%)</span>
+                      <span>{currentHouseData.riskMedium} works ({currentHouseData.riskMediumPct})</span>
                     </div>
                     <div style={{ height: '8px', background: '#FAF8F3', borderRadius: '4px', border: '1px solid #1D1E22', overflow: 'hidden' }}>
-                      <div style={{ width: '41%', height: '100%', background: '#E5B842' }}></div>
+                      <div style={{ width: '41.3%', height: '100%', background: '#E5B842' }}></div>
                     </div>
                   </div>
 
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.25rem' }}>
                       <span style={{ color: '#1E7E34' }}>Low Risk (0 - 30)</span>
-                      <span>{nationalStats.riskLow} works (58.4%)</span>
+                      <span>{currentHouseData.riskLow} works ({currentHouseData.riskLowPct})</span>
                     </div>
                     <div style={{ height: '8px', background: '#FAF8F3', borderRadius: '4px', border: '1px solid #1D1E22', overflow: 'hidden' }}>
-                      <div style={{ width: '58%', height: '100%', background: '#52B79A' }}></div>
+                      <div style={{ width: '58.4%', height: '100%', background: '#52B79A' }}></div>
                     </div>
                   </div>
                 </div>
@@ -4090,6 +4174,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
             <Footer hideCTAButtons={true} />
           </div>
         );
+      }
 
       case 'findProject':
       case 'findProjects':
@@ -4928,7 +5013,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           {(featureId === 'overview' || featureId === 'home') && (
-            <HouseSelector />
+            <HouseSelector value={selectedHouse} onChange={setSelectedHouse} />
           )}
           <LanguageSwitcher />
         </div>
