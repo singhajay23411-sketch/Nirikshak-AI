@@ -7783,7 +7783,7 @@
     "actual_end_date": null,
     "completion_delay_days": null,
     "ida_name": "Kataka(DISTRICT COLLECTOR CUTTACK_IDA)",
-    "primary_vendor_name": null,
+    "primary_vendor_name": "Vendor 95623",
     "num_payments": null,
     "severity_score": 8.625901607906423
   },
@@ -16935,7 +16935,7 @@
     "actual_end_date": null,
     "completion_delay_days": null,
     "ida_name": "SURAT(DISTRICT COLLECTOR SURAT_IDA)",
-    "primary_vendor_name": null,
+    "primary_vendor_name": "Vendor 95271",
     "num_payments": null,
     "severity_score": 5.766909146534153
   },
@@ -18189,7 +18189,7 @@
     "actual_end_date": null,
     "completion_delay_days": null,
     "ida_name": "Cooch Behar(DISTRICT MAGISTRATE COOCHBEHAR_IDA)",
-    "primary_vendor_name": null,
+    "primary_vendor_name": "Vendor 51683",
     "num_payments": null,
     "severity_score": 5.622199173967225
   },

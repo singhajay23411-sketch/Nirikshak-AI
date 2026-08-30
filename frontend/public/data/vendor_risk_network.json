@@ -3,7 +3,7 @@
     "vendor_name": "SML ISUZU LTD",
     "constituencies_operated": 7,
     "monopolies_controlled": 2,
-    "total_funds_captured": 126821556.0,
+    "total_funds_captured": 128797556.0,
     "risk_score": 28.57,
     "regions": [
       "CHANDIGARH",
@@ -19,7 +19,7 @@
     "vendor_name": "SHRI GURU KRIPA NARSINGH ASSOCIATES",
     "constituencies_operated": 4,
     "monopolies_controlled": 1,
-    "total_funds_captured": 191808493.0,
+    "total_funds_captured": 184833512.0,
     "risk_score": 25.0,
     "regions": [
       "ALIGARH",
@@ -52,7 +52,7 @@
     "vendor_name": "COMPUTER SOLUTIONS",
     "constituencies_operated": 3,
     "monopolies_controlled": 1,
-    "total_funds_captured": 75330000.0,
+    "total_funds_captured": 67797000.0,
     "risk_score": 33.33,
     "regions": [
       "Jammu And Kashmir (Rajya Sabha Nodal District)",
@@ -80,6 +80,16 @@
     "risk_score": 100.0,
     "regions": [
       "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "GANAPATI ENTERPRISE",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 969412.0,
+    "risk_score": 100.0,
+    "regions": [
+      "Goa (Rajya Sabha Nodal District)"
     ]
   },
   {

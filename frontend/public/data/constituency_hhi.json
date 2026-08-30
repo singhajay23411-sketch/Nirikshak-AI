@@ -3,56 +3,56 @@
     "constituency_id": -129,
     "constituency_name": "Telangana (Rajya Sabha Nodal District)",
     "state_name": "Telangana",
-    "hhi": 374.54,
-    "total_vendors": 118,
-    "total_funds": 213618258.0,
+    "hhi": 362.12,
+    "total_vendors": 120,
+    "total_funds": 218494602.0,
     "is_monopoly": false,
     "dominant_vendor": "SANTRIX CONSTRUCTIONS",
-    "dominant_vendor_share": 15.79
+    "dominant_vendor_share": 15.43
   },
   {
     "constituency_id": -36,
     "constituency_name": "Kerala (Rajya Sabha Nodal District)",
     "state_name": "Kerala",
-    "hhi": 131.57,
+    "hhi": 130.91,
     "total_vendors": 370,
-    "total_funds": 453651666.0,
+    "total_funds": 455129530.0,
     "is_monopoly": false,
     "dominant_vendor": "TATA MOTORS",
-    "dominant_vendor_share": 5.73
+    "dominant_vendor_share": 5.71
   },
   {
     "constituency_id": -34,
     "constituency_name": "West Bengal (Rajya Sabha Nodal District)",
     "state_name": "West Bengal",
-    "hhi": 1938.94,
-    "total_vendors": 50,
-    "total_funds": 459053572.0,
+    "hhi": 1863.73,
+    "total_vendors": 51,
+    "total_funds": 468764485.0,
     "is_monopoly": false,
     "dominant_vendor": "KHIVRAJ MOTORS",
-    "dominant_vendor_share": 32.98
+    "dominant_vendor_share": 32.3
   },
   {
     "constituency_id": -33,
     "constituency_name": "Uttar Pradesh (Rajya Sabha Nodal District)",
     "state_name": "Uttar Pradesh",
-    "hhi": 137.17,
-    "total_vendors": 483,
-    "total_funds": 3303184163.42,
+    "hhi": 134.92,
+    "total_vendors": 491,
+    "total_funds": 3300347636.93,
     "is_monopoly": false,
     "dominant_vendor": "HIDAYA QIRAT ENTERPRISES",
-    "dominant_vendor_share": 5.54
+    "dominant_vendor_share": 5.6
   },
   {
     "constituency_id": -32,
     "constituency_name": "Uttarakhand (Rajya Sabha Nodal District)",
     "state_name": "Uttarakhand",
-    "hhi": 289.62,
-    "total_vendors": 220,
-    "total_funds": 213122324.0,
+    "hhi": 288.15,
+    "total_vendors": 223,
+    "total_funds": 213747959.82,
     "is_monopoly": false,
     "dominant_vendor": "Manju Choudhary",
-    "dominant_vendor_share": 11.51
+    "dominant_vendor_share": 11.48
   },
   {
     "constituency_id": -31,
@@ -69,243 +69,243 @@
     "constituency_id": -30,
     "constituency_name": "Tamil Nadu (Rajya Sabha Nodal District)",
     "state_name": "Tamil Nadu",
-    "hhi": 596.74,
-    "total_vendors": 209,
-    "total_funds": 980336471.0,
+    "hhi": 586.61,
+    "total_vendors": 210,
+    "total_funds": 989713670.0,
     "is_monopoly": false,
     "dominant_vendor": "JF JAVID HUSSAIN",
-    "dominant_vendor_share": 16.16
+    "dominant_vendor_share": 16.0
   },
   {
     "constituency_id": -29,
     "constituency_name": "Sikkim (Rajya Sabha Nodal District)",
     "state_name": "Sikkim",
-    "hhi": 1169.48,
+    "hhi": 1105.41,
     "total_vendors": 29,
-    "total_funds": 91921040.0,
+    "total_funds": 95648293.0,
     "is_monopoly": false,
     "dominant_vendor": "ASSISTANT ENGINEER ZILLA PANCHAYAT OFFICE",
-    "dominant_vendor_share": 19.96
+    "dominant_vendor_share": 19.13
   },
   {
     "constituency_id": -28,
     "constituency_name": "Rajasthan (Rajya Sabha Nodal District)",
     "state_name": "Rajasthan",
-    "hhi": 50.68,
-    "total_vendors": 944,
-    "total_funds": 502905690.01,
+    "hhi": 50.12,
+    "total_vendors": 987,
+    "total_funds": 512340025.08,
     "is_monopoly": false,
     "dominant_vendor": "SHARMA CONTRACTOR",
-    "dominant_vendor_share": 1.7
+    "dominant_vendor_share": 1.67
   },
   {
     "constituency_id": -27,
     "constituency_name": "Gujarat (Rajya Sabha Nodal District)",
     "state_name": "Gujarat",
-    "hhi": 162.36,
-    "total_vendors": 302,
-    "total_funds": 227318444.0,
+    "hhi": 157.56,
+    "total_vendors": 307,
+    "total_funds": 231374208.0,
     "is_monopoly": false,
     "dominant_vendor": "CONNECTWAVE INTEGRATIONS PVT LTD",
-    "dominant_vendor_share": 10.02
+    "dominant_vendor_share": 9.84
   },
   {
     "constituency_id": -26,
     "constituency_name": "Puducherry (Rajya Sabha Nodal District)",
     "state_name": "Puducherry",
-    "hhi": 338.8,
-    "total_vendors": 60,
-    "total_funds": 101658946.0,
+    "hhi": 341.5,
+    "total_vendors": 61,
+    "total_funds": 100642714.0,
     "is_monopoly": false,
     "dominant_vendor": "VELUSAMY C",
-    "dominant_vendor_share": 7.28
+    "dominant_vendor_share": 7.35
   },
   {
     "constituency_id": -25,
     "constituency_name": "Odisha (Rajya Sabha Nodal District)",
     "state_name": "Odisha",
-    "hhi": 138.61,
-    "total_vendors": 210,
-    "total_funds": 153300532.0,
+    "hhi": 141.03,
+    "total_vendors": 211,
+    "total_funds": 159483401.0,
     "is_monopoly": false,
     "dominant_vendor": "PRAGNYA PARAMITA  SAHOO",
-    "dominant_vendor_share": 5.23
+    "dominant_vendor_share": 5.03
   },
   {
     "constituency_id": -24,
     "constituency_name": "Nagaland (Rajya Sabha Nodal District)",
     "state_name": "Nagaland",
-    "hhi": 481.59,
-    "total_vendors": 66,
-    "total_funds": 196106200.0,
+    "hhi": 480.08,
+    "total_vendors": 67,
+    "total_funds": 196418200.0,
     "is_monopoly": false,
     "dominant_vendor": "Y C Chingkap Konyak",
-    "dominant_vendor_share": 12.75
+    "dominant_vendor_share": 12.73
   },
   {
     "constituency_id": -21,
     "constituency_name": "Maharashtra (Rajya Sabha Nodal District)",
     "state_name": "Maharashtra",
-    "hhi": 178.75,
-    "total_vendors": 225,
-    "total_funds": 529346359.0,
+    "hhi": 176.6,
+    "total_vendors": 229,
+    "total_funds": 532878490.65999997,
     "is_monopoly": false,
     "dominant_vendor": "Kolte Patil Developer",
-    "dominant_vendor_share": 6.58
+    "dominant_vendor_share": 6.53
   },
   {
     "constituency_id": -20,
     "constituency_name": "Madhya Pradesh (Rajya Sabha Nodal District)",
     "state_name": "Madhya Pradesh",
-    "hhi": 72.36,
-    "total_vendors": 594,
-    "total_funds": 618701011.12,
+    "hhi": 71.55,
+    "total_vendors": 605,
+    "total_funds": 623507859.64,
     "is_monopoly": false,
     "dominant_vendor": "NATIONAL ENGINEERING WORKS",
-    "dominant_vendor_share": 3.38
+    "dominant_vendor_share": 3.35
   },
   {
     "constituency_id": -18,
     "constituency_name": "Karnataka (Rajya Sabha Nodal District)",
     "state_name": "Karnataka",
-    "hhi": 634.38,
-    "total_vendors": 143,
-    "total_funds": 670852472.0,
+    "hhi": 624.64,
+    "total_vendors": 148,
+    "total_funds": 679252242.8199999,
     "is_monopoly": false,
     "dominant_vendor": "KRIDL BHUSIRI ACCOUNT WORKS",
-    "dominant_vendor_share": 19.18
+    "dominant_vendor_share": 18.94
   },
   {
     "constituency_id": -17,
     "constituency_name": "Jharkhand (Rajya Sabha Nodal District)",
     "state_name": "Jharkhand",
-    "hhi": 1311.77,
-    "total_vendors": 31,
-    "total_funds": 498120517.0,
+    "hhi": 1303.92,
+    "total_vendors": 32,
+    "total_funds": 499701219.72,
     "is_monopoly": false,
     "dominant_vendor": "Junior Engineer Zila Parishad Prashant Kumar",
-    "dominant_vendor_share": 24.84
+    "dominant_vendor_share": 24.76
   },
   {
     "constituency_id": -16,
     "constituency_name": "Jammu And Kashmir (Rajya Sabha Nodal District)",
     "state_name": "Jammu And Kashmir",
-    "hhi": 2180.78,
-    "total_vendors": 22,
-    "total_funds": 134033715.0,
+    "hhi": 2339.57,
+    "total_vendors": 24,
+    "total_funds": 135338056.0,
     "is_monopoly": false,
     "dominant_vendor": "RMK ENTERPRISES",
-    "dominant_vendor_share": 39.52
+    "dominant_vendor_share": 42.73
   },
   {
     "constituency_id": -15,
     "constituency_name": "Himachal Pradesh (Rajya Sabha Nodal District)",
     "state_name": "Himachal Pradesh",
-    "hhi": 186.73,
-    "total_vendors": 287,
-    "total_funds": 201842302.04,
+    "hhi": 184.01,
+    "total_vendors": 313,
+    "total_funds": 203382808.04,
     "is_monopoly": false,
     "dominant_vendor": "Universal Press",
-    "dominant_vendor_share": 5.89
+    "dominant_vendor_share": 5.84
   },
   {
     "constituency_id": -14,
     "constituency_name": "Haryana (Rajya Sabha Nodal District)",
     "state_name": "Haryana",
-    "hhi": 337.23,
+    "hhi": 336.44,
     "total_vendors": 80,
-    "total_funds": 45030247.0,
+    "total_funds": 45535369.0,
     "is_monopoly": false,
     "dominant_vendor": "THE BARTA CO OP  L AND C SOCIETY",
-    "dominant_vendor_share": 7.93
+    "dominant_vendor_share": 8.11
   },
   {
     "constituency_id": -12,
     "constituency_name": "Goa (Rajya Sabha Nodal District)",
     "state_name": "Goa",
-    "hhi": 3452.79,
-    "total_vendors": 8,
-    "total_funds": 37836353.989999995,
+    "hhi": 3288.67,
+    "total_vendors": 9,
+    "total_funds": 38805765.989999995,
     "is_monopoly": true,
     "dominant_vendor": "TATA MOTORS",
-    "dominant_vendor_share": 48.91
+    "dominant_vendor_share": 47.69
   },
   {
     "constituency_id": -11,
     "constituency_name": "Delhi (Rajya Sabha Nodal District)",
     "state_name": "Delhi",
-    "hhi": 1111.59,
-    "total_vendors": 20,
-    "total_funds": 36707182.0,
+    "hhi": 789.88,
+    "total_vendors": 50,
+    "total_funds": 49838265.0,
     "is_monopoly": false,
     "dominant_vendor": "BANSAL ELECTRIC STORE",
-    "dominant_vendor_share": 26.21
+    "dominant_vendor_share": 19.31
   },
   {
     "constituency_id": -8,
     "constituency_name": "Chhattisgarh (Rajya Sabha Nodal District)",
     "state_name": "Chhattisgarh",
-    "hhi": 525.56,
-    "total_vendors": 111,
-    "total_funds": 246014079.0,
+    "hhi": 518.86,
+    "total_vendors": 113,
+    "total_funds": 248679816.0,
     "is_monopoly": false,
     "dominant_vendor": "STARCARE ENTERPRISES LLP",
-    "dominant_vendor_share": 12.86
+    "dominant_vendor_share": 12.72
   },
   {
     "constituency_id": -7,
     "constituency_name": "Chandigarh (Rajya Sabha Nodal District)",
     "state_name": "Chandigarh",
-    "hhi": 960.22,
+    "hhi": 950.34,
     "total_vendors": 27,
-    "total_funds": 9104144.0,
+    "total_funds": 9151023.0,
     "is_monopoly": false,
     "dominant_vendor": "Sohan Lal Mehta",
-    "dominant_vendor_share": 23.02
+    "dominant_vendor_share": 22.9
   },
   {
     "constituency_id": -6,
     "constituency_name": "Bihar (Rajya Sabha Nodal District)",
     "state_name": "Bihar",
-    "hhi": 407.65,
-    "total_vendors": 187,
-    "total_funds": 1168392528.0,
+    "hhi": 406.43,
+    "total_vendors": 190,
+    "total_funds": 1173476550.82,
     "is_monopoly": false,
     "dominant_vendor": "VEDIKA SINGH",
-    "dominant_vendor_share": 10.51
+    "dominant_vendor_share": 10.46
   },
   {
     "constituency_id": -5,
     "constituency_name": "Assam (Rajya Sabha Nodal District)",
     "state_name": "Assam",
-    "hhi": 151.45,
-    "total_vendors": 150,
-    "total_funds": 232356377.44,
+    "hhi": 148.81,
+    "total_vendors": 155,
+    "total_funds": 244652413.44,
     "is_monopoly": false,
     "dominant_vendor": "MS Dwithun Basumatary Enterprise",
-    "dominant_vendor_share": 7.14
+    "dominant_vendor_share": 6.79
   },
   {
     "constituency_id": -2,
     "constituency_name": "Andhra Pradesh (Rajya Sabha Nodal District)",
     "state_name": "Andhra Pradesh",
-    "hhi": 161.65,
-    "total_vendors": 157,
-    "total_funds": 345227491.0,
+    "hhi": 168.65,
+    "total_vendors": 162,
+    "total_funds": 348784957.0,
     "is_monopoly": false,
     "dominant_vendor": "SRI NELCO ENTERPRISES",
-    "dominant_vendor_share": 6.61
+    "dominant_vendor_share": 7.08
   },
   {
     "constituency_id": -1,
     "constituency_name": "Punjab (Rajya Sabha Nodal District)",
     "state_name": "Punjab",
-    "hhi": 112.66,
-    "total_vendors": 981,
-    "total_funds": 578986307.67,
+    "hhi": 112.75,
+    "total_vendors": 993,
+    "total_funds": 586467949.08,
     "is_monopoly": false,
     "dominant_vendor": "Satnam Process Engineering",
-    "dominant_vendor_share": 4.71
+    "dominant_vendor_share": 4.7
   },
   {
     "constituency_id": 1,
@@ -322,67 +322,78 @@
     "constituency_id": 2,
     "constituency_name": "ANAKAPALLE",
     "state_name": "Andhra Pradesh",
-    "hhi": 20.0,
-    "total_vendors": 1651,
-    "total_funds": 2822831211.14,
+    "hhi": 19.82,
+    "total_vendors": 1694,
+    "total_funds": 2846382652.22,
     "is_monopoly": false,
     "dominant_vendor": "K RAMESH BABU",
-    "dominant_vendor_share": 1.48
+    "dominant_vendor_share": 1.47
   },
   {
     "constituency_id": 28,
     "constituency_name": "ARUNACHAL WEST",
     "state_name": "Arunachal Pradesh",
-    "hhi": 74.15,
-    "total_vendors": 435,
-    "total_funds": 378685220.0,
+    "hhi": 72.85,
+    "total_vendors": 437,
+    "total_funds": 381110680.0,
     "is_monopoly": false,
-    "dominant_vendor": "BKM Enterprises",
-    "dominant_vendor_share": 2.95
+    "dominant_vendor": "C P ENTERPRISE",
+    "dominant_vendor_share": 2.81
   },
   {
     "constituency_id": 30,
     "constituency_name": "BARPETA",
     "state_name": "Assam",
-    "hhi": 40.53,
-    "total_vendors": 1690,
-    "total_funds": 1547774132.25,
+    "hhi": 39.99,
+    "total_vendors": 1700,
+    "total_funds": 1567800876.89,
     "is_monopoly": false,
     "dominant_vendor": "Aradhya Agency",
-    "dominant_vendor_share": 3.31
+    "dominant_vendor_share": 3.27
   },
   {
     "constituency_id": 44,
     "constituency_name": "ARARIA",
     "state_name": "Bihar",
-    "hhi": 134.94,
-    "total_vendors": 827,
-    "total_funds": 8650578023.0,
+    "hhi": 135.74,
+    "total_vendors": 831,
+    "total_funds": 8614137777.9,
     "is_monopoly": false,
     "dominant_vendor": "R K Construction",
-    "dominant_vendor_share": 5.32
+    "dominant_vendor_share": 5.35
   },
   {
     "constituency_id": 84,
     "constituency_name": "CHANDIGARH",
     "state_name": "Chandigarh",
-    "hhi": 357.72,
+    "hhi": 356.08,
     "total_vendors": 92,
-    "total_funds": 78238679.97,
+    "total_funds": 78433372.97,
     "is_monopoly": false,
     "dominant_vendor": "FORCE MOTORS LIMITED",
-    "dominant_vendor_share": 9.69
+    "dominant_vendor_share": 9.67
   },
   {
     "constituency_id": 85,
     "constituency_name": "RAIGARH(ST)",
     "state_name": "Chhattisgarh",
-    "hhi": 15.36,
-    "total_vendors": 1991,
-    "total_funds": 1397553966.13,
+    "hhi": 15.46,
+    "total_vendors": 1976,
+    "total_funds": 1391494793.13,
     "is_monopoly": false,
     "dominant_vendor": "Maa Mahamaya Agency",
     "dominant_vendor_share": 1.27
+  },
+  {
+    "constituency_id": 97,
+    "constituency_name": "DAMAN and DIU",
+    "state_name": "The Dadra And Nagar Haveli And Daman And Diu",
+    "hhi": 1111.38,
+    "total_vendors": 9,
+    "total_funds": 150000.0,
+    "is_monopoly": false,
+    "dominant_vendor": "AARTI BISHT",
+    "dominant_vendor_share": 11.17
   },
   {
     "constituency_id": 98,
@@ -390,7 +401,7 @@
     "state_name": "Delhi",
     "hhi": 540.05,
     "total_vendors": 109,
-    "total_funds": 672417304.0,
+    "total_funds": 672417337.0,
     "is_monopoly": false,
     "dominant_vendor": "Central Electronics Limited",
     "dominant_vendor_share": 16.63
@@ -410,42 +421,42 @@
     "constituency_id": 107,
     "constituency_name": "BANASKANTHA",
     "state_name": "Gujarat",
-    "hhi": 12.73,
-    "total_vendors": 5304,
-    "total_funds": 2810365800.88,
+    "hhi": 12.65,
+    "total_vendors": 5318,
+    "total_funds": 2825163321.22,
     "is_monopoly": false,
     "dominant_vendor": "PARSHVAGEE INFRA PRIVATE LIMITED",
-    "dominant_vendor_share": 2.14
+    "dominant_vendor_share": 2.13
   },
   {
     "constituency_id": 133,
     "constituency_name": "SONEPAT",
     "state_name": "Haryana",
-    "hhi": 34.66,
-    "total_vendors": 1239,
-    "total_funds": 998787998.42,
+    "hhi": 35.01,
+    "total_vendors": 1246,
+    "total_funds": 1007817306.5,
     "is_monopoly": false,
     "dominant_vendor": "Bimla Automobiles",
-    "dominant_vendor_share": 2.28
+    "dominant_vendor_share": 2.26
   },
   {
     "constituency_id": 143,
     "constituency_name": "HAMIRPUR_HP",
     "state_name": "Himachal Pradesh",
-    "hhi": 54.28,
-    "total_vendors": 1093,
-    "total_funds": 499616194.0,
+    "hhi": 53.71,
+    "total_vendors": 1104,
+    "total_funds": 502444645.0,
     "is_monopoly": false,
     "dominant_vendor": "Block Development  Office Rampur  Lok Sabha",
-    "dominant_vendor_share": 1.78
+    "dominant_vendor_share": 1.77
   },
   {
     "constituency_id": 147,
     "constituency_name": "ANANTNAG",
     "state_name": "Jammu And Kashmir",
-    "hhi": 46.93,
-    "total_vendors": 638,
-    "total_funds": 358084905.0,
+    "hhi": 46.76,
+    "total_vendors": 641,
+    "total_funds": 358801451.0,
     "is_monopoly": false,
     "dominant_vendor": "Vikram Enterprises",
     "dominant_vendor_share": 2.19
@@ -454,34 +465,34 @@
     "constituency_id": 152,
     "constituency_name": "HAZARIBAGH",
     "state_name": "Jharkhand",
-    "hhi": 276.23,
-    "total_vendors": 99,
-    "total_funds": 1664274488.69,
+    "hhi": 277.34,
+    "total_vendors": 100,
+    "total_funds": 1660976787.51,
     "is_monopoly": false,
     "dominant_vendor": "EXECUTIVE ENGINER NREP GIRIDIH",
-    "dominant_vendor_share": 5.64
+    "dominant_vendor_share": 5.65
   },
   {
     "constituency_id": 166,
     "constituency_name": "BANGALORE RURAL",
     "state_name": "Karnataka",
-    "hhi": 275.49,
-    "total_vendors": 2112,
-    "total_funds": 3131608509.49,
+    "hhi": 272.7,
+    "total_vendors": 2123,
+    "total_funds": 3149039672.13,
     "is_monopoly": false,
     "dominant_vendor": "KRIDL BHUSIRI ACCOUNT WORKS",
-    "dominant_vendor_share": 15.05
+    "dominant_vendor_share": 14.97
   },
   {
     "constituency_id": 194,
     "constituency_name": "KANNUR",
     "state_name": "Kerala",
-    "hhi": 127.11,
+    "hhi": 127.36,
     "total_vendors": 1156,
-    "total_funds": 2109180830.41,
+    "total_funds": 2111976041.41,
     "is_monopoly": false,
     "dominant_vendor": "M S Communication",
-    "dominant_vendor_share": 5.51
+    "dominant_vendor_share": 5.5
   },
   {
     "constituency_id": 214,
@@ -509,20 +520,20 @@
     "constituency_id": 216,
     "constituency_name": "BETUL(ST)",
     "state_name": "Madhya Pradesh",
-    "hhi": 51.37,
-    "total_vendors": 4802,
-    "total_funds": 3688893292.81,
+    "hhi": 51.06,
+    "total_vendors": 4819,
+    "total_funds": 3706563644.89,
     "is_monopoly": false,
     "dominant_vendor": "MP Agro Biaora",
-    "dominant_vendor_share": 2.62
+    "dominant_vendor_share": 2.61
   },
   {
     "constituency_id": 245,
     "constituency_name": "RAVER",
     "state_name": "Maharashtra",
-    "hhi": 9.28,
-    "total_vendors": 3272,
-    "total_funds": 4883064782.73,
+    "hhi": 9.25,
+    "total_vendors": 3282,
+    "total_funds": 4895527692.37,
     "is_monopoly": false,
     "dominant_vendor": "Finance ZP",
     "dominant_vendor_share": 0.85
@@ -542,23 +553,23 @@
     "constituency_id": 295,
     "constituency_name": "TURA",
     "state_name": "Meghalaya",
-    "hhi": 89.95,
+    "hhi": 89.72,
     "total_vendors": 868,
-    "total_funds": 318245000.0,
+    "total_funds": 318730000.0,
     "is_monopoly": false,
     "dominant_vendor": "Aiok M Sangma",
-    "dominant_vendor_share": 8.33
+    "dominant_vendor_share": 8.31
   },
   {
     "constituency_id": 297,
     "constituency_name": "MIZORAM (ST)",
     "state_name": "Mizoram",
-    "hhi": 80.61,
-    "total_vendors": 207,
-    "total_funds": 167766729.0,
+    "hhi": 79.97,
+    "total_vendors": 208,
+    "total_funds": 169261729.0,
     "is_monopoly": false,
     "dominant_vendor": "TUIKUAL NORTH LOCAL COUNCIL",
-    "dominant_vendor_share": 2.98
+    "dominant_vendor_share": 2.95
   },
   {
     "constituency_id": 298,
@@ -575,34 +586,34 @@
     "constituency_id": 299,
     "constituency_name": "CUTTACK",
     "state_name": "Odisha",
-    "hhi": 28.52,
-    "total_vendors": 2405,
-    "total_funds": 1730178869.0,
+    "hhi": 28.62,
+    "total_vendors": 2395,
+    "total_funds": 1727060559.0,
     "is_monopoly": false,
     "dominant_vendor": "TAPAN KUMAR MAJHI JE",
-    "dominant_vendor_share": 2.54
+    "dominant_vendor_share": 2.55
   },
   {
     "constituency_id": 321,
     "constituency_name": "BHATINDA",
     "state_name": "Punjab",
-    "hhi": 60.96,
-    "total_vendors": 2616,
-    "total_funds": 763502248.0,
+    "hhi": 57.74,
+    "total_vendors": 2716,
+    "total_funds": 789818428.88,
     "is_monopoly": false,
     "dominant_vendor": "The Gill Sehkari Kirat te Ussari Sabha Ltd",
-    "dominant_vendor_share": 3.63
+    "dominant_vendor_share": 3.5
   },
   {
     "constituency_id": 334,
     "constituency_name": "AJMER",
     "state_name": "Rajasthan",
-    "hhi": 32.07,
-    "total_vendors": 10330,
-    "total_funds": 2657407712.0,
+    "hhi": 31.58,
+    "total_vendors": 10388,
+    "total_funds": 2685260051.36,
     "is_monopoly": false,
     "dominant_vendor": "rajasthan state coopretive marketing federation ltd jaipur",
-    "dominant_vendor_share": 5.06
+    "dominant_vendor_share": 5.01
   },
   {
     "constituency_id": 359,
@@ -619,9 +630,9 @@
     "constituency_id": 360,
     "constituency_name": "TIRUNELVELI",
     "state_name": "Tamil Nadu",
-    "hhi": 18.35,
-    "total_vendors": 2502,
-    "total_funds": 5991977107.34,
+    "hhi": 18.24,
+    "total_vendors": 2512,
+    "total_funds": 6019375631.34,
     "is_monopoly": false,
     "dominant_vendor": "T S SOLAR POWER SYSTEM",
     "dominant_vendor_share": 1.15
@@ -630,12 +641,12 @@
     "constituency_id": 399,
     "constituency_name": "ADILABAD(ST)",
     "state_name": "Telangana",
-    "hhi": 56.57,
-    "total_vendors": 1472,
-    "total_funds": 2011623700.1,
+    "hhi": 56.29,
+    "total_vendors": 1483,
+    "total_funds": 2016903311.38,
     "is_monopoly": false,
     "dominant_vendor": "A F Construction op by Ismail",
-    "dominant_vendor_share": 4.11
+    "dominant_vendor_share": 4.09
   },
   {
     "constituency_id": 416,
@@ -652,9 +663,9 @@
     "constituency_id": 418,
     "constituency_name": "ALIGARH",
     "state_name": "Uttar Pradesh",
-    "hhi": 33.94,
-    "total_vendors": 2459,
-    "total_funds": 11257771181.86,
+    "hhi": 33.62,
+    "total_vendors": 2478,
+    "total_funds": 11254285822.5,
     "is_monopoly": false,
     "dominant_vendor": "MS RAMESH CHANDRA PATEL",
     "dominant_vendor_share": 1.33
@@ -663,33 +674,33 @@
     "constituency_id": 498,
     "constituency_name": "NAINITAL UDHAM SINGH NAG.",
     "state_name": "Uttarakhand",
-    "hhi": 35.59,
-    "total_vendors": 5100,
-    "total_funds": 573887060.62,
+    "hhi": 35.73,
+    "total_vendors": 5029,
+    "total_funds": 570755106.62,
     "is_monopoly": false,
     "dominant_vendor": "Masti ram",
-    "dominant_vendor_share": 3.56
+    "dominant_vendor_share": 3.58
   },
   {
     "constituency_id": 503,
     "constituency_name": "ARAMBAG(SC)",
     "state_name": "West Bengal",
-    "hhi": 30.63,
-    "total_vendors": 2832,
-    "total_funds": 4954977556.51,
+    "hhi": 30.59,
+    "total_vendors": 2836,
+    "total_funds": 4945028978.15,
     "is_monopoly": false,
     "dominant_vendor": "SBM Infrasture India",
-    "dominant_vendor_share": 2.32
+    "dominant_vendor_share": 2.33
   },
   {
     "constituency_id": 547,
     "constituency_name": "Puducherry",
     "state_name": "Puducherry",
-    "hhi": 293.85,
-    "total_vendors": 59,
-    "total_funds": 99592676.0,
+    "hhi": 284.68,
+    "total_vendors": 64,
+    "total_funds": 101342196.0,
     "is_monopoly": false,
     "dominant_vendor": "THE NATIONAL SMALL INDUSTRIES CORPORATION LIMITED",
-    "dominant_vendor_share": 7.0
+    "dominant_vendor_share": 6.88
   }
 ]

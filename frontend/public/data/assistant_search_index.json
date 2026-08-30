@@ -1195,6 +1195,7 @@
       "7847",
       "84147",
       "86860",
+      "880",
       "92947",
       "92948",
       "93098",
@@ -1302,7 +1303,10 @@
       "163131",
       "164720",
       "17235",
+      "1846",
+      "1847",
       "20904",
+      "2156",
       "27280",
       "37168",
       "41984",
@@ -1452,8 +1456,6 @@
     ],
     "ARARIA": [
       "1237",
-      "1846",
-      "1847",
       "36983",
       "69780"
     ],
@@ -1553,7 +1555,8 @@
     ],
     "BHATINDA": [
       "165824",
-      "206709"
+      "206709",
+      "2149"
     ],
     "CHANDIGARH": [
       "103236",
@@ -1577,8 +1580,6 @@
       "6894",
       "72118",
       "84525",
-      "880",
-      "887",
       "91237"
     ],
     "Chhattisgarh (Rajya Sabha Nodal District)": [
@@ -1694,6 +1695,7 @@
       "176966",
       "182903",
       "184479",
+      "2161",
       "220891",
       "220893",
       "232521",
@@ -1704,6 +1706,7 @@
       "260491",
       "45780",
       "45810",
+      "887",
       "93471",
       "93485",
       "93489"
@@ -1862,10 +1865,6 @@
       "128073",
       "1769",
       "17803",
-      "2149",
-      "2155",
-      "2156",
-      "2161",
       "21902",
       "22517",
       "2254",
@@ -1975,6 +1974,7 @@
       "198370",
       "202481",
       "202483",
+      "2155",
       "84128",
       "87231"
     ],
@@ -2107,7 +2107,7 @@
       "99995"
     ]
   },
-  "generated_at": "2026-08-30T13:37:20.610198+00:00",
+  "generated_at": "2026-08-30T15:20:07.393445+00:00",
   "index_version": "1.0.0",
   "mps": {
     "a chellakumar": {
@@ -2390,13 +2390,13 @@
       "total_works": 73
     },
     "ajay tamta": {
-      "composite_integrity_score": 66.4,
+      "composite_integrity_score": 66.47,
       "const_name": "NAINITAL UDHAM SINGH NAG.",
       "mp_id": 3018414,
       "mp_name": "Ajay Tamta",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Uttarakhand",
-      "total_works": 1381
+      "total_works": 1363
     },
     "ajeet madhavrao gopchade": {
       "composite_integrity_score": 93.41,
@@ -2417,13 +2417,13 @@
       "total_works": 191
     },
     "akhilesh prasad singh": {
-      "composite_integrity_score": 100.0,
+      "composite_integrity_score": 0.0,
       "const_name": "Bihar (Rajya Sabha Nodal District)",
-      "mp_id": 3017200,
+      "mp_id": 3017382,
       "mp_name": "Shri Akhilesh Prasad Singh (2024-30)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Bihar",
-      "total_works": 56
+      "total_works": 1
     },
     "akhilesh yadav": {
       "composite_integrity_score": 97.49,
@@ -2489,13 +2489,13 @@
       "total_works": 92
     },
     "amar pal maurya": {
-      "composite_integrity_score": 98.57,
+      "composite_integrity_score": 0.0,
       "const_name": "Uttar Pradesh (Rajya Sabha Nodal District)",
-      "mp_id": 3042921,
+      "mp_id": 3017382,
       "mp_name": "Shri Amar Pal Maurya (2024-30)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Uttar Pradesh",
-      "total_works": 140
+      "total_works": 1
     },
     "amar sharadrao kale": {
       "composite_integrity_score": 98.15,
@@ -2507,13 +2507,13 @@
       "total_works": 108
     },
     "amar singh": {
-      "composite_integrity_score": 98.57,
+      "composite_integrity_score": 0.0,
       "const_name": "BHATINDA",
-      "mp_id": 3017445,
+      "mp_id": 3017489,
       "mp_name": "Shri Amar Singh",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Punjab",
-      "total_works": 350
+      "total_works": 1
     },
     "amarsing tisso": {
       "composite_integrity_score": 79.79,
@@ -2561,13 +2561,13 @@
       "total_works": 171
     },
     "amrinder singh raja warring": {
-      "composite_integrity_score": 99.19,
+      "composite_integrity_score": 75.0,
       "const_name": "BHATINDA",
-      "mp_id": 3042442,
+      "mp_id": 3019222,
       "mp_name": "AMRINDER SINGH RAJA WARRING",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Punjab",
-      "total_works": 247
+      "total_works": 4
     },
     "anand bhadauriya": {
       "composite_integrity_score": 89.83,
@@ -2651,13 +2651,13 @@
       "total_works": 262
     },
     "anil kumar yadav mandadi": {
-      "composite_integrity_score": 87.25,
+      "composite_integrity_score": 0.0,
       "const_name": "Telangana (Rajya Sabha Nodal District)",
-      "mp_id": 3044300,
+      "mp_id": 3017382,
       "mp_name": "Shri Anil Kumar Yadav Mandadi (2024-30)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Telangana",
-      "total_works": 102
+      "total_works": 2
     },
     "anil sukhdeorao bonde": {
       "composite_integrity_score": 95.16,
@@ -2786,13 +2786,13 @@
       "total_works": 860
     },
     "aparajita sarangi": {
-      "composite_integrity_score": 60.15,
+      "composite_integrity_score": 52.84,
       "const_name": "CUTTACK",
       "mp_id": 3017373,
       "mp_name": "Smt Aparajita  Sarangi",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Odisha",
-      "total_works": 527
+      "total_works": 422
     },
     "aparupa poddar": {
       "composite_integrity_score": 6.63,
@@ -2813,22 +2813,22 @@
       "total_works": 105
     },
     "arjun munda": {
-      "composite_integrity_score": 62.42,
+      "composite_integrity_score": 57.58,
       "const_name": "HAZARIBAGH",
       "mp_id": 3017397,
       "mp_name": "Shri Arjun Munda (17th Lok Sabha)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Jharkhand",
-      "total_works": 149
+      "total_works": 132
     },
     "arjun ram meghwal": {
-      "composite_integrity_score": 83.12,
+      "composite_integrity_score": 0.0,
       "const_name": "AJMER",
-      "mp_id": 3017449,
+      "mp_id": 3019222,
       "mp_name": "Shri Arjun Ram Meghwal",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Rajasthan",
-      "total_works": 77
+      "total_works": 1
     },
     "arjun ram meghwal ex": {
       "composite_integrity_score": 100.0,
@@ -2840,13 +2840,13 @@
       "total_works": 47
     },
     "arjun singh": {
-      "composite_integrity_score": 20.75,
+      "composite_integrity_score": 21.74,
       "const_name": "ARAMBAG(SC)",
       "mp_id": 3017489,
       "mp_name": "Shri Arjun Singh (17th Lok Sabha)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "West Bengal",
-      "total_works": 53
+      "total_works": 46
     },
     "arjunlal meena": {
       "composite_integrity_score": 75.63,
@@ -3218,22 +3218,22 @@
       "total_works": 220
     },
     "balashowry vallabbhaneni": {
-      "composite_integrity_score": 79.22,
+      "composite_integrity_score": 0.0,
       "const_name": "ANAKAPALLE",
-      "mp_id": 3018342,
+      "mp_id": 3017382,
       "mp_name": "Balashowry Vallabbhaneni",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Andhra Pradesh",
-      "total_works": 154
+      "total_works": 1
     },
     "balram naik porika": {
-      "composite_integrity_score": 99.43,
+      "composite_integrity_score": 75.0,
       "const_name": "ADILABAD(ST)",
-      "mp_id": 3042479,
+      "mp_id": 3019222,
       "mp_name": "BALRAM NAIK PORIKA",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Telangana",
-      "total_works": 351
+      "total_works": 4
     },
     "balubhau narayanrao dhanorkar": {
       "composite_integrity_score": 93.75,
@@ -3308,13 +3308,13 @@
       "total_works": 339
     },
     "basavaraj bommai": {
-      "composite_integrity_score": 97.52,
+      "composite_integrity_score": 0.0,
       "const_name": "BANGALORE RURAL",
-      "mp_id": 3042368,
+      "mp_id": 3017489,
       "mp_name": "BASAVARAJ BOMMAI",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Karnataka",
-      "total_works": 161
+      "total_works": 1
     },
     "bastipati nagaraju panchalingala": {
       "composite_integrity_score": 98.08,
@@ -3443,13 +3443,13 @@
       "total_works": 264
     },
     "bhaskar murlidhar bhagare": {
-      "composite_integrity_score": 99.17,
+      "composite_integrity_score": 66.67,
       "const_name": "RAVER",
-      "mp_id": 3042402,
+      "mp_id": 3017373,
       "mp_name": "BHASKAR MURLIDHAR BHAGARE",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Maharashtra",
-      "total_works": 120
+      "total_works": 3
     },
     "bhausaheb rajaram wakchaure": {
       "composite_integrity_score": 99.27,
@@ -3461,13 +3461,13 @@
       "total_works": 137
     },
     "bheemrao baswanthrao patil": {
-      "composite_integrity_score": 83.62,
+      "composite_integrity_score": 83.54,
       "const_name": "ADILABAD(ST)",
       "mp_id": 3018397,
       "mp_name": "Bheemrao Baswanthrao Patil",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Telangana",
-      "total_works": 580
+      "total_works": 577
     },
     "bhim singh": {
       "composite_integrity_score": 100.0,
@@ -3488,13 +3488,13 @@
       "total_works": 73
     },
     "bhola singh": {
-      "composite_integrity_score": 85.17,
+      "composite_integrity_score": 89.55,
       "const_name": "ALIGARH",
       "mp_id": 3019222,
       "mp_name": "Bhola Singh(17th Lok Sabha)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Uttar Pradesh",
-      "total_works": 344
+      "total_works": 268
     },
     "bhumare sandipanrao asaram": {
       "composite_integrity_score": 97.83,
@@ -3650,13 +3650,13 @@
       "total_works": 476
     },
     "byreddy shabari": {
-      "composite_integrity_score": 97.0,
+      "composite_integrity_score": 0.0,
       "const_name": "ANAKAPALLE",
-      "mp_id": 3043545,
+      "mp_id": 3017382,
       "mp_name": "DR BYREDDY SHABARI",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Andhra Pradesh",
-      "total_works": 200
+      "total_works": 1
     },
     "c lalrosanga": {
       "composite_integrity_score": 21.13,
@@ -3695,13 +3695,13 @@
       "total_works": 35
     },
     "c.m.ramesh": {
-      "composite_integrity_score": 90.43,
+      "composite_integrity_score": 0.0,
       "const_name": "ANAKAPALLE",
-      "mp_id": 3042278,
+      "mp_id": 3017382,
       "mp_name": "C.M.RAMESH",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Andhra Pradesh",
-      "total_works": 94
+      "total_works": 1
     },
     "captain brijesh chowta": {
       "composite_integrity_score": 99.51,
@@ -3733,11 +3733,11 @@
     "chandan chauhan": {
       "composite_integrity_score": 100.0,
       "const_name": "ALIGARH",
-      "mp_id": 3042498,
+      "mp_id": 3019222,
       "mp_name": "CHANDAN CHAUHAN",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Uttar Pradesh",
-      "total_works": 115
+      "total_works": 1
     },
     "chandan singh": {
       "composite_integrity_score": 85.76,
@@ -3776,13 +3776,13 @@
       "total_works": 222
     },
     "chandra sekhar bellana": {
-      "composite_integrity_score": 56.7,
+      "composite_integrity_score": 56.81,
       "const_name": "ANAKAPALLE",
       "mp_id": 3018938,
       "mp_name": "Chandra Sekhar Bellana",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Andhra Pradesh",
-      "total_works": 261
+      "total_works": 257
     },
     "chandra sekhar pemmasani": {
       "composite_integrity_score": 92.71,
@@ -3839,13 +3839,13 @@
       "total_works": 209
     },
     "charanjit singh channi": {
-      "composite_integrity_score": 98.54,
+      "composite_integrity_score": 0.0,
       "const_name": "BHATINDA",
-      "mp_id": 3042441,
+      "mp_id": 3018414,
       "mp_name": "CHARANJIT SINGH CHANNI",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Punjab",
-      "total_works": 206
+      "total_works": 1
     },
     "chaudhary mehboob ali kaiser": {
       "composite_integrity_score": 84.57,
@@ -3965,13 +3965,13 @@
       "total_works": 127
     },
     "d m kathir anand": {
-      "composite_integrity_score": 35.09,
+      "composite_integrity_score": 0.0,
       "const_name": "TIRUNELVELI",
-      "mp_id": 3019994,
-      "mp_name": "D M Kathir Anand (17th Lok Sabha)",
+      "mp_id": 3017489,
+      "mp_name": "D M Kathir Anand",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Tamil Nadu",
-      "total_works": 57
+      "total_works": 1
     },
     "d ravikumar": {
       "composite_integrity_score": 44.79,
@@ -4028,13 +4028,13 @@
       "total_works": 293
     },
     "darshan singh choudhary": {
-      "composite_integrity_score": 99.75,
+      "composite_integrity_score": 0.0,
       "const_name": "BETUL(ST)",
-      "mp_id": 3042387,
+      "mp_id": 3019222,
       "mp_name": "DARSHAN SINGH CHOUDHARY",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Madhya Pradesh",
-      "total_works": 396
+      "total_works": 1
     },
     "darshana singh": {
       "composite_integrity_score": 57.45,
@@ -4118,13 +4118,13 @@
       "total_works": 17
     },
     "devesh chandra thakur": {
-      "composite_integrity_score": 100.0,
+      "composite_integrity_score": 0.0,
       "const_name": "ARARIA",
-      "mp_id": 3042320,
+      "mp_id": 3017382,
       "mp_name": "DEVESH CHANDRA THAKUR",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Bihar",
-      "total_works": 211
+      "total_works": 2
     },
     "devesh shakya": {
       "composite_integrity_score": 100.0,
@@ -4145,13 +4145,13 @@
       "total_works": 96
     },
     "devusinh jesingbhai chauhan": {
-      "composite_integrity_score": 85.0,
+      "composite_integrity_score": 0.0,
       "const_name": "BANASKANTHA",
-      "mp_id": 3017181,
+      "mp_id": 3019222,
       "mp_name": "Devusinh Jesingbhai Chauhan",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Gujarat",
-      "total_works": 1013
+      "total_works": 1
     },
     "dhairyasheel sambhajirao mane": {
       "composite_integrity_score": 94.12,
@@ -4172,13 +4172,13 @@
       "total_works": 305
     },
     "dhananjay bhimrao mahadik": {
-      "composite_integrity_score": 98.01,
+      "composite_integrity_score": 0.0,
       "const_name": "Maharashtra (Rajya Sabha Nodal District)",
-      "mp_id": 3017263,
+      "mp_id": 3019222,
       "mp_name": "Shri Dhananjay Bhimrao Mahadik (2022-28)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Maharashtra",
-      "total_works": 151
+      "total_works": 3
     },
     "dhanorkar pratibha suresh alias balubhau": {
       "composite_integrity_score": 90.79,
@@ -4658,13 +4658,13 @@
       "total_works": 217
     },
     "gaurav gogoi": {
-      "composite_integrity_score": 89.67,
+      "composite_integrity_score": 0.0,
       "const_name": "BARPETA",
-      "mp_id": 3018953,
-      "mp_name": "Gaurav Gogoi",
+      "mp_id": 3017382,
+      "mp_name": "GAURAV GOGOI",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Assam",
-      "total_works": 213
+      "total_works": 1
     },
     "gautam gambhir": {
       "composite_integrity_score": 88.0,
@@ -4775,13 +4775,13 @@
       "total_works": 332
     },
     "gm harish balayogi": {
-      "composite_integrity_score": 89.91,
+      "composite_integrity_score": 0.0,
       "const_name": "ANAKAPALLE",
-      "mp_id": 3042277,
+      "mp_id": 3019222,
       "mp_name": "GM Harish Balayogi",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Andhra Pradesh",
-      "total_works": 109
+      "total_works": 1
     },
     "godam nagesh": {
       "composite_integrity_score": 99.44,
@@ -4847,13 +4847,13 @@
       "total_works": 223
     },
     "govindbhai laljibhai dholakia": {
-      "composite_integrity_score": 72.22,
+      "composite_integrity_score": 0.0,
       "const_name": "Gujarat (Rajya Sabha Nodal District)",
-      "mp_id": 3042561,
+      "mp_id": 3017382,
       "mp_name": "Shri Govindbhai Laljibhai Dholakia (2024-30)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Gujarat",
-      "total_works": 126
+      "total_works": 1
     },
     "gowdar mallikarjunappa siddeshwara": {
       "composite_integrity_score": 11.11,
@@ -4874,13 +4874,13 @@
       "total_works": 148
     },
     "gulam ali": {
-      "composite_integrity_score": 96.17,
+      "composite_integrity_score": 50.0,
       "const_name": "Jammu And Kashmir (Rajya Sabha Nodal District)",
-      "mp_id": 3019254,
+      "mp_id": 3018365,
       "mp_name": "Shri Gulam Ali (2022-28)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Jammu And Kashmir",
-      "total_works": 183
+      "total_works": 2
     },
     "guman singh damor": {
       "composite_integrity_score": 67.65,
@@ -4892,13 +4892,13 @@
       "total_works": 102
     },
     "gumma thanuja rani": {
-      "composite_integrity_score": 94.66,
+      "composite_integrity_score": 0.0,
       "const_name": "ANAKAPALLE",
-      "mp_id": 3042280,
+      "mp_id": 3018414,
       "mp_name": "Gumma Thanuja Rani",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Andhra Pradesh",
-      "total_works": 131
+      "total_works": 1
     },
     "gurjeet singh aujla": {
       "composite_integrity_score": 98.93,
@@ -4930,11 +4930,11 @@
     "h.d. kumaraswamy": {
       "composite_integrity_score": 100.0,
       "const_name": "BANGALORE RURAL",
-      "mp_id": 3042371,
+      "mp_id": 3017397,
       "mp_name": "H.D. KUMARASWAMY",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Karnataka",
-      "total_works": 146
+      "total_works": 3
     },
     "haji fazlur rehman": {
       "composite_integrity_score": 57.33,
@@ -5054,22 +5054,22 @@
       "total_works": 6
     },
     "harsimrat kaur badal": {
-      "composite_integrity_score": 96.29,
+      "composite_integrity_score": 40.0,
       "const_name": "BHATINDA",
-      "mp_id": 3019127,
+      "mp_id": 3018414,
       "mp_name": "Smt Harsimrat Kaur Badal",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Punjab",
-      "total_works": 350
+      "total_works": 5
     },
     "hasmukh bhai soma bhai patel": {
-      "composite_integrity_score": 79.61,
+      "composite_integrity_score": 0.0,
       "const_name": "BANASKANTHA",
-      "mp_id": 3019002,
+      "mp_id": 3017489,
       "mp_name": "Hasmukh Bhai Soma Bhai Patel",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Gujarat",
-      "total_works": 358
+      "total_works": 1
     },
     "hasnain masoodi": {
       "composite_integrity_score": 46.89,
@@ -5225,13 +5225,13 @@
       "total_works": 123
     },
     "jagadish chandra barma basunia": {
-      "composite_integrity_score": 90.62,
+      "composite_integrity_score": 0.0,
       "const_name": "ARAMBAG(SC)",
-      "mp_id": 3042540,
+      "mp_id": 3017382,
       "mp_name": "JAGADISH CHANDRA BARMA BASUNIA",
       "origin": "mp_scorecard_summary.json",
       "state_name": "West Bengal",
-      "total_works": 96
+      "total_works": 1
     },
     "jagadish shettar": {
       "composite_integrity_score": 100.0,
@@ -5351,13 +5351,13 @@
       "total_works": 347
     },
     "jaskaur meena": {
-      "composite_integrity_score": 45.37,
+      "composite_integrity_score": 45.59,
       "const_name": "AJMER",
       "mp_id": 3017452,
       "mp_name": "Smt Jaskaur Meena (17th Lok Sabha)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Rajasthan",
-      "total_works": 205
+      "total_works": 204
     },
     "jaswantsinh sumanbhai bhabhor": {
       "composite_integrity_score": 93.81,
@@ -5432,13 +5432,13 @@
       "total_works": 119
     },
     "jitan ram manjhi": {
-      "composite_integrity_score": 95.0,
+      "composite_integrity_score": 0.0,
       "const_name": "ARARIA",
-      "mp_id": 3042309,
+      "mp_id": 3018357,
       "mp_name": "JITAN RAM MANJHI",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Bihar",
-      "total_works": 260
+      "total_works": 1
     },
     "jitendra kumar dohare": {
       "composite_integrity_score": 99.81,
@@ -5756,13 +5756,13 @@
       "total_works": 63
     },
     "kalpana saini": {
-      "composite_integrity_score": 47.34,
+      "composite_integrity_score": 0.0,
       "const_name": "Uttarakhand (Rajya Sabha Nodal District)",
-      "mp_id": 3017346,
+      "mp_id": 3017373,
       "mp_name": "Dr. Kalpana Saini (2022-28)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Uttarakhand",
-      "total_works": 188
+      "total_works": 1
     },
     "kalyan banerjee": {
       "composite_integrity_score": 79.65,
@@ -6170,13 +6170,13 @@
       "total_works": 164
     },
     "krishan pal gurjar": {
-      "composite_integrity_score": 68.33,
+      "composite_integrity_score": 0.0,
       "const_name": "SONEPAT",
-      "mp_id": 3019007,
+      "mp_id": 3017489,
       "mp_name": "Krishan Pal Gurjar",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Haryana",
-      "total_works": 240
+      "total_works": 1
     },
     "krishna devi shivshanker patel": {
       "composite_integrity_score": 100.0,
@@ -6521,13 +6521,13 @@
       "total_works": 132
     },
     "maddila gurumoorthy": {
-      "composite_integrity_score": 90.67,
+      "composite_integrity_score": 0.0,
       "const_name": "ANAKAPALLE",
-      "mp_id": 3018946,
+      "mp_id": 3019222,
       "mp_name": "Maddila Gurumoorthy",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Andhra Pradesh",
-      "total_works": 386
+      "total_works": 1
     },
     "madhavaneni raghunandan rao": {
       "composite_integrity_score": 96.7,
@@ -6692,13 +6692,13 @@
       "total_works": 320
     },
     "malvinder singh kang": {
-      "composite_integrity_score": 97.3,
+      "composite_integrity_score": 0.0,
       "const_name": "BHATINDA",
-      "mp_id": 3042796,
+      "mp_id": 3017382,
       "mp_name": "MALVINDER SINGH KANG",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Punjab",
-      "total_works": 370
+      "total_works": 1
     },
     "mamata thakur": {
       "composite_integrity_score": 93.33,
@@ -6872,13 +6872,13 @@
       "total_works": 23
     },
     "mansoor ali khan": {
-      "composite_integrity_score": 100.0,
+      "composite_integrity_score": 0.0,
       "const_name": "Karnataka (Rajya Sabha Nodal District)",
-      "mp_id": 3065897,
+      "mp_id": 3018938,
       "mp_name": "Shri Mansoor Ali Khan (2026-32)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Karnataka",
-      "total_works": 2
+      "total_works": 1
     },
     "mansukh mandaviya": {
       "composite_integrity_score": 94.5,
@@ -6962,13 +6962,13 @@
       "total_works": 250
     },
     "medha vishram kulkarni": {
-      "composite_integrity_score": 90.57,
+      "composite_integrity_score": 0.0,
       "const_name": "Maharashtra (Rajya Sabha Nodal District)",
-      "mp_id": 3042556,
+      "mp_id": 3017373,
       "mp_name": "Dr. Medha Vishram Kulkarni (2024-30)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Maharashtra",
-      "total_works": 106
+      "total_works": 1
     },
     "meenakshi jain": {
       "composite_integrity_score": 80.0,
@@ -6998,13 +6998,13 @@
       "total_works": 127
     },
     "midhun reddy": {
-      "composite_integrity_score": 96.55,
+      "composite_integrity_score": 0.0,
       "const_name": "ANAKAPALLE",
-      "mp_id": 3018941,
+      "mp_id": 3018365,
       "mp_name": "Midhun Reddy",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Andhra Pradesh",
-      "total_works": 753
+      "total_works": 1
     },
     "milind murli deora": {
       "composite_integrity_score": 80.0,
@@ -7232,22 +7232,22 @@
       "total_works": 220
     },
     "mukul wasnik": {
-      "composite_integrity_score": 80.35,
+      "composite_integrity_score": 0.0,
       "const_name": "Rajasthan (Rajya Sabha Nodal District)",
-      "mp_id": 3017288,
+      "mp_id": 3017382,
       "mp_name": "Shri Mukul Wasnik (2022-28)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Rajasthan",
-      "total_works": 173
+      "total_works": 1
     },
     "murari lal meena": {
       "composite_integrity_score": 100.0,
       "const_name": "AJMER",
-      "mp_id": 3042448,
+      "mp_id": 3018938,
       "mp_name": "MURARI LAL MEENA",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Rajasthan",
-      "total_works": 114
+      "total_works": 1
     },
     "murasoli s": {
       "composite_integrity_score": 84.09,
@@ -7628,13 +7628,13 @@
       "total_works": 196
     },
     "om birla": {
-      "composite_integrity_score": 63.41,
+      "composite_integrity_score": 0.0,
       "const_name": "AJMER",
-      "mp_id": 3019138,
-      "mp_name": "Om Birla(17th Lok Sabha)",
+      "mp_id": 3017382,
+      "mp_name": "Om Birla",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Rajasthan",
-      "total_works": 317
+      "total_works": 1
     },
     "omprakash bhupalsinh alias pawan rajenimbalkar": {
       "composite_integrity_score": 96.05,
@@ -7709,13 +7709,13 @@
       "total_works": 35
     },
     "pabitra margherita": {
-      "composite_integrity_score": 91.87,
+      "composite_integrity_score": 0.0,
       "const_name": "Assam (Rajya Sabha Nodal District)",
-      "mp_id": 3017222,
+      "mp_id": 3017382,
       "mp_name": "Shri Pabitra Margherita (2022-28)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Assam",
-      "total_works": 209
+      "total_works": 1
     },
     "paka venkata satyanarayana": {
       "composite_integrity_score": 61.54,
@@ -8033,13 +8033,13 @@
       "total_works": 353
     },
     "praful patel": {
-      "composite_integrity_score": 98.23,
+      "composite_integrity_score": 75.0,
       "const_name": "Maharashtra (Rajya Sabha Nodal District)",
-      "mp_id": 3042564,
+      "mp_id": 3019222,
       "mp_name": "Shri Praful Patel (2024-30)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Maharashtra",
-      "total_works": 113
+      "total_works": 4
     },
     "prahlad singh patel": {
       "composite_integrity_score": 85.27,
@@ -8078,13 +8078,13 @@
       "total_works": 238
     },
     "pramod tiwari": {
-      "composite_integrity_score": 81.4,
+      "composite_integrity_score": 0.0,
       "const_name": "Rajasthan (Rajya Sabha Nodal District)",
-      "mp_id": 3017289,
+      "mp_id": 3018414,
       "mp_name": "Shri Pramod Tiwari (2022-28)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Rajasthan",
-      "total_works": 129
+      "total_works": 1
     },
     "praniti sushilkumar shinde": {
       "composite_integrity_score": 100.0,
@@ -8135,10 +8135,10 @@
       "composite_integrity_score": 100.0,
       "const_name": "RAVER",
       "mp_id": 3019090,
-      "mp_name": "Prataprao Jadhav(17th Lok Sabha)",
+      "mp_name": "Prataprao Jadhav",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Maharashtra",
-      "total_works": 175
+      "total_works": 68
     },
     "prathap simha": {
       "composite_integrity_score": 91.07,
@@ -8681,13 +8681,13 @@
       "total_works": 58
     },
     "rajiv ranjan singh": {
-      "composite_integrity_score": 74.56,
+      "composite_integrity_score": 74.36,
       "const_name": "ARARIA",
       "mp_id": 3018357,
       "mp_name": "Rajiv Ranjan (Lalan) Singh",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Bihar",
-      "total_works": 342
+      "total_works": 312
     },
     "rajkumar chahar": {
       "composite_integrity_score": 10.87,
@@ -8888,13 +8888,13 @@
       "total_works": 314
     },
     "rambhual nishad": {
-      "composite_integrity_score": 82.35,
+      "composite_integrity_score": 70.0,
       "const_name": "ALIGARH",
-      "mp_id": 3042530,
+      "mp_id": 3018357,
       "mp_name": "RAMBHUAL NISHAD",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Uttar Pradesh",
-      "total_works": 51
+      "total_works": 10
     },
     "ramcharan bohra": {
       "composite_integrity_score": 36.23,
@@ -8942,13 +8942,13 @@
       "total_works": 60
     },
     "ramesh chandappa jigajinagi": {
-      "composite_integrity_score": 93.3,
+      "composite_integrity_score": 0.0,
       "const_name": "BANGALORE RURAL",
-      "mp_id": 3019039,
-      "mp_name": "Ramesh Chandappa Jigajinagi(17th Lok Sabha)",
+      "mp_id": 3019222,
+      "mp_name": "Ramesh Chandappa Jigajinagi",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Karnataka",
-      "total_works": 418
+      "total_works": 2
     },
     "ramesh chander kaushik": {
       "composite_integrity_score": 90.98,
@@ -9005,13 +9005,13 @@
       "total_works": 64
     },
     "ramprit mandal": {
-      "composite_integrity_score": 99.58,
+      "composite_integrity_score": 99.54,
       "const_name": "ARARIA",
       "mp_id": 3018360,
       "mp_name": "Ramprit Mandal",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Bihar",
-      "total_works": 237
+      "total_works": 219
     },
     "ramulu pothuganti": {
       "composite_integrity_score": 93.26,
@@ -9041,13 +9041,13 @@
       "total_works": 419
     },
     "randeep singh surjewala": {
-      "composite_integrity_score": 85.62,
+      "composite_integrity_score": 0.0,
       "const_name": "Rajasthan (Rajya Sabha Nodal District)",
-      "mp_id": 3017290,
+      "mp_id": 3018365,
       "mp_name": "Shri Randeep Singh Surjewala (2022-28)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Rajasthan",
-      "total_works": 146
+      "total_works": 1
     },
     "rani sri kumar": {
       "composite_integrity_score": 99.38,
@@ -9077,13 +9077,13 @@
       "total_works": 109
     },
     "ranjeet ranjan": {
-      "composite_integrity_score": 89.32,
+      "composite_integrity_score": 0.0,
       "const_name": "Chhattisgarh (Rajya Sabha Nodal District)",
-      "mp_id": 3017501,
+      "mp_id": 3017373,
       "mp_name": "Smt. Ranjeet Ranjan (2022-28)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Chhattisgarh",
-      "total_works": 281
+      "total_works": 1
     },
     "ranjeeta koli": {
       "composite_integrity_score": 87.62,
@@ -9113,13 +9113,13 @@
       "total_works": 149
     },
     "rao inderjit singh": {
-      "composite_integrity_score": 48.52,
+      "composite_integrity_score": 33.33,
       "const_name": "SONEPAT",
-      "mp_id": 3018368,
+      "mp_id": 3017373,
       "mp_name": "Rao Inderjit Singh",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Haryana",
-      "total_works": 169
+      "total_works": 3
     },
     "rao rajendra singh": {
       "composite_integrity_score": 98.04,
@@ -9293,13 +9293,13 @@
       "total_works": 183
     },
     "robert bruce c": {
-      "composite_integrity_score": 99.08,
+      "composite_integrity_score": 0.0,
       "const_name": "TIRUNELVELI",
-      "mp_id": 3042474,
+      "mp_id": 3018357,
       "mp_name": "ROBERT BRUCE C",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Tamil Nadu",
-      "total_works": 109
+      "total_works": 1
     },
     "rodmal nagar": {
       "composite_integrity_score": 61.46,
@@ -9347,13 +9347,13 @@
       "total_works": 166
     },
     "ryaga krishnaiah": {
-      "composite_integrity_score": 58.82,
+      "composite_integrity_score": 0.0,
       "const_name": "Andhra Pradesh (Rajya Sabha Nodal District)",
-      "mp_id": 3050536,
+      "mp_id": 3018365,
       "mp_name": "Shri Ryaga Krishnaiah (2024-28)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Andhra Pradesh",
-      "total_works": 68
+      "total_works": 2
     },
     "s gnanathiraviam": {
       "composite_integrity_score": 98.0,
@@ -9743,13 +9743,13 @@
       "total_works": 239
     },
     "sanjay kumar bandi": {
-      "composite_integrity_score": 83.83,
+      "composite_integrity_score": 0.0,
       "const_name": "ADILABAD(ST)",
-      "mp_id": 3019181,
-      "mp_name": "Sanjay Kumar Bandi(17th Lok Sabha)",
+      "mp_id": 3019222,
+      "mp_name": "Sanjay Kumar Bandi",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Telangana",
-      "total_works": 532
+      "total_works": 1
     },
     "sanjay kumar jha": {
       "composite_integrity_score": 100.0,
@@ -9806,13 +9806,13 @@
       "total_works": 103
     },
     "sanjay singh": {
-      "composite_integrity_score": 95.96,
+      "composite_integrity_score": 0.0,
       "const_name": "Delhi (Rajya Sabha Nodal District)",
-      "mp_id": 3020005,
+      "mp_id": 3017489,
       "mp_name": "Shri Sanjay Singh (2024-30)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Delhi",
-      "total_works": 99
+      "total_works": 1
     },
     "sanjay uttamrao deshmukh": {
       "composite_integrity_score": 99.19,
@@ -9851,13 +9851,13 @@
       "total_works": 362
     },
     "sanjna jatav": {
-      "composite_integrity_score": 97.11,
+      "composite_integrity_score": 0.0,
       "const_name": "AJMER",
-      "mp_id": 3042446,
+      "mp_id": 3018365,
       "mp_name": "SANJNA JATAV",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Rajasthan",
-      "total_works": 242
+      "total_works": 1
     },
     "sant balbir singh": {
       "composite_integrity_score": 84.91,
@@ -9887,13 +9887,13 @@
       "total_works": 75
     },
     "santosh pandey": {
-      "composite_integrity_score": 78.43,
+      "composite_integrity_score": 81.06,
       "const_name": "RAIGARH(ST)",
       "mp_id": 3018365,
       "mp_name": "Santosh Pandey",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Chhattisgarh",
-      "total_works": 343
+      "total_works": 322
     },
     "santrupt misra": {
       "composite_integrity_score": 100.0,
@@ -9905,13 +9905,13 @@
       "total_works": 11
     },
     "saptagiri sankar ulaka": {
-      "composite_integrity_score": 84.69,
+      "composite_integrity_score": 84.67,
       "const_name": "CUTTACK",
       "mp_id": 3018390,
       "mp_name": "Saptagiri Sankar Ulaka",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Odisha",
-      "total_works": 797
+      "total_works": 796
     },
     "sarabjeet singh khalsa": {
       "composite_integrity_score": 98.6,
@@ -9932,13 +9932,13 @@
       "total_works": 87
     },
     "sarfraz ahmad": {
-      "composite_integrity_score": 96.55,
+      "composite_integrity_score": 0.0,
       "const_name": "Jharkhand (Rajya Sabha Nodal District)",
-      "mp_id": 3045173,
+      "mp_id": 3019222,
       "mp_name": "Dr. Sarfraz Ahmad (2024-30)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Jharkhand",
-      "total_works": 290
+      "total_works": 4
     },
     "sarmistha sethi": {
       "composite_integrity_score": 94.66,
@@ -9998,10 +9998,10 @@
       "composite_integrity_score": 100.0,
       "const_name": "ALIGARH",
       "mp_id": 3017466,
-      "mp_name": "Shri Satish Kumar Gautam (17th Lok Sabha)",
+      "mp_name": "Shri Satish Kumar Gautam",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Uttar Pradesh",
-      "total_works": 67
+      "total_works": 76
     },
     "satnam singh sandhu": {
       "composite_integrity_score": 95.83,
@@ -10157,13 +10157,13 @@
       "total_works": 307
     },
     "shankar lalwani": {
-      "composite_integrity_score": 80.2,
+      "composite_integrity_score": 80.0,
       "const_name": "BETUL(ST)",
       "mp_id": 3019065,
       "mp_name": "Shankar Lalwani(17th Lok Sabha)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Madhya Pradesh",
-      "total_works": 202
+      "total_works": 200
     },
     "shantanu thakur": {
       "composite_integrity_score": 31.71,
@@ -10346,13 +10346,13 @@
       "total_works": 35
     },
     "sikander kumar": {
-      "composite_integrity_score": 68.88,
+      "composite_integrity_score": 50.0,
       "const_name": "Himachal Pradesh (Rajya Sabha Nodal District)",
-      "mp_id": 3017229,
+      "mp_id": 3018414,
       "mp_name": "Dr. Sikander Kumar (2022-28)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Himachal Pradesh",
-      "total_works": 392
+      "total_works": 2
     },
     "sisir kumar adhikari": {
       "composite_integrity_score": 62.35,
@@ -10373,13 +10373,13 @@
       "total_works": 29
     },
     "sk nurul islam": {
-      "composite_integrity_score": 96.77,
+      "composite_integrity_score": 0.0,
       "const_name": "ARAMBAG(SC)",
-      "mp_id": 3042539,
+      "mp_id": 3017373,
       "mp_name": "SK NURUL ISLAM",
       "origin": "mp_scorecard_summary.json",
       "state_name": "West Bengal",
-      "total_works": 31
+      "total_works": 1
     },
     "smita uday wagh": {
       "composite_integrity_score": 80.0,
@@ -10868,13 +10868,13 @@
       "total_works": 265
     },
     "swami sachchidanandhari sakshi ji maharaj": {
-      "composite_integrity_score": 20.48,
+      "composite_integrity_score": 0.0,
       "const_name": "ALIGARH",
-      "mp_id": 3018402,
+      "mp_id": 3017382,
       "mp_name": "Swami Sachchidanandhari Sakshi ji Maharaj",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Uttar Pradesh",
-      "total_works": 83
+      "total_works": 1
     },
     "syed imtiaz jaleel": {
       "composite_integrity_score": 100.0,
@@ -10949,13 +10949,13 @@
       "total_works": 33
     },
     "tapir gao": {
-      "composite_integrity_score": 88.72,
+      "composite_integrity_score": 0.0,
       "const_name": "ARUNACHAL WEST",
-      "mp_id": 3017378,
-      "mp_name": "Shri Tapir Gao (17th Lok Sabha)",
+      "mp_id": 3018365,
+      "mp_name": "Shri Tapir Gao",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Arunachal Pradesh",
-      "total_works": 133
+      "total_works": 2
     },
     "tariq anwar": {
       "composite_integrity_score": 100.0,
@@ -11210,22 +11210,22 @@
       "total_works": 195
     },
     "vaithilingam ve": {
-      "composite_integrity_score": 95.38,
+      "composite_integrity_score": 80.0,
       "const_name": "Puducherry",
-      "mp_id": 3019122,
-      "mp_name": "Vaithilingam Ve(17th Lok Sabha)",
+      "mp_id": 3018365,
+      "mp_name": "Vaithilingam Ve",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Puducherry",
-      "total_works": 65
+      "total_works": 5
     },
     "vamsi krishna gaddam": {
-      "composite_integrity_score": 92.96,
+      "composite_integrity_score": 0.0,
       "const_name": "ADILABAD(ST)",
-      "mp_id": 3045227,
+      "mp_id": 3018365,
       "mp_name": "VAMSI KRISHNA GADDAM",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Telangana",
-      "total_works": 71
+      "total_works": 1
     },
     "vanga geetha viswanath": {
       "composite_integrity_score": 86.82,
@@ -11246,13 +11246,13 @@
       "total_works": 157
     },
     "veena devi": {
-      "composite_integrity_score": 19.74,
+      "composite_integrity_score": 27.27,
       "const_name": "ARARIA",
       "mp_id": 3017382,
       "mp_name": "Smt Veena Devi (17th Lok Sabha)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Bihar",
-      "total_works": 76
+      "total_works": 55
     },
     "vellalath kochukrishnan nair sreekandan": {
       "composite_integrity_score": 92.42,
@@ -11336,13 +11336,13 @@
       "total_works": 182
     },
     "vikramjit singh sahney": {
-      "composite_integrity_score": 52.54,
+      "composite_integrity_score": 0.0,
       "const_name": "Punjab (Rajya Sabha Nodal District)",
-      "mp_id": 3019259,
+      "mp_id": 3019222,
       "mp_name": "Dr. Vikramjit Singh Sahney (2022-28)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Punjab",
-      "total_works": 59
+      "total_works": 1
     },
     "vinayak bhaurao raut": {
       "composite_integrity_score": 93.58,
@@ -11444,13 +11444,13 @@
       "total_works": 143
     },
     "vivek k. tankha": {
-      "composite_integrity_score": 89.68,
+      "composite_integrity_score": 66.67,
       "const_name": "Madhya Pradesh (Rajya Sabha Nodal District)",
-      "mp_id": 3017257,
+      "mp_id": 3019222,
       "mp_name": "Shri Vivek K. Tankha (2022-28)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Madhya Pradesh",
-      "total_works": 504
+      "total_works": 3
     },
     "vivek narayan shejwalkar": {
       "composite_integrity_score": 73.88,
@@ -11498,13 +11498,13 @@
       "total_works": 182
     },
     "yerram venkata subba reddy": {
-      "composite_integrity_score": 91.1,
+      "composite_integrity_score": 0.0,
       "const_name": "Andhra Pradesh (Rajya Sabha Nodal District)",
-      "mp_id": 3044299,
+      "mp_id": 3018365,
       "mp_name": "Shri Yerram Venkata Subba Reddy (2024-30)",
       "origin": "mp_scorecard_summary.json",
       "state_name": "Andhra Pradesh",
-      "total_works": 146
+      "total_works": 3
     },
     "yogendra chandoliya": {
       "composite_integrity_score": 100.0,
@@ -12564,7 +12564,10 @@
       "165125",
       "165126",
       "17235",
+      "1846",
+      "1847",
       "20904",
+      "2156",
       "27280",
       "37168",
       "41984",
@@ -12631,8 +12634,6 @@
     ],
     "Bihar": [
       "1237",
-      "1846",
-      "1847",
       "36983",
       "69780"
     ],
@@ -12778,6 +12779,7 @@
       "184479",
       "191198",
       "196710",
+      "2161",
       "21809",
       "21810",
       "220891",
@@ -12812,6 +12814,7 @@
       "84631",
       "84632",
       "84634",
+      "887",
       "90195",
       "90202",
       "93471",
@@ -13101,8 +13104,6 @@
       "6894",
       "72118",
       "84525",
-      "880",
-      "887",
       "91237"
     ],
     "Punjab": [
@@ -13114,6 +13115,7 @@
       "165824",
       "19897",
       "206709",
+      "2149",
       "92593"
     ],
     "Rajasthan": [
@@ -13321,6 +13323,7 @@
       "202483",
       "209242",
       "21207",
+      "2155",
       "30195",
       "33605",
       "58596",
@@ -13330,6 +13333,7 @@
       "84147",
       "86860",
       "87231",
+      "880",
       "92947",
       "92948",
       "93098",
@@ -13553,10 +13557,6 @@
       "178553",
       "178555",
       "186818",
-      "2149",
-      "2155",
-      "2156",
-      "2161",
       "21902",
       "22517",
       "2254",
@@ -21507,13 +21507,13 @@
     "1846": {
       "agency_risk_tier": "MODERATE",
       "category": "Normal/Others",
-      "constituency": "ARARIA",
+      "constituency": "ANAKAPALLE",
       "is_anomaly": true,
       "is_high_risk": true,
       "mp_id": 3017382,
-      "mp_name": "Smt Veena Devi (17th Lok Sabha)",
+      "mp_name": "Balashowry Vallabbhaneni",
       "origin": "unified_project_evaluations.json",
-      "state": "Bihar",
+      "state": "Andhra Pradesh",
       "title": "Installation of CCTV Camera in different blocks at 38 locations that comes under vaishali loksabha constituency"
     },
     "184631": {
@@ -21527,13 +21527,13 @@
     "1847": {
       "agency_risk_tier": "MODERATE",
       "category": "Normal/Others",
-      "constituency": "ARARIA",
+      "constituency": "ANAKAPALLE",
       "is_anomaly": true,
       "is_high_risk": true,
       "mp_id": 3017382,
-      "mp_name": "Smt Veena Devi (17th Lok Sabha)",
+      "mp_name": "DR BYREDDY SHABARI",
       "origin": "unified_project_evaluations.json",
-      "state": "Bihar",
+      "state": "Andhra Pradesh",
       "title": "Installation of CCTV Camera at 31 locations in different blocks and computer at 13 police stations for monitoring camera"
     },
     "184783": {
@@ -22759,13 +22759,13 @@
     "2149": {
       "agency_risk_tier": "MODERATE",
       "category": "Normal/Others",
-      "constituency": "NAINITAL UDHAM SINGH NAG.",
+      "constituency": "BHATINDA",
       "is_anomaly": true,
       "is_high_risk": true,
       "mp_id": 3018414,
-      "mp_name": "Ajay Tamta",
+      "mp_name": "Smt Harsimrat Kaur Badal",
       "origin": "unified_project_evaluations.json",
-      "state": "Uttarakhand",
+      "state": "Punjab",
       "title": "??? ?? ???? ?? ?????? ????? ??????? - 200 ????"
     },
     "215265": {
@@ -22779,13 +22779,13 @@
     "2155": {
       "agency_risk_tier": "MODERATE",
       "category": "Normal/Others",
-      "constituency": "NAINITAL UDHAM SINGH NAG.",
+      "constituency": "Rajasthan (Rajya Sabha Nodal District)",
       "is_anomaly": true,
       "is_high_risk": true,
       "mp_id": 3018414,
-      "mp_name": "Ajay Tamta",
+      "mp_name": "Shri Pramod Tiwari (2022-28)",
       "origin": "unified_project_evaluations.json",
-      "state": "Uttarakhand",
+      "state": "Rajasthan",
       "title": "????????? ??????????? ????? ??? ?????? ?????? ?? ????? ?? ?? ?????? ????? ? ??????? ????? ??????? "
     },
     "215505": {
@@ -22799,25 +22799,25 @@
     "2156": {
       "agency_risk_tier": "MODERATE",
       "category": "Normal/Others",
-      "constituency": "NAINITAL UDHAM SINGH NAG.",
+      "constituency": "ANAKAPALLE",
       "is_anomaly": false,
       "is_high_risk": false,
       "mp_id": 3018414,
-      "mp_name": "Ajay Tamta",
+      "mp_name": "Midhun Reddy",
       "origin": "unified_project_evaluations.json",
-      "state": "Uttarakhand",
+      "state": "Andhra Pradesh",
       "title": "??? ??? ????? ??????? "
     },
     "2161": {
       "agency_risk_tier": "MODERATE",
       "category": "Normal/Others",
-      "constituency": "NAINITAL UDHAM SINGH NAG.",
+      "constituency": "Himachal Pradesh (Rajya Sabha Nodal District)",
       "is_anomaly": true,
       "is_high_risk": true,
       "mp_id": 3018414,
-      "mp_name": "Ajay Tamta",
+      "mp_name": "Dr. Sikander Kumar (2022-28)",
       "origin": "unified_project_evaluations.json",
-      "state": "Uttarakhand",
+      "state": "Himachal Pradesh",
       "title": "????? ??? ????? ??? ????? ??? ?????? ????? ??????? "
     },
     "216110": {
@@ -31059,13 +31059,13 @@
     "880": {
       "agency_risk_tier": "HIGH",
       "category": "Normal/Others",
-      "constituency": "CUTTACK",
+      "constituency": "AJMER",
       "is_anomaly": false,
       "is_high_risk": false,
       "mp_id": 3017373,
-      "mp_name": "Smt Aparajita  Sarangi",
+      "mp_name": "Shri Arjun Ram Meghwal",
       "origin": "unified_project_evaluations.json",
-      "state": "Odisha",
+      "state": "Rajasthan",
       "title": "Ward No. 5, Installation of Drinking Water System near Mangala temple of Jatni"
     },
     "88201": {
@@ -31091,13 +31091,13 @@
     "887": {
       "agency_risk_tier": "HIGH",
       "category": "Normal/Others",
-      "constituency": "CUTTACK",
+      "constituency": "Himachal Pradesh (Rajya Sabha Nodal District)",
       "is_anomaly": false,
       "is_high_risk": false,
       "mp_id": 3017373,
-      "mp_name": "Smt Aparajita  Sarangi",
+      "mp_name": "Dr. Sikander Kumar (2022-28)",
       "origin": "unified_project_evaluations.json",
-      "state": "Odisha",
+      "state": "Himachal Pradesh",
       "title": "Ward No. 6, Installation of Drinking Water System near Mangala temple of Jatni"
     },
     "88859": {
