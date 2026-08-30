@@ -388,31 +388,43 @@ class DataRepository:
         category: Optional[str] = None,
         limit: int = 5,
     ) -> List[Dict]:
-        """Get high-risk works with optional filters."""
-        evals = self._cache.get("unified_evaluations", [])
+        """Get high-risk works with optional filters across all anomaly and risk feeds."""
+        candidates = []
+        candidates.extend(self._cache.get("unified_evaluations", []))
+        candidates.extend(self._cache.get("finguard_anomalies", []))
+        candidates.extend(self._cache.get("cost_delay_anomalies", []))
 
-        # Filter
+        # Filter and deduplicate
+        seen_ids = set()
         filtered = []
-        for rec in evals:
-            if state and rec.get("state_name", "").lower() != state.lower():
+        for rec in candidates:
+            wid = str(rec.get("work_id", rec.get("id", "")))
+            if not wid or wid in seen_ids:
                 continue
-            if constituency and rec.get("const_name", "").lower() != constituency.lower():
+
+            if state and (rec.get("state_name") or rec.get("state", "")).lower() != state.lower():
+                continue
+            if constituency and (rec.get("const_name") or rec.get("constituency", "")).lower() != constituency.lower():
                 continue
             if mp_name:
-                rec_mp = normalize_name(rec.get("mp_name", ""))
+                rec_mp = normalize_name(rec.get("mp_name", rec.get("mp", "")))
                 if normalize_name(mp_name) not in rec_mp and rec_mp not in normalize_name(mp_name):
                     continue
-            if category and category.lower() not in rec.get("work_category", "").lower():
+            if category and category.lower() not in (rec.get("work_category") or rec.get("category", "")).lower():
                 continue
+
+            seen_ids.add(wid)
             filtered.append(rec)
 
         # Sort by risk indicators
         def risk_sort_key(r):
+            final_risk = r.get("final_risk_score") or 0
+            sev = r.get("severity_score") or 0
             cost_z = abs(r.get("cost_z_score") or 0)
             delay_z = abs(r.get("delay_z_score") or 0)
             agency = r.get("agency_risk_score_x") or 0
             is_high = 100 if r.get("is_high_risk") else 0
-            return -(cost_z + delay_z + agency + is_high)
+            return -(final_risk * 2 + sev * 1.5 + cost_z * 10 + delay_z * 10 + agency + is_high)
 
         filtered.sort(key=risk_sort_key)
         return filtered[:min(limit, 25)]

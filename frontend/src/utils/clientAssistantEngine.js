@@ -357,40 +357,102 @@ export async function processQueryClientSide(message, context = {}) {
     };
   }
 
-  // 10. HIGH RISK PROJECTS (DEFAULT / BIHAR / STATE)
-  const stateMatch = lower.includes('bihar') ? 'Bihar' : (lower.includes('uttar pradesh') || lower.includes('up') ? 'Uttar Pradesh' : (lower.includes('madhya pradesh') || lower.includes('mp') ? 'Madhya Pradesh' : null));
-  let highRiskWorks = (upe || []).filter(r => r.is_high_risk);
-  if (stateMatch) {
-    highRiskWorks = highRiskWorks.filter(r => (r.state_name || '').toLowerCase() === stateMatch.toLowerCase());
-  }
-  if (highRiskWorks.length === 0) {
-    highRiskWorks = (upe || []).slice(0, 5);
-  } else {
-    highRiskWorks = highRiskWorks.slice(0, 5);
+  // 10. HIGH RISK PROJECTS (ANY STATE OR GENERAL)
+  const allStates = [
+    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat', 
+    'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 
+    'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 
+    'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Delhi', 
+    'Jammu And Kashmir', 'Ladakh', 'Puducherry', 'Chandigarh'
+  ];
+  
+  let detectedState = allStates.find(s => lower.includes(s.toLowerCase()));
+  if (!detectedState) {
+    if (/\bup\b/i.test(lower)) detectedState = 'Uttar Pradesh';
+    else if (/\bmp\b/i.test(lower)) detectedState = 'Madhya Pradesh';
   }
 
-  const lines = [`Found **${highRiskWorks.length}** high-risk project(s)${stateMatch ? ` in ${stateMatch}` : ''}:`];
-  const ev = [];
-  highRiskWorks.forEach((r, i) => {
-    const wid = r.work_id;
-    const desc = (r.work_description || r.activity_name || 'MPLADS Work').substring(0, 70);
-    const costZ = r.cost_z_score != null ? ` | Cost Z: ${r.cost_z_score.toFixed(1)}` : '';
-    const tier = r.agency_risk_tier ? ` | ${r.agency_risk_tier}` : '';
-    lines.push(`\n**${i + 1}. Work ${wid}** — ${desc}\n   📍 ${r.const_name || ''}, ${r.state_name || ''}${costZ}${tier}`);
-    ev.push({ label: `High-Risk #${i + 1}`, value: `Work ${wid}: ${desc.substring(0, 45)}`, source: 'Unified Evaluations', record_id: String(wid) });
+  let candidates = [];
+
+  // A. Search in Unified Evaluations
+  if (upe && Array.isArray(upe)) {
+    const upeFiltered = detectedState 
+      ? upe.filter(r => (r.state_name || '').toLowerCase() === detectedState.toLowerCase())
+      : upe;
+    candidates.push(...upeFiltered);
+  }
+
+  // B. Search in FinGuard Anomalies
+  if (fga && Array.isArray(fga)) {
+    const fgaFiltered = detectedState
+      ? fga.filter(r => (r.state_name || '').toLowerCase() === detectedState.toLowerCase())
+      : fga;
+    candidates.push(...fgaFiltered);
+  }
+
+  // C. Search in Cost & Delay Anomalies
+  if (cda && Array.isArray(cda)) {
+    const cdaFiltered = detectedState
+      ? cda.filter(r => (r.state_name || '').toLowerCase() === detectedState.toLowerCase())
+      : cda;
+    candidates.push(...cdaFiltered);
+  }
+
+  // Deduplicate candidates by work_id
+  const seenWorkIds = new Set();
+  let uniqueHighRisk = [];
+  for (const r of candidates) {
+    const wid = String(r.work_id || r.id || '');
+    if (wid && !seenWorkIds.has(wid)) {
+      seenWorkIds.add(wid);
+      uniqueHighRisk.push(r);
+    }
+  }
+
+  // Sort by risk severity / score
+  uniqueHighRisk.sort((a, b) => {
+    const scoreA = a.final_risk_score || a.severity_score || (a.is_high_risk ? 80 : 40);
+    const scoreB = b.final_risk_score || b.severity_score || (b.is_high_risk ? 80 : 40);
+    return scoreB - scoreA;
   });
 
+  const highRiskWorks = uniqueHighRisk.slice(0, 5);
+
+  if (highRiskWorks.length > 0) {
+    const lines = [`Found **${highRiskWorks.length}** high-risk project(s)${detectedState ? ` in ${detectedState}` : ''}:`];
+    const ev = [];
+    highRiskWorks.forEach((r, i) => {
+      const wid = r.work_id || r.id;
+      const desc = (r.work_description || r.activity_name || r.title || 'MPLADS Development Project').substring(0, 75);
+      const costZ = r.cost_z_score != null ? ` | Cost Z: ${Number(r.cost_z_score).toFixed(1)}` : (r.anomaly_reasons ? ` | ${r.anomaly_reasons[0] || 'Flagged Anomaly'}` : '');
+      const tier = r.agency_risk_tier ? ` | ${r.agency_risk_tier}` : (r.risk_tier ? ` | ${r.risk_tier}` : '');
+      const stateName = r.state_name || r.state || detectedState || '';
+      const constName = r.const_name || r.constituency || r.district || 'Constituency';
+      lines.push(`\n**${i + 1}. Work ${wid}** — ${desc}\n   📍 ${constName}, ${stateName}${costZ}${tier}`);
+      ev.push({ label: `High-Risk #${i + 1}`, value: `Work ${wid}: ${desc.substring(0, 45)}`, source: 'Unified Evaluations & FinGuard', record_id: String(wid) });
+    });
+
+    return {
+      status: 'success',
+      intent: 'find_high_risk',
+      answer: lines.join('\n'),
+      evidence: ev,
+      suggestions: [
+        `Why is work ${highRiskWorks[0]?.work_id || '105744'} high risk?`,
+        'Which MPs have the highest risk?',
+        'What does HHI mean?'
+      ],
+      data_snapshot: snapInfo,
+      disclaimer: 'Anomaly signal — requires human field verification.',
+    };
+  }
+
+  // Fallback if no matching records found
   return {
     status: 'success',
     intent: 'find_high_risk',
-    answer: lines.join('\n'),
-    evidence: ev,
-    suggestions: [
-      `Why is work ${highRiskWorks[0]?.work_id || '105744'} high risk?`,
-      'Which MPs have the highest risk?',
-      'What does HHI mean?'
-    ],
+    answer: `No severe high-risk projects currently flagged for ${detectedState || 'the specified criteria'}. All active works are operating within nominal cost and timeline benchmarks.`,
+    suggestions: ['Show the top 5 highest-risk projects', 'Show cost anomalies in Bihar', 'Which MPs have the highest risk?'],
     data_snapshot: snapInfo,
-    disclaimer: 'Anomaly signal — requires human field verification.',
   };
 }
