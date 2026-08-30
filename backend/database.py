@@ -12,7 +12,6 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 from datetime import date, datetime
 from dotenv import load_dotenv
-import pandas as pd
 
 # Load .env from the backend directory
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
