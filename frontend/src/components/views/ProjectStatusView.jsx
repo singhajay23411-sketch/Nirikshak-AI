@@ -272,15 +272,15 @@ const ProjectStatusView = () => {
   const [selectedFilter, setSelectedFilter] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Fetch real projects if available
+  // Fetch all real projects from dataset feed
   useEffect(() => {
     fetch('/data/real_projects.json')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
-          // Normalize and enrich real projects
-          const normalized = data.slice(0, 80).map((p, idx) => {
-            const isComp = p.type === 'completed' || p.status?.toLowerCase().includes('completed');
+          // Normalize and enrich all real projects
+          const normalized = data.map((p, idx) => {
+            const isComp = p.type === 'completed' || p.status?.toLowerCase().includes('complete');
             const costVal = typeof p.cost === 'number' ? p.cost : 1500000;
             const expVal = typeof p.disbursed === 'number' ? p.disbursed : (isComp ? costVal : Math.round(costVal * 0.7));
             const expPct = Math.min(100, Math.round((expVal / (costVal || 1)) * 100));
@@ -294,11 +294,11 @@ const ProjectStatusView = () => {
               status = 'Completed';
               statusLabel = 'Completed & Verified';
               statusLabelHi = 'पूर्ण एवं सत्यापित';
-            } else if (expPct > physProg + 25) {
+            } else if (expPct > physProg + 25 || p.status?.toLowerCase().includes('delay')) {
               status = 'Delayed';
               statusLabel = 'Delayed / Review Needed';
               statusLabelHi = 'विलंबित / समीक्षा आवश्यक';
-            } else if (physProg === 0) {
+            } else if (physProg === 0 || p.status?.toLowerCase().includes('not started') || p.status?.toLowerCase().includes('sanctioned')) {
               status = 'Not Started';
               statusLabel = 'Sanctioned / Pending Start';
               statusLabelHi = 'स्वीकृत / प्रारंभ प्रतीक्षित';
@@ -311,7 +311,7 @@ const ProjectStatusView = () => {
               state: p.state || 'National',
               district: p.district || p.constituency || 'Constituency Area',
               mp: p.mp || 'Sitting Member of Parliament',
-              constituency: p.constituency ? `${p.constituency} Lok Sabha` : 'Constituency',
+              constituency: p.constituency ? (p.constituency.toLowerCase().includes('sabha') ? p.constituency : `${p.constituency} Lok Sabha`) : 'Constituency',
               sanctionedCost: costVal,
               sanctionedCostFormatted: `₹${costVal.toLocaleString('en-IN')}`,
               expenditure: expVal,
@@ -326,8 +326,10 @@ const ProjectStatusView = () => {
             };
           });
 
-          // Merge with default pool for rich variety
-          setProjects([...DEFAULT_STATUS_PROJECTS, ...normalized]);
+          // Merge default curated list with all real projects, deduplicating by ID
+          const existingIds = new Set(DEFAULT_STATUS_PROJECTS.map(d => d.id));
+          const uniqueNormalized = normalized.filter(n => !existingIds.has(n.id));
+          setProjects([...DEFAULT_STATUS_PROJECTS, ...uniqueNormalized]);
         }
       })
       .catch(() => {
@@ -366,21 +368,13 @@ const ProjectStatusView = () => {
     };
   }, [projects]);
 
-  // Filtered dataset
+  // High-performance tokenized multi-field filter
   const filteredProjects = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim();
-    return projects.filter(p => {
-      const matchesSearch = !q || (
-        p.id.toLowerCase().includes(q) ||
-        p.title.toLowerCase().includes(q) ||
-        p.district.toLowerCase().includes(q) ||
-        p.state.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
-        (p.mp && p.mp.toLowerCase().includes(q)) ||
-        (p.constituency && p.constituency.toLowerCase().includes(q)) ||
-        (p.agency && p.agency.toLowerCase().includes(q))
-      );
+    const rawQuery = searchQuery.trim().toLowerCase();
+    const queryTokens = rawQuery ? rawQuery.split(/\s+/).filter(Boolean) : [];
 
+    return projects.filter(p => {
+      // 1. Status Filter Check
       const matchesFilter = 
         selectedFilter === 'ALL' ||
         (selectedFilter === 'COMPLETED' && p.status === 'Completed') ||
@@ -388,12 +382,19 @@ const ProjectStatusView = () => {
         (selectedFilter === 'DELAYED' && p.status === 'Delayed') ||
         (selectedFilter === 'NOT_STARTED' && p.status === 'Not Started');
 
-      return matchesSearch && matchesFilter;
+      if (!matchesFilter) return false;
+
+      // 2. Search Query Multi-token Match (all tokens must match at least one field)
+      if (queryTokens.length === 0) return true;
+
+      const searchableText = `${p.id} ${p.title} ${p.district} ${p.state} ${p.category} ${p.mp} ${p.constituency} ${p.agency} ${p.statusLabel} ${p.statusLabelHi || ''}`.toLowerCase();
+
+      return queryTokens.every(token => searchableText.includes(token));
     });
   }, [projects, searchQuery, selectedFilter]);
 
-  // 10 items per page pagination
-  const pageSize = 10;
+  // 12 items per page pagination
+  const pageSize = 12;
   const totalProjects = filteredProjects.length;
   const totalPages = Math.max(1, Math.ceil(totalProjects / pageSize));
   const safePage = Math.min(Math.max(1, currentPage), totalPages);
@@ -404,14 +405,14 @@ const ProjectStatusView = () => {
 
   // Smart page numbers windowing
   const getPageNumbers = () => {
-    if (totalPages <= 5) {
+    if (totalPages <= 7) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
-    if (safePage <= 3) {
-      return [1, 2, 3, 4, '...', totalPages];
+    if (safePage <= 4) {
+      return [1, 2, 3, 4, 5, '...', totalPages];
     }
-    if (safePage >= totalPages - 2) {
-      return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    if (safePage >= totalPages - 3) {
+      return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
     }
     return [1, '...', safePage - 1, safePage, safePage + 1, '...', totalPages];
   };
@@ -1011,6 +1012,29 @@ const ProjectStatusView = () => {
           {/* Controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
             {/* Previous Button */}
+            {/* First Page Button */}
+            <button
+              type="button"
+              onClick={() => setCurrentPage(1)}
+              disabled={safePage <= 1}
+              className="btn-outline-dark"
+              style={{
+                padding: '0.4rem 0.65rem',
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                display: 'inline-flex',
+                alignItems: 'center',
+                background: '#FFFFFF',
+                cursor: safePage <= 1 ? 'not-allowed' : 'pointer',
+                opacity: safePage <= 1 ? 0.45 : 1,
+                boxShadow: safePage <= 1 ? 'none' : '1.5px 2px 0px #1D1E22'
+              }}
+              title={isHi ? 'पहला पेज' : 'First Page'}
+            >
+              «
+            </button>
+
+            {/* Prev Button */}
             <button
               type="button"
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -1097,6 +1121,28 @@ const ProjectStatusView = () => {
             >
               <span>{isHi ? 'अगला' : 'Next'}</span>
               <ChevronRight size={14} strokeWidth={2.4} />
+            </button>
+
+            {/* Last Page Button */}
+            <button
+              type="button"
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={safePage >= totalPages || totalProjects === 0}
+              className="btn-outline-dark"
+              style={{
+                padding: '0.4rem 0.65rem',
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                display: 'inline-flex',
+                alignItems: 'center',
+                background: '#FFFFFF',
+                cursor: (safePage >= totalPages || totalProjects === 0) ? 'not-allowed' : 'pointer',
+                opacity: (safePage >= totalPages || totalProjects === 0) ? 0.45 : 1,
+                boxShadow: (safePage >= totalPages || totalProjects === 0) ? 'none' : '1.5px 2px 0px #1D1E22'
+              }}
+              title={isHi ? 'अंतिम पेज' : 'Last Page'}
+            >
+              »
             </button>
           </div>
         </div>

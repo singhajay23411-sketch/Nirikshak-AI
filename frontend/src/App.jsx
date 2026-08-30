@@ -135,7 +135,15 @@ function LandingPage() {
 
 // ─── Login View Wrapper ───
 function LoginPage() {
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Auto-redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <LoginView
