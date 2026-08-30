@@ -307,38 +307,7 @@ const UnifiedAiIntelligenceView = () => {
     return selectedProject.workId || selectedProject.work_id;
   }, [selectedProject]);
 
-  useEffect(() => {
-    if (!resolvedWorkId) return;
-    if (!token) {
-      setLiveError('Authentication token missing. Please sign in.');
-      return;
-    }
 
-    setLiveLoading(true);
-    setLiveError(null);
-    setLiveRiskData(null);
-
-    fetch(`/api/works/${resolvedWorkId}/risk`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`HTTP Error ${res.status}: ${res.statusText}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        setLiveRiskData(data);
-        setLiveLoading(false);
-      })
-      .catch(err => {
-        console.error('Error fetching live unified risk data:', err);
-        setLiveError(err.message || 'Failed to fetch live unified risk data');
-        setLiveLoading(false);
-      });
-  }, [resolvedWorkId, token]);
 
   const handleRunAnalysis = () => {
     if (!resolvedWorkId) return;
