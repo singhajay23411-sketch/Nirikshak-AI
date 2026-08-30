@@ -1,11 +1,9 @@
 import React from 'react';
 import { ArrowRight, ShieldCheck } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 
 const Footer = ({ onLoginClick, hideCTAButtons = false }) => {
   const { t } = useLanguage();
-  const navigate = useNavigate();
 
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
@@ -23,7 +21,7 @@ const Footer = ({ onLoginClick, hideCTAButtons = false }) => {
     } else if (actionName === 'report') {
       alert(t('footer.alerts.report'));
     } else if (actionName === 'team') {
-      navigate('/features/team');
+      alert(t('footer.alerts.team'));
     } else if (actionName === 'faq') {
       alert(t('footer.alerts.faq'));
     } else if (actionName === 'support') {
