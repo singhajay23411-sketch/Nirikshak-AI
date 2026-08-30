@@ -4,7 +4,7 @@ import Footer from '../Footer';
 import ajayPhoto from '../../assets/Ajay.png';
 import vishalPhoto from '../../assets/vishal.jpg';
 import prasannPhoto from '../../assets/Prasann.png';
-import adityaPhoto from '../../assets/Aditya.png';
+import adityaPhoto from '../../assets/aditya.png';
 import prachiPhoto from '../../assets/prachi.png';
 import srishtiPhoto from '../../assets/Srishti.png';
 
