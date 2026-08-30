@@ -311,3 +311,30 @@ img, video, canvas, svg {
     font-size: 0.84rem;
   }
 }
+
+/* High-Risk Registry Smooth Expand Animation */
+.registry-row-animate {
+  animation: registryRowFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes registryRowFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .registry-table-desktop {
+    display: none !important;
+  }
+  .registry-cards-mobile {
+    display: flex !important;
+  }
+}
+
+
