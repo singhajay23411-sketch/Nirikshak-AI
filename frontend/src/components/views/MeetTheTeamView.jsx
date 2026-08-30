@@ -172,13 +172,13 @@ const MeetTheTeamView = () => {
                 style={{
                   width: '100%',
                   aspectRatio: '1 / 1',
-                  borderRadius: '20px',
+                  borderRadius: '16px',
                   border: '1.5px solid #1D1E22',
-                  boxShadow: isExpanded ? '6px 8px 0px #1D1E22' : '3px 4px 0px #1D1E22',
+                  boxShadow: isExpanded ? '5px 7px 0px #1D1E22' : '3px 4px 0px #1D1E22',
                   overflow: 'hidden',
                   background: member.avatarBg,
                   position: 'relative',
-                  marginBottom: '1.15rem',
+                  marginBottom: '0.85rem',
                   transition: 'box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}
               >
@@ -212,7 +212,7 @@ const MeetTheTeamView = () => {
                     justifyContent: 'center',
                     fontFamily: 'var(--font-serif-primary)',
                     fontWeight: 800,
-                    fontSize: '2.5rem',
+                    fontSize: '1.8rem',
                     color: member.avatarTextColor,
                     zIndex: -1
                   }}
@@ -222,15 +222,15 @@ const MeetTheTeamView = () => {
               </div>
 
               {/* Text Information Below Photo: Name & Role (Always Visible) */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                 <h3
                   style={{
                     fontFamily: 'var(--font-serif-primary)',
-                    fontSize: '1.45rem',
+                    fontSize: 'clamp(1.05rem, 1.15vw, 1.25rem)',
                     fontWeight: 700,
                     color: '#1D1E22',
                     margin: 0,
-                    lineHeight: 1.25
+                    lineHeight: 1.2
                   }}
                 >
                   {member.name}
@@ -239,10 +239,10 @@ const MeetTheTeamView = () => {
                 <div
                   style={{
                     fontFamily: 'var(--font-sans)',
-                    fontSize: '0.96rem',
+                    fontSize: 'clamp(0.78rem, 0.88vw, 0.86rem)',
                     color: '#0A2458',
                     fontWeight: 600,
-                    lineHeight: 1.35
+                    lineHeight: 1.3
                   }}
                 >
                   {isHi ? member.roleHi : member.role}
@@ -251,20 +251,20 @@ const MeetTheTeamView = () => {
                 {/* Short 2–3 Line Professional Description — Revealed on Hover/Tap with Fade + Slide-up */}
                 <div
                   style={{
-                    maxHeight: isExpanded ? '120px' : '0px',
+                    maxHeight: isExpanded ? '140px' : '0px',
                     opacity: isExpanded ? 1 : 0,
                     transform: isExpanded ? 'translateY(0)' : 'translateY(6px)',
                     transition: 'max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, transform 0.25s ease, margin-top 0.25s ease',
                     overflow: 'hidden',
-                    marginTop: isExpanded ? '0.45rem' : '0px'
+                    marginTop: isExpanded ? '0.35rem' : '0px'
                   }}
                 >
                   <p
                     style={{
                       fontFamily: 'var(--font-sans)',
-                      fontSize: '0.88rem',
+                      fontSize: '0.78rem',
                       color: '#4A4D55',
-                      lineHeight: 1.5,
+                      lineHeight: 1.45,
                       margin: 0
                     }}
                   >

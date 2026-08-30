@@ -458,26 +458,33 @@ svg {
   }
 }
 
-/* Meet Team SAGE Strict 3-Column Grid (3 cols desktop, 2 tablet, 1 mobile) */
+/* Meet Team SAGE Single Row 6-Column Grid */
 .team-grid-desktop {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1.15rem;
   width: 100%;
   align-items: start;
 }
 
-@media (max-width: 1024px) and (min-width: 641px) {
+@media (max-width: 1080px) and (min-width: 721px) {
   .team-grid-desktop {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.15rem;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 720px) and (min-width: 481px) {
+  .team-grid-desktop {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
   .team-grid-desktop {
     grid-template-columns: 1fr;
-    gap: 1.15rem;
+    gap: 1rem;
   }
 }
 
