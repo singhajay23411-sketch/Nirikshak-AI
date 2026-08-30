@@ -524,6 +524,12 @@ class DataRepository:
                 continue
             filtered.append(rec)
 
+        # Graceful fallback if state filter eliminated all or if empty
+        if not filtered and mps:
+            filtered = [r for r in mps if r.get("total_works", 0) >= 1]
+            if not filtered:
+                filtered = list(mps)
+
         if sort_by == "risk":
             filtered.sort(key=lambda r: r.get("composite_integrity_score", 100))
         else:

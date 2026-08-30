@@ -309,14 +309,24 @@ def _extract_mp(text: str, repo: DataRepository):
 
     query = None
     if mp_context:
-        query = mp_context.group(1).strip()
-    else:
-        # Check for "Shri/Smt" prefixed names
+        candidate = mp_context.group(1).strip()
+        # Avoid treating generic query phrases as an MP's name
+        candidate_lower = candidate.lower()
+        generic_phrases = {
+            "have the highest risk", "highest risk", "lowest integrity", "lowest score",
+            "highest", "lowest", "risk", "worst", "best", "top", "list", "all",
+            "scorecard", "scorecards", "performance", "summary", "profile", "ranking"
+        }
+        if candidate_lower not in generic_phrases and not any(p in candidate_lower for p in ["highest risk", "lowest integrity", "have the"]):
+            query = candidate
+    
+    if not query:
+        # Check for "Shri/Smt/Dr" prefixed names
         name_match = re.search(r'\b((?:Shri|Smt\.?|Dr\.?)\s+\S+(?:\s+\S+){0,3})', text, re.I)
         if name_match:
             query = name_match.group(1).strip()
 
-    if not query:
+    if not query or len(query) < 3:
         return None
 
     # Search by name
