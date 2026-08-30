@@ -97,8 +97,8 @@ const ProductsSection = () => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))',
-            gap: '1.8rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
+            gap: '1.75rem',
             marginBottom: '3rem'
           }}
         >
@@ -186,7 +186,7 @@ const ProductsSection = () => {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', alignItems: 'center' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '1.5rem', alignItems: 'center' }}>
               <div>
                 <div style={{ marginBottom: '1.2rem' }}>
                   <label style={{ display: 'block', fontSize: '0.88rem', color: '#1D1E22', marginBottom: '0.4rem', fontWeight: 600 }}>

@@ -78,8 +78,8 @@ const FloatingWidgets = ({ onLoginClick }) => {
       >
         <div
           style={{
-            width: '94px',
-            height: '94px',
+            width: 'clamp(68px, 14vw, 94px)',
+            height: 'clamp(68px, 14vw, 94px)',
             borderRadius: '50%',
             background: 'linear-gradient(145deg, #F3C756 0%, #E5B842 55%, #D4A32A 100%)',
             border: '1.5px solid #1D1E22',
@@ -237,8 +237,8 @@ const FloatingWidgets = ({ onLoginClick }) => {
         {chatOpen ? (
           <div
             style={{
-              width: '330px',
-              height: '430px',
+              width: 'min(340px, calc(100vw - 32px))',
+              height: 'clamp(360px, 65vh, 440px)',
               background: '#FAF8F3',
               border: '2px solid #1D1E22',
               borderRadius: 'var(--radius-lg)',

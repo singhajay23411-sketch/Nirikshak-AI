@@ -3655,21 +3655,23 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
           top: 0,
           background: '#FAF8F3',
           borderBottom: '1.5px solid #1D1E22',
-          padding: '0.85rem 2rem',
+          padding: '0.75rem clamp(0.75rem, 2.5vw, 2rem)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '0.75rem',
           zIndex: 100
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(0.75rem, 2vw, 1.5rem)', flexWrap: 'wrap' }}>
           <button
             type="button"
             onClick={handleBack}
             className="btn-outline-dark"
             style={{
-              padding: '0.5rem 1.15rem',
-              fontSize: '0.84rem',
+              padding: '0.45rem 0.95rem',
+              fontSize: '0.82rem',
               gap: '0.45rem',
               color: '#1D1E22 !important',
               background: '#FFFFFF',
@@ -3678,14 +3680,14 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
             }}
           >
             <ArrowLeft size={15} />
-            <span>{isHi ? 'मुख्य पोर्टल पर वापस' : 'Back to Portal'}</span>
+            <span>{isHi ? 'मुख्य पोर्टल' : 'Back to Portal'}</span>
           </button>
 
           <div>
-            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0A2458', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-              NIRIKSHΛK ΛI • MPLADS INTELLIGENCE
+            <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#0A2458', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+              NIRIKSHΛK ΛI • MPLADS
             </div>
-            <div style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.25rem', fontWeight: 700, color: '#1D1E22' }}>
+            <div style={{ fontFamily: 'var(--font-serif-primary)', fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', fontWeight: 700, color: '#1D1E22' }}>
               {featureId === 'findProject' || featureId === 'findProjects'
                 ? (isHi ? 'परियोजनाएं खोजें' : 'FIND PROJECTS')
                 : featureId === 'browseState' || featureId === 'browseStates' || featureId === 'states'
@@ -3712,7 +3714,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
       </header>
 
       {/* Main Feature Content Container */}
-      <main style={{ flex: 1, padding: '2rem clamp(1.25rem, 3vw, 3.5rem)', maxWidth: '1400px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+      <main style={{ flex: 1, padding: 'clamp(1rem, 2.5vw, 2rem) clamp(0.65rem, 2.5vw, 2.5rem)', maxWidth: '1400px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
         {renderFeatureContent()}
       </main>
     </div>

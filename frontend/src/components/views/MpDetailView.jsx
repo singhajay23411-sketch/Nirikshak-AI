@@ -9,6 +9,7 @@ import {
 import { useLanguage } from '../../context/LanguageContext';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useData } from '../../context/DataContext';
+import { getMpBySlug, ALL_MPS_DATA } from '../../data/mpPerformanceData';
 import Footer from '../Footer';
 
 // ─── PREMIUM FINANCIAL ANALYTICS GAUGE COMPONENT ───
@@ -291,30 +292,51 @@ const MpDetailView = () => {
   const [selectedPaymentProject, setSelectedPaymentProject] = useState(null);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const { mpView } = useData();
+  const { mpView } = useData ? useData() : {};
 
+  // Retrieve MP data by slug with real DataContext data or robust fallback
   const mpData = useMemo(() => {
-    if (!mpView) return null;
-    const found = mpView.find(m => m.mp_name.toLowerCase().replace(/[^a-z0-9]+/g, '-') === mpSlug);
-    if (!found) return null;
+    if (mpView && mpView.length > 0) {
+      const cleanSlug = mpSlug?.toLowerCase()?.replace(/^mp-/, '');
+      const found = mpView.find(m => {
+        const s = (m.mp_name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        return s === mpSlug || s === cleanSlug || s.replace(/^mp-/, '') === cleanSlug;
+      });
+      if (found) {
+        const allocated = found.total_allocated || 0;
+        const spent = found.total_disbursed || 0;
+        return {
+          id: found.mp_id,
+          name: found.mp_name,
+          constituency: found.constituency_name,
+          state: found.state_name,
+          house: 'Member of Parliament',
+          term: 'Tenure Data',
+          allocatedCr: (allocated / 10000000).toFixed(2),
+          exactAllocated: allocated,
+          exactSpent: spent,
+          exactBalance: Math.max(0, allocated - spent),
+          utilizationPct: (found.utilization_rate * 100).toFixed(1),
+          worksRecommended: Math.max(5, Math.floor(allocated / 4000000)),
+          worksCompleted: Math.floor(spent / 4000000),
+          worksInProgress: Math.max(1, Math.floor((allocated - spent) / 4000000)),
+          totalProjects: Math.max(5, Math.floor(allocated / 4000000)),
+          completionRate: Math.round(found.utilization_rate * 100),
+          delayDays: Math.round(found.avg_project_delay_days || 0),
+          stalled: found.stalled_projects_count || 0,
+        };
+      }
+    }
 
+    const raw = getMpBySlug(mpSlug);
+    if (!raw) return null;
+    const allocated = raw.allocatedCr || 0;
+    const spent = raw.spentCr || 0;
     return {
-      id: found.mp_id,
-      name: found.mp_name,
-      constituency: found.constituency_name,
-      state: found.state_name,
-      house: 'Member of Parliament',
-      term: 'Tenure Data',
-      allocatedCr: (found.total_allocated / 10000000).toFixed(2),
-      exactSpent: found.total_disbursed,
-      utilizationPct: (found.utilization_rate * 100).toFixed(1),
-      worksRecommended: Math.max(5, Math.floor(found.total_allocated / 4000000)),
-      worksCompleted: Math.floor(found.total_disbursed / 4000000),
-      worksInProgress: Math.max(1, Math.floor((found.total_allocated - found.total_disbursed) / 4000000)),
-      totalProjects: Math.max(5, Math.floor(found.total_allocated / 4000000)),
-      completionRate: Math.round(found.utilization_rate * 100),
-      delayDays: Math.round(found.avg_project_delay_days),
-      stalled: found.stalled_projects_count,
+      ...raw,
+      exactAllocated: raw.exactAllocated || Math.round(allocated * 10000000),
+      exactSpent: raw.exactSpent || Math.round(spent * 10000000),
+      exactBalance: raw.exactBalance || Math.max(0, Math.round((allocated - spent) * 10000000))
     };
   }, [mpSlug, mpView]);
 
@@ -615,7 +637,7 @@ const MpDetailView = () => {
                 <span>FUND UTILIZATION</span>
                 <Info size={11} />
               </div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--color-text-secondary)', marginTop: '0.15rem' }}>₹{mpData.exactSpent.toLocaleString()} utilized</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--color-text-secondary)', marginTop: '0.15rem' }}>₹{Number(mpData.exactSpent || 0).toLocaleString('en-IN')} utilized</div>
             </div>
           </div>
 
@@ -728,7 +750,7 @@ const MpDetailView = () => {
       {activeTab === 'overview' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {/* Row 1: Premium Gauge Chart & Projects Overview */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.5rem' }}>
             {/* Redesigned Premium Utilization Gauge */}
             <FinancialUtilizationGauge
               utilizationPct={mpData.utilizationPct}
@@ -817,7 +839,7 @@ const MpDetailView = () => {
               Performance Summary
             </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
               {/* Financial Performance Box */}
               <div style={{ background: '#FAF8F3', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.5rem' }}>
                 <h4 style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.15rem', fontWeight: 800, color: '#1D1E22', margin: '0 0 1rem 0' }}>
@@ -827,15 +849,15 @@ const MpDetailView = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(29,30,34,0.08)', paddingBottom: '0.4rem' }}>
                     <span style={{ color: 'var(--color-text-secondary)' }}>Allocated Amount:</span>
-                    <strong style={{ color: '#1D1E22' }}>₹{mpData.exactAllocated.toLocaleString()}</strong>
+                    <strong style={{ color: '#1D1E22' }}>₹{Number(mpData.exactAllocated || 0).toLocaleString('en-IN')}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(29,30,34,0.08)', paddingBottom: '0.4rem' }}>
                     <span style={{ color: 'var(--color-text-secondary)' }}>Utilized Amount:</span>
-                    <strong style={{ color: '#1D1E22' }}>₹{mpData.exactSpent.toLocaleString()}</strong>
+                    <strong style={{ color: '#1D1E22' }}>₹{Number(mpData.exactSpent || 0).toLocaleString('en-IN')}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(29,30,34,0.08)', paddingBottom: '0.4rem' }}>
                     <span style={{ color: 'var(--color-text-secondary)' }}>Remaining Balance:</span>
-                    <strong style={{ color: '#0A2458' }}>₹{mpData.exactBalance.toLocaleString()}</strong>
+                    <strong style={{ color: '#0A2458' }}>₹{Number(mpData.exactBalance || 0).toLocaleString('en-IN')}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(29,30,34,0.08)', paddingBottom: '0.4rem' }}>
                     <span style={{ color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
@@ -1061,7 +1083,7 @@ const MpDetailView = () => {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
                 gap: '1.25rem'
               }}
             >

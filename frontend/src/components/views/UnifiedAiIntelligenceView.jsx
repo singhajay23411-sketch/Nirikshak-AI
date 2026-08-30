@@ -798,7 +798,7 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))',
             gap: '0.85rem',
             background: '#FAF8F3',
             padding: '1rem 1.25rem',
@@ -1153,7 +1153,7 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
             gap: '1.25rem'
           }}
         >

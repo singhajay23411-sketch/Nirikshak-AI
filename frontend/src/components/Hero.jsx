@@ -28,8 +28,9 @@ const PreviewTextLink = ({ text, image, onClick }) => {
           position: 'absolute',
           top: 'calc(100% + 10px)',
           left: '50%',
-          width: '280px',
-          height: '190px',
+          width: 'clamp(220px, 80vw, 280px)',
+          maxWidth: 'calc(100vw - 32px)',
+          height: 'clamp(150px, 50vw, 190px)',
           background: '#FAF8F3',
           border: '1.5px solid #1D1E22',
           borderRadius: 'var(--radius-md)',
@@ -47,8 +48,8 @@ const PreviewTextLink = ({ text, image, onClick }) => {
           src={image}
           alt={text}
           style={{
-            width: '280px',
-            height: '190px',
+            width: '100%',
+            height: '100%',
             objectFit: 'contain',
             display: 'block'
           }}
@@ -122,10 +123,10 @@ const Hero = ({ onExploreClick, onVirtualOfficeClick }) => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-            gap: '3.5rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+            gap: 'clamp(2rem, 4vw, 3.5rem)',
             alignItems: 'center',
-            marginBottom: '5rem'
+            marginBottom: '4rem'
           }}
         >
           {/* Left Column: Authentic Hand-Drawn Government & Geospatial Line Art */}

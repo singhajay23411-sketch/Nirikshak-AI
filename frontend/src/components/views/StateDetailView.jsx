@@ -528,7 +528,7 @@ const StateDetailView = () => {
       {activeTab === 'overview' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {/* Charts Row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.5rem' }}>
             {/* Chart 1: Interactive Monthly Trend Bar Chart */}
             <div
               style={{
@@ -845,7 +845,7 @@ const StateDetailView = () => {
               {isHi ? 'वित्तीय विवरण एवं संवितरण स्थिति' : 'Financial Breakdown & Disbursal Status'}
             </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '1.25rem' }}>
               {/* Total Sanctioned */}
               <div style={{ background: '#FFFFFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-md)', padding: '1.25rem', boxShadow: '2px 3px 0px #1D1E22' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>TOTAL SANCTIONED</div>
@@ -890,7 +890,7 @@ const StateDetailView = () => {
               {isHi ? 'क्षेत्र-वार व्यय वितरण' : 'Sector-wise Expenditure Distribution'}
             </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '1.25rem' }}>
               {stateData.sectorBreakdown.map((sec) => (
                 <div key={sec.sector} style={{ background: '#FAF8F3', border: '1px solid #1D1E22', borderRadius: 'var(--radius-sm)', padding: '1rem' }}>
                   <div style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--color-text-muted)' }}>{sec.sector}</div>
