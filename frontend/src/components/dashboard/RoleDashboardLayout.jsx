@@ -75,10 +75,11 @@ const RoleDashboardLayout = ({ onLogout }) => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(user?.role || 'MOSPI_OFFICER');
 
   const isHi = language === 'hi';
-  const role = user?.role || 'VIEWER';
-  const navItems = ROLE_NAV_CONFIG[role] || ROLE_NAV_CONFIG.VIEWER;
+  const role = selectedRole;
+  const navItems = ROLE_NAV_CONFIG[role] || ROLE_NAV_CONFIG.MOSPI_OFFICER;
 
   const handleLogout = () => {
     logout();
@@ -89,17 +90,21 @@ const RoleDashboardLayout = ({ onLogout }) => {
     }
   };
 
-  const getRoleLabel = () => {
-    const labels = user?.roleLabel;
-    if (labels) return isHi ? labels.hi : labels.en;
-    return role;
-  };
+  const ROLE_OPTIONS = [
+    { value: 'MOSPI_OFFICER', label: isHi ? 'राष्ट्रीय नोडल अधिकारी (MoSPI)' : 'MoSPI National Officer', scope: isHi ? 'राष्ट्रीय' : 'National' },
+    { value: 'STATE_OFFICER', label: isHi ? 'राज्य नोडल अधिकारी (बिहार)' : 'State Officer (Bihar)', scope: isHi ? 'बिहार' : 'Bihar' },
+    { value: 'DISTRICT_OFFICER', label: isHi ? 'जिला कलेक्टर (कुरनूल)' : 'District Collector (Kurnool)', scope: isHi ? 'कुरनूल, आंध्र प्रदेश' : 'Kurnool, AP' },
+    { value: 'MP', label: isHi ? 'सांसद स्कोरकार्ड' : 'Member of Parliament', scope: isHi ? 'संसद' : 'Parliament' },
+    { value: 'FIELD_INSPECTOR', label: isHi ? 'क्षेत्र निरीक्षक' : 'Field Inspector', scope: isHi ? 'भौतिक सत्यापन' : 'Site Verification' },
+    { value: 'ANALYST', label: isHi ? 'AI विश्लेषक' : 'AI Risk Analyst', scope: isHi ? 'मॉडल एवं विसंगति' : 'Analytics' },
+    { value: 'ADMIN', label: isHi ? 'प्रशासक' : 'System Admin', scope: isHi ? 'पूर्ण नियंत्रण' : 'Full Access' },
+    { value: 'VIEWER', label: isHi ? 'नागरिक दृश्य' : 'Public Transparency', scope: isHi ? 'सार्वजनिक' : 'Public' },
+  ];
 
-  const getScopeLabel = () => {
-    if (user?.district && user?.state) return `${user.district}, ${user.state}`;
-    if (user?.state) return user.state;
-    return isHi ? 'राष्ट्रीय' : 'National';
-  };
+  const currentRoleOpt = ROLE_OPTIONS.find(o => o.value === role) || ROLE_OPTIONS[0];
+
+  const getRoleLabel = () => currentRoleOpt.label;
+  const getScopeLabel = () => currentRoleOpt.scope;
 
   // Render active panel content
   const renderContent = () => {
@@ -109,7 +114,7 @@ const RoleDashboardLayout = ({ onLogout }) => {
     if (role === 'FIELD_INSPECTOR' && (activeTab === 'verification' || activeTab === 'evidence')) {
       return <FieldInspectorVerification activeTab={activeTab} />;
     }
-    return <RoleOverviewPanels role={role} activeTab={activeTab} user={user} />;
+    return <RoleOverviewPanels role={role} activeTab={activeTab} user={user || { fullName: 'SIH Evaluator', email: 'evaluator@nirikshak.gov.in', role }} />;
   };
 
   return (
@@ -118,7 +123,7 @@ const RoleDashboardLayout = ({ onLogout }) => {
       <header style={{
         background: '#FFFFFF',
         borderBottom: '1.5px solid #1D1E22',
-        padding: '0 2rem',
+        padding: '0 1.5rem',
         height: '64px',
         display: 'flex',
         alignItems: 'center',
@@ -127,30 +132,46 @@ const RoleDashboardLayout = ({ onLogout }) => {
         top: 0,
         zIndex: 100,
       }}>
-        {/* Left: Brand + Role Badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            fontSize: '1rem',
-            fontWeight: 900,
-            letterSpacing: '0.1em',
-            color: '#1D1E22',
-          }}>
+        {/* Left: Brand + Interactive Role Selector */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div
+            onClick={() => navigate('/')}
+            style={{
+              fontFamily: 'system-ui, -apple-system, sans-serif',
+              fontSize: '1rem',
+              fontWeight: 900,
+              letterSpacing: '0.1em',
+              color: '#1D1E22',
+              cursor: 'pointer',
+            }}
+          >
             NIRIKSHΛK ΛI
           </div>
-          <div style={{
-            padding: '0.25rem 0.7rem',
-            background: 'var(--color-accent-teal)',
-            border: '1px solid #1D1E22',
-            borderRadius: 'var(--radius-full)',
-            fontSize: '0.72rem',
-            fontWeight: 700,
-            color: '#1D1E22',
-            letterSpacing: '0.04em',
-          }}>
-            {getRoleLabel()}
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', background: '#F4EFE6', padding: '0.2rem 0.4rem', borderRadius: '8px', border: '1px solid #1D1E22' }}>
+            <Shield size={14} color="#1D1E22" />
+            <select
+              value={role}
+              onChange={(e) => { setSelectedRole(e.target.value); setActiveTab('overview'); }}
+              aria-label="Select Role View"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                color: '#1D1E22',
+                fontFamily: 'inherit',
+                cursor: 'pointer',
+                outline: 'none',
+              }}
+            >
+              {ROLE_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
           </div>
-          <span style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>
+
+          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>
             {getScopeLabel()}
           </span>
         </div>

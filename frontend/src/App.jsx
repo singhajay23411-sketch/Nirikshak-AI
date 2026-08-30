@@ -155,13 +155,7 @@ function LoginPage() {
 
 // ─── Dashboard View Wrapper ───
 function DashboardPage() {
-  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-
-  // If not authenticated, redirect to login
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
 
   return (
     <RoleDashboardLayout

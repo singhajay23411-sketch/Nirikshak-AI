@@ -112,36 +112,12 @@ async def assistant_query(request: Request):
     if not _check_rate_limit(client_ip):
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Please wait before sending more requests.")
 
-    # Auth (optional)
-    user = await _get_optional_user(request)
-    is_authenticated = user is not None
-
     # Get repository
     repo = get_repository()
 
     # Classify intent
     t0 = time.time()
     intent = classify_intent(query.message)
-
-    # Access control: restrict anonymous users
-    if not is_authenticated and intent not in ANONYMOUS_INTENTS:
-        return AssistantQueryResponse(
-            status="success",
-            intent=intent,
-            answer=(
-                "This query requires authentication. Please log in to access "
-                "detailed project, MP, constituency, and anomaly information.\n\n"
-                "As a guest, I can help with:\n"
-                "• Platform explanations — \"What can you help me with?\"\n"
-                "• Glossary questions — \"What does HHI mean?\"\n"
-                "• General information about Nirikshak AI"
-            ),
-            suggestions=[
-                "What can you help me with?",
-                "What does risk score mean?",
-                "What is HHI?",
-            ],
-        )
 
     # Resolve entities
     context_dict = query.context.dict() if query.context else None

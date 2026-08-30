@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { processQueryClientSide } from '../utils/clientAssistantEngine';
 
 /**
  * Safe inline markdown-like formatter that parses bold, lists, and line breaks
@@ -87,7 +88,6 @@ const FloatingWidgets = ({ onLoginClick, selectedWorkId, selectedMpId, selectedC
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
   const [conversationId, setConversationId] = useState('');
   const [activeEvidenceIndex, setActiveEvidenceIndex] = useState(null);
   const [dataSnapshot, setDataSnapshot] = useState(null);
@@ -141,7 +141,6 @@ const FloatingWidgets = ({ onLoginClick, selectedWorkId, selectedMpId, selectedC
     setMessages((prev) => [...prev, userMessage]);
     setInputText('');
     setIsLoading(true);
-    setErrorMessage(null);
 
     // Build context
     const context = {
@@ -153,56 +152,62 @@ const FloatingWidgets = ({ onLoginClick, selectedWorkId, selectedMpId, selectedC
     };
 
     try {
-      const headers = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+      let data = null;
 
-      const response = await fetch('/api/assistant/query', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          message: textToSend.trim(),
-          conversation_id: conversationId,
-          context,
-        }),
-      });
-
-      if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error('Rate limit exceeded. Please wait a moment before asking again.');
+      // 1. First attempt to call the FastAPI server backend
+      try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
         }
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || errorData.message || t('floatingWidgets.error'));
+
+        const response = await fetch('/api/assistant/query', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            message: textToSend.trim(),
+            conversation_id: conversationId,
+            context,
+          }),
+        });
+
+        if (response.ok) {
+          data = await response.json();
+        }
+      } catch (fetchErr) {
+        // Backend not reachable, fall through to client-side fallback
+        data = null;
       }
 
-      const data = await response.json();
+      // 2. If backend was unreachable or returned non-200, use client-side analytics processor
+      if (!data) {
+        data = await processQueryClientSide(textToSend.trim(), context);
+      }
 
-      if (data.data_snapshot) {
+      if (data && data.data_snapshot) {
         setDataSnapshot(data.data_snapshot);
       }
 
       const assistantMessage = {
         id: `assistant-${Date.now()}`,
         sender: 'assistant',
-        text: data.answer || t('floatingWidgets.automatedReply'),
-        evidence: data.evidence || [],
-        suggestions: data.suggestions || [],
-        disclaimer: data.disclaimer || null,
-        dataSnapshot: data.data_snapshot || null,
+        text: data?.answer || t('floatingWidgets.automatedReply'),
+        evidence: data?.evidence || [],
+        suggestions: data?.suggestions || [],
+        disclaimer: data?.disclaimer || null,
+        dataSnapshot: data?.data_snapshot || null,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
       console.error('Assistant query error:', err);
-      setErrorMessage(err.message || t('floatingWidgets.error'));
       setMessages((prev) => [
         ...prev,
         {
           id: `error-${Date.now()}`,
           sender: 'assistant',
           isError: true,
-          text: err.message || t('floatingWidgets.error'),
+          text: 'Unable to process query. Please try asking again.',
           retryQuery: textToSend.trim(),
         }
       ]);
@@ -238,7 +243,6 @@ const FloatingWidgets = ({ onLoginClick, selectedWorkId, selectedMpId, selectedC
       }
     ]);
     setConversationId(`conv-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`);
-    setErrorMessage(null);
   };
 
   const scrollToGeospatial = () => {
@@ -427,7 +431,7 @@ const FloatingWidgets = ({ onLoginClick, selectedWorkId, selectedMpId, selectedC
             whiteSpace: 'nowrap'
           }}
         >
-          <span>{isAuthenticated ? `${user?.name || user?.email} (${user?.role})` : t('footer.actions.login')}</span>
+          <span>{isAuthenticated ? `${user?.name || user?.email}` : t('footer.actions.login')}</span>
           <ArrowRight size={16} />
         </button>
 
@@ -463,9 +467,9 @@ const FloatingWidgets = ({ onLoginClick, selectedWorkId, selectedMpId, selectedC
                   <div style={{ fontWeight: 800, color: '#1D1E22', fontSize: '0.92rem', lineHeight: 1.2 }}>
                     {t('floatingWidgets.assistantTitle')}
                   </div>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#1D1E22', opacity: 0.85, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: isAuthenticated ? '#2A9D8F' : '#E76F51' }} />
-                    {isAuthenticated ? t('floatingWidgets.authBadge') : t('floatingWidgets.guestBadge')}
+                  <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#1D1E22', opacity: 0.9, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#2A9D8F' }} />
+                    Decision Support • Live Intelligence
                   </div>
                 </div>
               </div>
@@ -505,25 +509,6 @@ const FloatingWidgets = ({ onLoginClick, selectedWorkId, selectedMpId, selectedC
                 </button>
               </div>
             </div>
-
-            {/* Guest notice if unauthenticated */}
-            {!isAuthenticated && (
-              <div
-                style={{
-                  background: '#FFF3CD',
-                  borderBottom: '1px solid #E5D5A5',
-                  padding: '0.4rem 0.8rem',
-                  fontSize: '0.75rem',
-                  color: '#856404',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem'
-                }}
-              >
-                <AlertCircle size={14} style={{ flexShrink: 0 }} />
-                <span style={{ flex: 1 }}>{t('floatingWidgets.guestNotice')}</span>
-              </div>
-            )}
 
             {/* Chat Body */}
             <div
