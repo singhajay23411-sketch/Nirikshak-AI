@@ -11,6 +11,7 @@ import {
   getMpsSummaryStats,
   mpToSlug
 } from '../../data/mpPerformanceData';
+import { exportStructuredAuditPdf } from '../../services/pdfExportService';
 import Footer from '../Footer';
 
 const PAGE_SIZE_INCREMENT = 12;
@@ -100,20 +101,51 @@ const BrowseMpsView = () => {
     setVisibleCount(12);
   };
 
-  const handleExport = () => {
-    const csvHeader = 'Name,Term,House,State,Constituency,Allocated (Cr),Spent (Cr),Utilization (%),Works Completed,Completion Rate (%)\n';
-    const csvRows = filteredMps.map(m =>
-      `"${m.name}","${m.term}","${m.house}","${m.state}","${m.constituency}",${m.allocatedCr},${m.spentCr},${m.utilizationPct},${m.worksCompleted},${m.completionRate}`
-    ).join('\n');
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
 
-    const blob = new Blob([csvHeader + csvRows], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `MPLADS_MPs_Performance_${selectedHouse.replace(/\s+/g, '_')}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleExport = async () => {
+    if (filteredMps.length === 0) return;
+    setIsExportingPdf(true);
+    try {
+      await exportStructuredAuditPdf({
+        filename: `MPLADS_MPs_Performance_${selectedHouse.replace(/\s+/g, '_')}.pdf`,
+        title: `MPLADS MEMBERS OF PARLIAMENT PERFORMANCE AUDIT`,
+        subtitle: `Filtered House: ${selectedHouse} • Total MPs: ${filteredMps.length} • MoSPI Official Audit`,
+        metaItems: [
+          { label: 'Selected House', value: selectedHouse },
+          { label: 'MPs Count', value: filteredMps.length },
+          { label: 'State Filter', value: selectedState },
+          { label: 'Sorting', value: sortBy }
+        ],
+        kpis: [
+          { label: 'Avg Fund Utilization', value: `${(filteredMps.reduce((acc, m) => acc + m.utilizationPct, 0) / (filteredMps.length || 1)).toFixed(1)}%`, color: 'green' },
+          { label: 'Total Allocated', value: `₹${filteredMps.reduce((acc, m) => acc + (parseFloat(m.allocatedCr) || 0), 0).toFixed(1)} Cr`, color: 'blue' },
+          { label: 'Total Spent', value: `₹${filteredMps.reduce((acc, m) => acc + (parseFloat(m.spentCr) || 0), 0).toFixed(1)} Cr`, color: 'blue' },
+        ],
+        tables: [
+          {
+            title: 'MEMBERS OF PARLIAMENT PERFORMANCE SCORECARD',
+            headers: ['MP Name', 'House', 'State', 'Constituency', 'Allocated', 'Spent', 'Util %', 'Completion %'],
+            colWidths: [40, 20, 30, 30, 20, 20, 15, 15],
+            rows: filteredMps.slice(0, 100).map(m => [
+              m.name,
+              m.house,
+              m.state,
+              m.constituency,
+              `₹${m.allocatedCr} Cr`,
+              `₹${m.spentCr} Cr`,
+              `${m.utilizationPct}%`,
+              `${m.completionRate}%`
+            ])
+          }
+        ]
+      });
+    } catch (err) {
+      console.error('Export MPs error:', err);
+      alert('Could not export PDF report. Please try again.');
+    } finally {
+      setIsExportingPdf(false);
+    }
   };
 
   return (
@@ -501,7 +533,8 @@ const BrowseMpsView = () => {
               <button
                 type="button"
                 onClick={handleExport}
-                className="btn-outline-dark"
+                disabled={isExportingPdf}
+                className="btn-outline-dark no-print"
                 style={{
                   padding: '0.48rem 0.85rem',
                   fontSize: '0.82rem',
@@ -512,12 +545,12 @@ const BrowseMpsView = () => {
                   background: '#FAF8F3',
                   border: '1.5px solid #1D1E22',
                   borderRadius: 'var(--radius-sm)',
-                  cursor: 'pointer'
+                  cursor: isExportingPdf ? 'wait' : 'pointer',
+                  opacity: isExportingPdf ? 0.7 : 1
                 }}
               >
                 <Download size={14} />
-                <span>Export</span>
-                <Info size={13} color="#1A73E8" />
+                <span>{isExportingPdf ? (isHi ? 'पीडीएफ बन रहा है...' : 'Generating PDF...') : (isHi ? 'पीडीएफ निर्यात' : 'Export PDF')}</span>
               </button>
             </div>
           </div>

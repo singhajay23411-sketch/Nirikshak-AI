@@ -9,6 +9,7 @@ import {
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
+import { exportElementToPdf } from '../../services/pdfExportService';
 import Footer from '../Footer';
 
 // Sample Pool of Comprehensive MPLADS Projects for offline fallback
@@ -591,16 +592,23 @@ const UnifiedAiIntelligenceView = () => {
     for (let i = 0; i < projectsPool.length; i++) {
       const p = projectsPool[i];
 
-      // State Filter Check
-      if (selectedStateFilter !== 'ALL' && (p.state || '').toLowerCase() !== selectedStateFilter.toLowerCase()) {
-        continue;
+      // State Filter Check (if query is typed, allow matching across all if query explicitly targets another region)
+      if (selectedStateFilter !== 'ALL') {
+        const matchesState = (p.state || '').toLowerCase() === selectedStateFilter.toLowerCase();
+        if (!matchesState && tokens.length === 0) continue;
+        if (!matchesState && !tokens.some(t => (p.id || '').toLowerCase().includes(t) || (p.district || '').toLowerCase().includes(t) || (p.state || '').toLowerCase().includes(t))) {
+          continue;
+        }
       }
 
       // District Filter Check
-      if (selectedDistrictFilter !== 'ALL' && 
-          (p.district || '').toLowerCase() !== selectedDistrictFilter.toLowerCase() && 
-          (p.constituency || '').toLowerCase() !== selectedDistrictFilter.toLowerCase()) {
-        continue;
+      if (selectedDistrictFilter !== 'ALL') {
+        const matchesDistrict = (p.district || '').toLowerCase() === selectedDistrictFilter.toLowerCase() || 
+                                (p.constituency || '').toLowerCase() === selectedDistrictFilter.toLowerCase();
+        if (!matchesDistrict && tokens.length === 0) continue;
+        if (!matchesDistrict && !tokens.some(t => (p.id || '').toLowerCase().includes(t) || (p.district || '').toLowerCase().includes(t) || (p.constituency || '').toLowerCase().includes(t))) {
+          continue;
+        }
       }
 
       // Status Filter Check
@@ -928,53 +936,24 @@ const UnifiedAiIntelligenceView = () => {
     return recs;
   }, [hasRunAnalysis, liveRiskData, isHi]);
 
-  const handleDownloadSimpleReport = () => {
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+
+  const handleDownloadSimpleReport = async () => {
     if (!analysisData || !liveRiskData) return;
-    const reportText = `=====================================================
-${isHi ? 'एमपीलैड्स एकीकृत विश्लेषण रिपोर्ट' : 'MPLADS UNIFIED ANALYSIS REPORT'}
-${isHi ? 'परियोजना ID' : 'Project ID'}: ${selectedProject.id || resolvedWorkId}
-${isHi ? 'दिनांक' : 'Generated On'}: ${new Date().toLocaleDateString(isHi ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-=====================================================
-
-1. ${isHi ? 'परियोजना विवरण' : 'PROJECT SUMMARY'}
-- ${isHi ? 'शीर्षक' : 'Title'}: ${isHi ? (selectedProject.titleHi || selectedProject.title) : selectedProject.title}
-- ${isHi ? 'निर्वाचन क्षेत्र' : 'Constituency'}: ${isHi ? (selectedProject.constituencyHi || selectedProject.constituency) : selectedProject.constituency}
-- ${isHi ? 'सांसद' : 'Member of Parliament'}: ${isHi ? (selectedProject.mpNameHi || selectedProject.mpName) : selectedProject.mpName}
-- ${isHi ? 'आवंटित राशि' : 'Sanctioned Amount'}: ${selectedProject.sanctionedCost}
-- ${isHi ? 'व्यय की गई राशि' : 'Expenditure Disbursed'}: ${selectedProject.expenditure} (${selectedProject.expenditurePct}%)
-- ${isHi ? 'भौतिक प्रगति' : 'Physical Progress'}: ${selectedProject.physicalProgress}%
-
-2. ${isHi ? 'समग्र मूल्यांकन' : 'OVERALL ASSESSMENT'}
-- ${isHi ? 'मूल्यांकन स्थिति' : 'Evaluation Status'}: ${liveRiskData.status}
-- ${isHi ? 'जोखिम स्तर' : 'Risk Level'}: ${analysisData.riskLevel.toUpperCase()}
-- ${isHi ? 'एकीकृत जोखिम स्कोर' : 'Unified Risk Score'}: ${analysisData.riskScore !== null ? `${analysisData.riskScore} / 100` : 'N/A'}
-
-3. ${isHi ? 'कार्यकारी सारांश' : 'EXECUTIVE SUMMARY'}
-${analysisData.summaryText}
-
-4. ${isHi ? 'पाई गई समस्याएं' : 'PROBLEMS FOUND'} (${analysisData.problemsList.length})
-${analysisData.problemsList.length === 0 ? (isHi ? 'कोई समस्या नहीं मिली। परियोजना पूरी तरह से सत्यापित और सुरक्षित है।' : 'No problems found. Project is verified and clean.') : analysisData.problemsList.map((prob, idx) => `
-[${isHi ? 'समस्या' : 'Problem'} ${idx + 1}] ${prob.modelName} (${isHi ? 'गंभीरता' : 'Severity'}: ${prob.severity})
-• ${isHi ? 'परिणाम' : 'Result'}: ${prob.finding}
-• ${isHi ? 'साक्ष्य / डेटा' : 'Evidence'}: ${prob.why || 'N/A'}
-• ${isHi ? 'सिफारिशित कार्रवाई' : 'Recommended Action'}: ${prob.action || 'N/A'}
-`).join('\n')}
-
-5. ${isHi ? 'सत्यापित एवं सामान्य जांच' : 'VERIFIED & NORMAL CHECKS'} (${analysisData.verifiedList.length})
-${analysisData.verifiedList.map((ver, idx) => `✓ ${ver.modelName}: ${ver.title}`).join('\n')}
-
-=====================================================
-${isHi ? 'निरीक्षक एआई - सार्वजनिक पारदर्शिता पोर्टल द्वारा जनरेट की गई रिपोर्ट' : 'Report generated by Nirikshak AI — Public Transparency Portal'}
-=====================================================`;
-
-    const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Unified_Analysis_${selectedProject.id || resolvedWorkId}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    setIsExportingPdf(true);
+    try {
+      await exportElementToPdf('unified-assessment-report', {
+        filename: `Nirikshak_AI_Unified_Analysis_${selectedProject.id || resolvedWorkId}.pdf`,
+        title: isHi ? 'एकीकृत एआई जोखिम मूल्यांकन रिपोर्ट' : 'UNIFIED AI RISK ASSESSMENT REPORT',
+        subtitle: `Project: ${selectedProject.id || resolvedWorkId} • ${selectedProject.district}, ${selectedProject.state} • MoSPI`,
+        hideSelectors: ['button', '.no-print']
+      });
+    } catch (err) {
+      console.error('PDF export failed:', err);
+      alert('Could not generate PDF. Please try again.');
+    } finally {
+      setIsExportingPdf(false);
+    }
   };
 
   return (
@@ -1107,24 +1086,32 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                   top: 'calc(100% + 6px)',
                   right: 0,
                   width: '520px',
-                  maxWidth: '92vw',
+                  maxWidth: 'min(520px, 92vw)',
                   background: '#FFFFFF',
                   border: '1.5px solid #1D1E22',
                   borderRadius: 'var(--radius-lg)',
                   boxShadow: '4px 6px 0px #1D1E22',
                   zIndex: 1100,
                   padding: '0.85rem',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  overflow: 'hidden'
                 }}
               >
                 {/* 1. Search Input with Clear Button */}
-                <div style={{ position: 'relative', marginBottom: '0.65rem' }}>
+                <div style={{ position: 'relative', marginBottom: '0.65rem', width: '100%', boxSizing: 'border-box' }}>
                   <Search size={15} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
                   <input
                     type="text"
                     autoFocus
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        setIsSearchOpen(false);
+                      } else if (e.key === 'Enter' && filteredProjectsList.length > 0) {
+                        handleSelectProject(filteredProjectsList[0]);
+                      }
+                    }}
                     placeholder={isHi ? 'परियोजना ID, जिला (उदा. Hamirpur, South Andaman, Varanasi), राज्य या सांसद खोजें...' : 'Search by district (e.g. Hamirpur, South Andaman, Varanasi), state, MP, or work ID...'}
                     style={{
                       width: '100%',
@@ -1160,7 +1147,7 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                 </div>
 
                 {/* 2. Quick District & State Selectors */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.45rem', marginBottom: '0.65rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr) auto', gap: '0.45rem', marginBottom: '0.65rem', width: '100%', boxSizing: 'border-box' }}>
                   <select
                     value={selectedStateFilter}
                     onChange={(e) => {
@@ -1168,6 +1155,9 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                       setSelectedDistrictFilter('ALL');
                     }}
                     style={{
+                      width: '100%',
+                      minWidth: 0,
+                      maxWidth: '100%',
                       padding: '0.35rem 0.5rem',
                       fontSize: '0.76rem',
                       fontWeight: 700,
@@ -1175,7 +1165,11 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                       borderRadius: 'var(--radius-sm)',
                       background: '#FAF8F3',
                       outline: 'none',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      boxSizing: 'border-box',
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap'
                     }}
                   >
                     <option value="ALL">{isHi ? '🌐 सभी राज्य एवं UT (36)' : '🌐 All States & UTs (36)'}</option>
@@ -1188,6 +1182,9 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                     value={selectedDistrictFilter}
                     onChange={(e) => setSelectedDistrictFilter(e.target.value)}
                     style={{
+                      width: '100%',
+                      minWidth: 0,
+                      maxWidth: '100%',
                       padding: '0.35rem 0.5rem',
                       fontSize: '0.76rem',
                       fontWeight: 700,
@@ -1195,7 +1192,11 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                       borderRadius: 'var(--radius-sm)',
                       background: '#FAF8F3',
                       outline: 'none',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      boxSizing: 'border-box',
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap'
                     }}
                   >
                     <option value="ALL">{isHi ? '📍 सभी जिले / निर्वाचन क्षेत्र' : '📍 All Districts / Const.'}</option>
@@ -1224,7 +1225,8 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.25rem'
+                        gap: '0.25rem',
+                        flexShrink: 0
                       }}
                     >
                       <RotateCcw size={12} />
@@ -1234,7 +1236,7 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                 </div>
 
                 {/* 3. Popular District Quick Chips */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', overflowX: 'auto', paddingBottom: '0.45rem', marginBottom: '0.45rem', borderBottom: '1px solid rgba(29,30,34,0.08)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', overflowX: 'auto', paddingBottom: '0.45rem', marginBottom: '0.45rem', borderBottom: '1px solid rgba(29,30,34,0.08)', width: '100%', boxSizing: 'border-box' }}>
                   <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', flexShrink: 0 }}>
                     {isHi ? 'लोकप्रिय जिले:' : 'Popular:'}
                   </span>
@@ -1266,7 +1268,7 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                 </div>
 
                 {/* 4. Results Status Counter */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.4rem', padding: '0 0.2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.4rem', padding: '0 0.2rem', width: '100%', boxSizing: 'border-box' }}>
                   <span>
                     {isHi
                       ? `${filteredProjectsList.length} परियोजनाएं मिलीं (शीर्ष ${Math.min(40, filteredProjectsList.length)} प्रदर्शित)`
@@ -1280,7 +1282,7 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                 </div>
 
                 {/* 5. Scrollable Results List */}
-                <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <div style={{ maxHeight: '280px', overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.4rem', width: '100%', boxSizing: 'border-box' }}>
                   {filteredProjectsList.slice(0, 40).map(item => {
                     const isSelected = selectedProject.id === item.id;
                     const isComp = item.status?.toLowerCase().includes('complete');
@@ -1457,6 +1459,7 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
         <>
           {/* Consolidated Report */}
           <div
+            id="unified-assessment-report"
             style={{
               background: '#FFFFFF',
               border: '1.5px solid #1D1E22',
@@ -1537,11 +1540,12 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                 </div>
               </div>
 
-              {/* Action: Download Simple Report */}
+              {/* Action: Download PDF Report */}
               <button
                 type="button"
                 onClick={handleDownloadSimpleReport}
-                className="btn-outline-dark"
+                disabled={isExportingPdf}
+                className="btn-outline-dark no-print"
                 style={{
                   padding: '0.55rem 1.15rem',
                   fontSize: '0.82rem',
@@ -1552,11 +1556,12 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                   background: '#FAF8F3',
                   border: '1.5px solid #1D1E22',
                   borderRadius: 'var(--radius-sm)',
-                  cursor: 'pointer'
+                  cursor: isExportingPdf ? 'wait' : 'pointer',
+                  opacity: isExportingPdf ? 0.7 : 1
                 }}
               >
-                <Download size={14} />
-                <span>{isHi ? 'रिपोर्ट डाउनलोड करें' : 'Download Report'}</span>
+                {isExportingPdf ? <RefreshCw size={14} className="animate-spin" /> : <Download size={14} />}
+                <span>{isExportingPdf ? (isHi ? 'पीडीएफ बन रहा है...' : 'Generating PDF...') : (isHi ? 'पीडीएफ रिपोर्ट डाउनलोड करें' : 'Download PDF Report')}</span>
               </button>
             </div>
 

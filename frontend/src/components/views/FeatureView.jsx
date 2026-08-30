@@ -23,6 +23,7 @@ import ProjectStatusView from './ProjectStatusView';
 import ProjectTimelineView from './ProjectTimelineView';
 import MeetTheTeamView from './MeetTheTeamView';
 import QrDemoView from './QrDemoView';
+import { exportElementToPdf } from '../../services/pdfExportService';
 
 // MOCK DATA SOURCED DIRECTLY FROM README.MD SPECIFICATIONS
 const MOCK_ANOMALY_PROJECTS = [
@@ -3046,6 +3047,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
     if (!selectedProject) return null;
     return (
       <div
+        id="investigation-dossier-card"
         style={{
           background: '#FFFFFF',
           border: '1.5px solid #1D1E22',
@@ -3346,8 +3348,20 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
             <button
               type="button"
-              onClick={() => alert(isHi ? 'जांच रिपोर्ट निर्यात की जा रही है...' : 'Exporting Investigation Dossier PDF...')}
-              className="btn-outline-dark"
+              onClick={async () => {
+                try {
+                  await exportElementToPdf('investigation-dossier-card', {
+                    filename: `Investigation_Dossier_${selectedProject.id}.pdf`,
+                    title: isHi ? 'विसंगति एवं जोखिम जांच डोज़ियर' : 'INVESTIGATION & RISK AUDIT DOSSIER',
+                    subtitle: `Project: ${selectedProject.id} • ${selectedProject.constituency} • MoSPI`,
+                    hideSelectors: ['button', '.no-print', 'textarea']
+                  });
+                } catch (e) {
+                  console.error('Dossier PDF export failed:', e);
+                  alert('Could not generate Dossier PDF. Please try again.');
+                }
+              }}
+              className="btn-outline-dark no-print"
               style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', gap: '0.4rem' }}
             >
               <Download size={14} />
@@ -3457,7 +3471,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
         const currentHouseData = HOUSE_DATA[selectedHouse] || HOUSE_DATA.both;
 
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <div id="mplads-overview-dashboard" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {/* Dashboard Header Bar */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.25rem', borderBottom: '1.5px solid #1D1E22', paddingBottom: '1.5rem' }}>
               <div>
@@ -3473,8 +3487,20 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
                 <button
                   type="button"
-                  onClick={() => alert(isHi ? 'डेटा निर्यात हो रहा है...' : 'Exporting MPLADS Dataset (Parquet/CSV)...')}
-                  className="btn-outline-dark"
+                  onClick={async () => {
+                    try {
+                      await exportElementToPdf('mplads-overview-dashboard', {
+                        filename: `MPLADS_National_Overview_Report.pdf`,
+                        title: isHi ? 'एमपीलैड्स राष्ट्रीय सारांश रिपोर्ट' : 'MPLADS NATIONAL PERFORMANCE SUMMARY REPORT',
+                        subtitle: `${currentHouseData.allocatedSub} • Ministry of Statistics & Programme Implementation`,
+                        hideSelectors: ['button', '.no-print']
+                      });
+                    } catch (e) {
+                      console.error('Overview PDF export failed:', e);
+                      alert('Could not generate Overview PDF. Please try again.');
+                    }
+                  }}
+                  className="btn-outline-dark no-print"
                   style={{
                     padding: '0.55rem 1.15rem',
                     fontSize: '0.84rem',
@@ -3483,11 +3509,12 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                     gap: '0.45rem',
                     background: '#FFFFFF',
                     border: '1.5px solid #1D1E22',
-                    boxShadow: '1.5px 2px 0px #1D1E22'
+                    boxShadow: '1.5px 2px 0px #1D1E22',
+                    cursor: 'pointer'
                   }}
                 >
                   <Download size={15} />
-                  <span>{isHi ? 'डेटा निर्यात' : 'Export Data'}</span>
+                  <span>{isHi ? 'पीडीएफ रिपोर्ट निर्यात' : 'Export PDF Report'}</span>
                 </button>
               </div>
             </div>

@@ -10,6 +10,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useData } from '../../context/DataContext';
 import { getMpBySlug, ALL_MPS_DATA } from '../../data/mpPerformanceData';
+import { exportElementToPdf } from '../../services/pdfExportService';
 import Footer from '../Footer';
 
 // ─── PREMIUM FINANCIAL ANALYTICS GAUGE COMPONENT ───
@@ -449,6 +450,26 @@ const MpDetailView = () => {
     );
   }
 
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+
+  const handleDownloadReport = async () => {
+    if (!mpData) return;
+    setIsExportingPdf(true);
+    try {
+      await exportElementToPdf('mp-audit-report-container', {
+        filename: `MPLADS_Audit_Report_${mpData.slug || mpData.name.replace(/\s+/g, '_')}.pdf`,
+        title: `MPLADS PERFORMANCE AUDIT REPORT — ${mpData.name.toUpperCase()}`,
+        subtitle: `${mpData.constituency} • ${mpData.house} • Ministry of Statistics & Programme Implementation`,
+        hideSelectors: ['button', '.no-print']
+      });
+    } catch (err) {
+      console.error('MP PDF export failed:', err);
+      alert('Could not generate PDF report. Please try again.');
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', minHeight: '100vh', width: '100%', maxWidth: '1440px', margin: '0 auto', padding: '0 1rem' }}>
       {/* ─── 1. BREADCRUMB & LANGUAGE SWITCHER ─── */}
@@ -464,7 +485,7 @@ const MpDetailView = () => {
         <LanguageSwitcher />
       </div>
 
-      {/* ─── 2. TOP BACK BUTTON ─── */}
+      {/* ─── 2. BACK BUTTON ─── */}
       <div>
         <button
           type="button"
@@ -489,128 +510,132 @@ const MpDetailView = () => {
         </button>
       </div>
 
-      {/* ─── 3. MP HEADER HERO CARD & ACTION BUTTONS ─── */}
-      <div
-        style={{
-          background: '#FFFFFF',
-          border: '1.5px solid #1D1E22',
-          borderRadius: 'var(--radius-lg)',
-          boxShadow: '3px 4px 0px #1D1E22',
-          padding: '1.75rem 2rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.5rem'
-        }}
-      >
-        {/* Profile Info & Right Actions Row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            {/* Big Blue Avatar Circle */}
-            <div
-              style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                background: '#1A73E8',
-                color: '#FFFFFF',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                boxShadow: '0 4px 10px rgba(26,115,232,0.3)'
-              }}
-            >
-              <User size={34} />
-            </div>
-
-            <div>
-              <h2
+      {/* ─── 3. MP AUDIT REPORT CONTAINER (FOR EXPORT) ─── */}
+      <div id="mp-audit-report-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        {/* MP HEADER HERO CARD & ACTION BUTTONS */}
+        <div
+          style={{
+            background: '#FFFFFF',
+            border: '1.5px solid #1D1E22',
+            borderRadius: 'var(--radius-lg)',
+            boxShadow: '3px 4px 0px #1D1E22',
+            padding: '1.75rem 2rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.5rem'
+          }}
+        >
+          {/* Profile Info & Right Actions Row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+              {/* Big Blue Avatar Circle */}
+              <div
                 style={{
-                  fontFamily: 'var(--font-serif-primary)',
-                  fontSize: 'clamp(1.5rem, 2.8vw, 2.1rem)',
-                  fontWeight: 800,
-                  color: '#1D1E22',
-                  margin: '0 0 0.35rem 0',
-                  lineHeight: 1.25
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  background: '#1A73E8',
+                  color: '#FFFFFF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  boxShadow: '0 4px 10px rgba(26,115,232,0.3)'
                 }}
               >
-                {mpData.name} ({mpData.term})
-              </h2>
+                <User size={34} />
+              </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.84rem', color: 'var(--color-text-secondary)' }}>
-                  <MapPin size={14} />
-                  <span>{mpData.constituency}</span>
-                </span>
-                <span style={{ padding: '0.2rem 0.65rem', background: '#FAF8F3', border: '1px solid #1D1E22', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', fontWeight: 700, color: '#0A2458' }}>
-                  {mpData.house}
-                </span>
+              <div>
+                <h2
+                  style={{
+                    fontFamily: 'var(--font-serif-primary)',
+                    fontSize: 'clamp(1.5rem, 2.8vw, 2.1rem)',
+                    fontWeight: 800,
+                    color: '#1D1E22',
+                    margin: '0 0 0.35rem 0',
+                    lineHeight: 1.25
+                  }}
+                >
+                  {mpData.name} ({mpData.term})
+                </h2>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.84rem', color: 'var(--color-text-secondary)' }}>
+                    <MapPin size={14} />
+                    <span>{mpData.constituency}</span>
+                  </span>
+                  <span style={{ padding: '0.2rem 0.65rem', background: '#FAF8F3', border: '1px solid #1D1E22', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', fontWeight: 700, color: '#0A2458' }}>
+                    {mpData.house}
+                  </span>
+                </div>
               </div>
             </div>
+
+            {/* Right Action Buttons */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                className="btn-outline-dark no-print"
+                style={{
+                  padding: '0.5rem 0.95rem',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  background: '#FFFFFF',
+                  border: '1.5px solid #1D1E22',
+                  borderRadius: 'var(--radius-sm)',
+                  cursor: 'pointer'
+                }}
+              >
+                {copiedLink ? <Check size={14} color="#1E7E34" /> : <Copy size={14} />}
+                <span>{copiedLink ? 'Copied!' : 'Copy Link'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate('/features/compare')}
+                className="btn-outline-dark no-print"
+                style={{
+                  padding: '0.5rem 0.95rem',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  background: '#FFFFFF',
+                  border: '1.5px solid #1D1E22',
+                  borderRadius: 'var(--radius-sm)',
+                  cursor: 'pointer'
+                }}
+              >
+                <GitCompare size={14} />
+                <span>Compare</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDownloadReport}
+                disabled={isExportingPdf}
+                className="btn-teal no-print"
+                style={{
+                  padding: '0.5rem 1.15rem',
+                  fontSize: '0.8rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  cursor: isExportingPdf ? 'wait' : 'pointer',
+                  opacity: isExportingPdf ? 0.7 : 1
+                }}
+              >
+                <Download size={14} />
+                <span>{isExportingPdf ? 'Generating PDF...' : 'Download PDF Report'}</span>
+              </button>
+            </div>
           </div>
-
-          {/* Right Action Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              onClick={handleCopyLink}
-              className="btn-outline-dark"
-              style={{
-                padding: '0.5rem 0.95rem',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                background: '#FFFFFF',
-                border: '1.5px solid #1D1E22',
-                borderRadius: 'var(--radius-sm)',
-                cursor: 'pointer'
-              }}
-            >
-              {copiedLink ? <Check size={14} color="#1E7E34" /> : <Copy size={14} />}
-              <span>{copiedLink ? 'Copied!' : 'Copy Link'}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => navigate('/features/compare')}
-              className="btn-outline-dark"
-              style={{
-                padding: '0.5rem 0.95rem',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                background: '#FFFFFF',
-                border: '1.5px solid #1D1E22',
-                borderRadius: 'var(--radius-sm)',
-                cursor: 'pointer'
-              }}
-            >
-              <GitCompare size={14} />
-              <span>Compare</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => alert(`Downloading comprehensive audit report for ${mpData.name}`)}
-              className="btn-teal"
-              style={{
-                padding: '0.5rem 1.15rem',
-                fontSize: '0.8rem',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                cursor: 'pointer'
-              }}
-            >
-              <Download size={14} />
-              <span>Download Report</span>
-            </button>
-          </div>
-        </div>
 
         {/* 4 Financial & Delivery Metric Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.15rem', borderTop: '1px solid rgba(29,30,34,0.1)', paddingTop: '1.25rem' }}>
@@ -1331,6 +1356,8 @@ const MpDetailView = () => {
           </div>
         </div>
       )}
+
+      </div>
 
       {/* ─── FOOTER ─── */}
       <Footer hideCTAButtons={true} />

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { ALL_MPS_DATA } from '../../data/mpPerformanceData';
+import { exportElementToPdf } from '../../services/pdfExportService';
 import Footer from '../Footer';
 
 const METRICS = [
@@ -93,22 +94,25 @@ const CompareView = () => {
     return METRICS.find(m => m.id === activeMetric) || METRICS[0];
   }, [activeMetric]);
 
-  // Export CSV of Comparison
-  const handleExportComparison = () => {
-    if (selectedMps.length === 0) return;
-    const headers = 'MP Name,Tenure,House,State,Constituency,Allocated (Cr),Spent (Cr),Utilization (%),Works Completed,Completion Rate (%)\n';
-    const rows = selectedMps.map(m =>
-      `"${m.name}","${m.term}","${m.house}","${m.state}","${m.constituency}",${m.allocatedCr},${m.spentCr},${m.utilizationPct},${m.worksCompleted},${m.completionRate}`
-    ).join('\n');
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
 
-    const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `MPLADS_Compare_${selectedMps.length}_MPs.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // Export PDF of Comparison
+  const handleExportComparison = async () => {
+    if (selectedMps.length === 0) return;
+    setIsExportingPdf(true);
+    try {
+      await exportElementToPdf('mp-comparison-report', {
+        filename: `MPLADS_Compare_${selectedMps.length}_MPs.pdf`,
+        title: 'MPLADS COMPARATIVE PERFORMANCE AUDIT REPORT',
+        subtitle: `Comparative Benchmarking of ${selectedMps.map(m => m.name).join(', ')} • MoSPI`,
+        hideSelectors: ['button', '.no-print']
+      });
+    } catch (e) {
+      console.error('Comparison PDF export failed:', e);
+      alert('Could not generate Comparison PDF. Please try again.');
+    } finally {
+      setIsExportingPdf(false);
+    }
   };
 
   return (
@@ -488,6 +492,7 @@ const CompareView = () => {
 
           {/* ─── 5. PERFORMANCE COMPARISON ANALYTICS CARD ─── */}
           <div
+            id="mp-comparison-report"
             style={{
               background: '#FFFFFF',
               border: '1.5px solid #1D1E22',
@@ -550,7 +555,8 @@ const CompareView = () => {
                 <button
                   type="button"
                   onClick={handleExportComparison}
-                  className="btn-outline-dark"
+                  disabled={isExportingPdf}
+                  className="btn-outline-dark no-print"
                   style={{
                     padding: '0.45rem 0.85rem',
                     fontSize: '0.8rem',
@@ -561,11 +567,12 @@ const CompareView = () => {
                     background: '#FAF8F3',
                     border: '1.5px solid #1D1E22',
                     borderRadius: 'var(--radius-sm)',
-                    cursor: 'pointer'
+                    cursor: isExportingPdf ? 'wait' : 'pointer',
+                    opacity: isExportingPdf ? 0.7 : 1
                   }}
                 >
                   <Download size={14} />
-                  <span>Export</span>
+                  <span>{isExportingPdf ? 'Generating PDF...' : 'Export PDF'}</span>
                 </button>
               </div>
             </div>

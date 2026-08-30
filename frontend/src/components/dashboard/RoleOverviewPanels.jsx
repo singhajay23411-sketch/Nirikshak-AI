@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useData } from '../../context/DataContext';
+import { exportStructuredAuditPdf } from '../../services/pdfExportService';
 
 const StatCard = ({ icon: Icon, label, value, trend, color = 'var(--color-accent-teal)' }) => (
   <div style={{
@@ -511,7 +512,42 @@ const RoleOverviewPanels = ({ role, activeTab, user }) => {
               <h4 style={{ fontWeight: 800, fontSize: '0.92rem', marginBottom: '0.35rem' }}>National Risk Summary Report</h4>
               <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>Consolidated risk breakdown across all 543 Lok Sabha and Rajya Sabha constituencies.</p>
               <button 
-                onClick={() => alert('Downloading National Risk Summary Report (PDF)...')}
+                onClick={async () => {
+                  try {
+                    await exportStructuredAuditPdf({
+                      filename: 'MPLADS_National_Risk_Summary.pdf',
+                      title: 'MPLADS NATIONAL RISK SUMMARY REPORT',
+                      subtitle: 'Consolidated Risk & Integrity Audit • Ministry of Statistics & Programme Implementation',
+                      metaItems: [
+                        { label: 'Scope', value: 'National (Lok Sabha + Rajya Sabha)' },
+                        { label: 'Constituencies', value: '543 LS + 245 RS' },
+                        { label: 'Audit Status', value: 'Live Telemetry' }
+                      ],
+                      kpis: [
+                        { label: 'Critical Anomalies', value: '18', color: 'red' },
+                        { label: 'High Risk Works', value: '667', color: 'red' },
+                        { label: 'Verified Complete', value: '1,94,210', color: 'green' },
+                        { label: 'Utilization Avg', value: '66.0%', color: 'blue' }
+                      ],
+                      summaryText: 'This report compiles nationwide MPLADS project health metrics, anomaly detections, and geospatial coverage across Indian parliamentary constituencies in accordance with MoSPI Guidelines.',
+                      tables: [
+                        {
+                          title: 'HIGH-PRIORITY RISK TIERS & INTERVENTIONS',
+                          headers: ['Risk Tier', 'Total Projects', 'Est. Exposure', 'Required Officer Action'],
+                          colWidths: [35, 30, 35, 80],
+                          rows: [
+                            ['CRITICAL (Score >80)', '18 Works', '₹14.2 Cr', 'Immediate On-site Vigilance & Verification Freeze'],
+                            ['HIGH (Score 60-80)', '667 Works', '₹89.5 Cr', 'District Authority Field Inspection within 14 Days'],
+                            ['MODERATE (Score 30-60)', '90,435 Works', '₹4,120 Cr', 'Routine Geo-tag Verification & Milestone Audit'],
+                            ['LOW (Score <30)', '1,27,793 Works', '₹5,880 Cr', 'Pre-approved Fast-track Disbursal Workflow']
+                          ]
+                        }
+                      ]
+                    });
+                  } catch (e) {
+                    console.error('PDF export failed:', e);
+                  }
+                }}
                 style={{ padding: '0.4rem 0.75rem', background: '#0A2458', color: '#FFF', border: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '0.76rem', cursor: 'pointer' }}
               >
                 Download PDF
@@ -522,10 +558,42 @@ const RoleOverviewPanels = ({ role, activeTab, user }) => {
               <h4 style={{ fontWeight: 800, fontSize: '0.92rem', marginBottom: '0.35rem' }}>Financial Anomaly Audit Sheet</h4>
               <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>Detailed list of cost z-score outliers and delayed projects requiring verification.</p>
               <button 
-                onClick={() => alert('Exporting Financial Anomaly Sheet (CSV)...')}
+                onClick={async () => {
+                  try {
+                    await exportStructuredAuditPdf({
+                      filename: 'MPLADS_Financial_Anomaly_Audit.pdf',
+                      title: 'MPLADS FINANCIAL ANOMALY AUDIT REPORT',
+                      subtitle: 'FinGuard Outlier & Variance Analysis • Ministry of Statistics & Programme Implementation',
+                      metaItems: [
+                        { label: 'Category', value: 'Cost & Delay Outliers' },
+                        { label: 'Algorithm', value: 'FinGuard Isolation Forest + Z-Score' },
+                        { label: 'Date', value: new Date().toLocaleDateString() }
+                      ],
+                      kpis: [
+                        { label: 'Z-Score > 2.5 Outliers', value: '42', color: 'red' },
+                        { label: 'Delayed > 365 Days', value: '318', color: 'red' },
+                        { label: 'Cartel Clusters', value: '14', color: 'red' }
+                      ],
+                      tables: [
+                        {
+                          title: 'FLAGGED ANOMALY SAMPLE AUDIT TRAIL',
+                          headers: ['Work ID', 'Constituency', 'Sanctioned', 'Cost Z-Score', 'Anomaly Trigger'],
+                          colWidths: [30, 40, 25, 25, 60],
+                          rows: [
+                            ['MPLADS-2026-8871', 'Varanasi', '₹45.0 L', '+3.82', '280% above baseline district median cost'],
+                            ['MPLADS-2026-4419', 'South Andaman', '₹85.0 L', '+2.95', 'Contractor cartel cluster (HHI: 8,400)'],
+                            ['MPLADS-2026-1022', 'Hamirpur', '₹22.5 L', '+2.41', 'Milestone delay > 420 days with 0% progress']
+                          ]
+                        }
+                      ]
+                    });
+                  } catch (e) {
+                    console.error('PDF export failed:', e);
+                  }
+                }}
                 style={{ padding: '0.4rem 0.75rem', background: '#0A2458', color: '#FFF', border: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '0.76rem', cursor: 'pointer' }}
               >
-                Export CSV
+                Download PDF
               </button>
             </div>
           </div>

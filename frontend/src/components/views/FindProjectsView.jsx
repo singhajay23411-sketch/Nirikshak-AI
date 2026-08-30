@@ -1092,29 +1092,54 @@ const FindProjectsView = () => {
               <ChevronLeft size={16} />
             </button>
 
-            {/* Page Numbers */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
-              <button
-                key={pageNum}
-                type="button"
-                onClick={() => setCurrentPage(pageNum)}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '4px',
-                  border: '1px solid #1D1E22',
-                  background: currentPage === pageNum ? 'var(--color-accent-teal)' : '#FFFFFF',
-                  color: '#1D1E22',
-                  fontSize: '0.82rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  boxShadow: currentPage === pageNum ? '1.5px 2px 0px #1D1E22' : 'none',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                {pageNum}
-              </button>
-            ))}
+            {/* Page Numbers — smart ellipsis pagination */}
+            {(() => {
+              const pages = [];
+              const maxVisible = 7;
+              if (totalPages <= maxVisible) {
+                for (let i = 1; i <= totalPages; i++) pages.push(i);
+              } else {
+                pages.push(1);
+                let rangeStart = Math.max(2, currentPage - 1);
+                let rangeEnd = Math.min(totalPages - 1, currentPage + 1);
+                // Shift range so we always show ~3 middle numbers
+                if (currentPage <= 3) { rangeStart = 2; rangeEnd = Math.min(5, totalPages - 1); }
+                else if (currentPage >= totalPages - 2) { rangeStart = Math.max(totalPages - 4, 2); rangeEnd = totalPages - 1; }
+                if (rangeStart > 2) pages.push('…left');
+                for (let i = rangeStart; i <= rangeEnd; i++) pages.push(i);
+                if (rangeEnd < totalPages - 1) pages.push('…right');
+                pages.push(totalPages);
+              }
+              return pages.map((item, idx) => {
+                if (typeof item === 'string') {
+                  return (
+                    <span key={item} style={{ width: '32px', height: '32px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text-muted)', userSelect: 'none' }}>…</span>
+                  );
+                }
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => setCurrentPage(item)}
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '4px',
+                      border: '1px solid #1D1E22',
+                      background: currentPage === item ? 'var(--color-accent-teal)' : '#FFFFFF',
+                      color: '#1D1E22',
+                      fontSize: '0.82rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      boxShadow: currentPage === item ? '1.5px 2px 0px #1D1E22' : 'none',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {item}
+                  </button>
+                );
+              });
+            })()}
 
             {/* Next Button */}
             <button
