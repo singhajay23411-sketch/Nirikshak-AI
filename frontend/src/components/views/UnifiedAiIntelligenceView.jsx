@@ -307,17 +307,45 @@ const UnifiedAiIntelligenceView = () => {
     return selectedProject.workId || selectedProject.work_id;
   }, [selectedProject]);
 
+  useEffect(() => {
+    if (!resolvedWorkId) return;
+    setLiveLoading(true);
+    setLiveError(null);
 
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    fetch(`/api/works/${resolvedWorkId}/risk`, { headers })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP Error ${res.status}: ${res.statusText}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        setLiveRiskData(data);
+        setLiveLoading(false);
+      })
+      .catch(err => {
+        console.error('Error fetching live unified risk data:', err);
+        setLiveError(err.message || 'Failed to fetch live unified risk data');
+        setLiveLoading(false);
+      });
+  }, [resolvedWorkId, token]);
 
   const handleRunAnalysis = () => {
     if (!resolvedWorkId) return;
     setLiveLoading(true);
     setLiveError(null);
-    fetch(`/api/works/${resolvedWorkId}/risk`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
+
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    fetch(`/api/works/${resolvedWorkId}/risk`, { headers })
       .then(res => {
         if (!res.ok) {
           throw new Error(`HTTP Error ${res.status}: ${res.statusText}`);
@@ -492,11 +520,11 @@ const UnifiedAiIntelligenceView = () => {
       isProblem: components.financial?.financial_risk_score > 25,
       severity: components.financial?.financial_risk_tier || (isHi ? 'सामान्य' : 'Normal'),
       severityRaw: components.financial?.financial_risk_tier || 'Normal',
-      finding: components.financial?.status === 'UNAVAILABLE' 
+      finding: components.financial?.status === 'UNAVAILABLE'
         ? (isHi ? 'वित्तीय डेटा अनुपलब्ध है।' : 'Financial data unavailable.')
-        : (isHi 
-            ? `वित्तीय विसंगति स्कोर ${components.financial?.financial_risk_score} (वितरण अनुपात: ${components.financial?.disbursement_ratio || 0})`
-            : `Financial anomaly score is ${components.financial?.financial_risk_score} (disbursement ratio: ${components.financial?.disbursement_ratio || 0})`),
+        : (isHi
+          ? `वित्तीय विसंगति स्कोर ${components.financial?.financial_risk_score} (वितरण अनुपात: ${components.financial?.disbursement_ratio || 0})`
+          : `Financial anomaly score is ${components.financial?.financial_risk_score} (disbursement ratio: ${components.financial?.disbursement_ratio || 0})`),
       why: components.financial?.anomaly_reasons ? components.financial.anomaly_reasons.join(', ') : '',
       evidence: components.financial?.anomaly_reasons ? components.financial.anomaly_reasons.join(', ') : '',
       action: components.financial?.recommended_actions ? components.financial.recommended_actions.join(', ') : ''
@@ -515,8 +543,8 @@ const UnifiedAiIntelligenceView = () => {
       finding: components.progress?.status === 'UNAVAILABLE'
         ? (isHi ? 'प्रगति डेटा अनुपलब्ध है।' : 'Progress data unavailable.')
         : (isHi
-            ? `प्रगति जोखिम स्कोर ${components.progress?.progress_risk_score} (रुकावट की संभावना: ${(components.progress?.stall_probability * 100 || 0).toFixed(1)}%)`
-            : `Progress risk score is ${components.progress?.progress_risk_score} (stall probability: ${(components.progress?.stall_probability * 100 || 0).toFixed(1)}%)`),
+          ? `प्रगति जोखिम स्कोर ${components.progress?.progress_risk_score} (रुकावट की संभावना: ${(components.progress?.stall_probability * 100 || 0).toFixed(1)}%)`
+          : `Progress risk score is ${components.progress?.progress_risk_score} (stall probability: ${(components.progress?.stall_probability * 100 || 0).toFixed(1)}%)`),
       why: components.progress?.risk_factors ? components.progress.risk_factors.join(', ') : '',
       evidence: components.progress?.risk_factors ? components.progress.risk_factors.join(', ') : '',
       action: isHi ? 'मील का पत्थर निष्पादन की निगरानी करें और भौतिक प्रगति की जांच करें।' : 'Monitor milestone execution and inspect physical progress.'
@@ -535,8 +563,8 @@ const UnifiedAiIntelligenceView = () => {
       finding: components.cost?.status === 'UNAVAILABLE'
         ? (isHi ? 'लागत डेटा अनुपलब्ध है।' : 'Cost data unavailable.')
         : (isHi
-            ? `लागत वृद्धि जोखिम स्कोर ${components.cost?.cost_risk_score} (लागत जेड-स्कोर: ${(components.cost?.cost_z_score || 0).toFixed(2)})`
-            : `Cost overrun risk score is ${components.cost?.cost_risk_score} (cost z-score: ${(components.cost?.cost_z_score || 0).toFixed(2)})`),
+          ? `लागत वृद्धि जोखिम स्कोर ${components.cost?.cost_risk_score} (लागत जेड-स्कोर: ${(components.cost?.cost_z_score || 0).toFixed(2)})`
+          : `Cost overrun risk score is ${components.cost?.cost_risk_score} (cost z-score: ${(components.cost?.cost_z_score || 0).toFixed(2)})`),
       why: components.cost?.risk_factors ? components.cost.risk_factors.join(', ') : '',
       evidence: components.cost?.risk_factors ? components.cost.risk_factors.join(', ') : '',
       action: isHi ? 'विस्तृत मात्रा बिल (BOQ) की समीक्षा करें।' : 'Review the detailed bill of quantities (BOQ).'
@@ -555,8 +583,8 @@ const UnifiedAiIntelligenceView = () => {
       finding: components.delay?.status === 'UNAVAILABLE'
         ? (isHi ? 'विलंब डेटा अनुपलब्ध है।' : 'Delay data unavailable.')
         : (isHi
-            ? `विलंब पूर्वानुमान स्कोर ${components.delay?.delay_risk_score} (विलंब की संभावना: ${(components.delay?.delay_probability * 100 || 0).toFixed(1)}%, स्थिति: ${components.delay?.operational_status || 'अज्ञान'})`
-            : `Delay prediction score is ${components.delay?.delay_risk_score} (delay probability: ${(components.delay?.delay_probability * 100 || 0).toFixed(1)}%, status: ${components.delay?.operational_status || 'UNKNOWN'})`),
+          ? `विलंब पूर्वानुमान स्कोर ${components.delay?.delay_risk_score} (विलंब की संभावना: ${(components.delay?.delay_probability * 100 || 0).toFixed(1)}%, स्थिति: ${components.delay?.operational_status || 'अज्ञान'})`
+          : `Delay prediction score is ${components.delay?.delay_risk_score} (delay probability: ${(components.delay?.delay_probability * 100 || 0).toFixed(1)}%, status: ${components.delay?.operational_status || 'UNKNOWN'})`),
       why: components.delay?.risk_factors ? components.delay.risk_factors.join(', ') : '',
       evidence: components.delay?.risk_factors ? components.delay.risk_factors.join(', ') : '',
       action: isHi ? 'ठेकेदार को नोटिस जारी करें और शेष कार्य के लिए सख्त समय-सीमा तय करें।' : 'Issue notice to contractor and set strict timelines.'
@@ -575,8 +603,8 @@ const UnifiedAiIntelligenceView = () => {
       finding: components.duplicate?.status === 'UNAVAILABLE'
         ? (isHi ? 'दोहरी परियोजना विश्लेषण वर्तमान में अनुपलब्ध है।' : 'Duplicate project analysis is currently unavailable.')
         : (isHi
-            ? `दोहरी परियोजना जोखिम स्कोर ${components.duplicate?.risk_confidence_score}% (विवरण: ${components.duplicate?.reason || ''})`
-            : `Duplicate project risk score is ${components.duplicate?.risk_confidence_score}% (detail: ${components.duplicate?.reason || ''})`),
+          ? `दोहरी परियोजना जोखिम स्कोर ${components.duplicate?.risk_confidence_score}% (विवरण: ${components.duplicate?.reason || ''})`
+          : `Duplicate project risk score is ${components.duplicate?.risk_confidence_score}% (detail: ${components.duplicate?.reason || ''})`),
       why: components.duplicate?.reason || '',
       evidence: components.duplicate?.text_similarity_score ? `Text similarity: ${(components.duplicate.text_similarity_score * 100).toFixed(1)}%` : '',
       action: isHi ? 'दोहरी बिलिंग से बचने के लिए स्थानीय संपत्ति रिकॉर्ड की जांच करें।' : 'Cross-check local assets records to prevent double funding.'
@@ -595,8 +623,8 @@ const UnifiedAiIntelligenceView = () => {
       finding: components.evidence?.status === 'UNAVAILABLE'
         ? (isHi ? 'साक्ष्य सत्यापन डेटा वर्तमान में अनुपलब्ध है।' : 'Evidence verification data is currently unavailable.')
         : (isHi
-            ? `साक्ष्य सत्यापन विसंगति स्कोर ${components.evidence?.evidence_risk_score} (${components.evidence?.evidence_risk_tier})`
-            : `Evidence verification anomaly score is ${components.evidence?.evidence_risk_score} (${components.evidence?.evidence_risk_tier})`),
+          ? `साक्ष्य सत्यापन विसंगति स्कोर ${components.evidence?.evidence_risk_score} (${components.evidence?.evidence_risk_tier})`
+          : `Evidence verification anomaly score is ${components.evidence?.evidence_risk_score} (${components.evidence?.evidence_risk_tier})`),
       why: components.evidence?.flags ? components.evidence.flags.join(', ') : (components.evidence?.reason || ''),
       evidence: components.evidence?.flags ? components.evidence.flags.join(', ') : '',
       action: isHi ? 'साइट पर भौतिक निरीक्षण करें और ताजा जियोटैग किए गए साक्ष्य लें।' : 'Perform physical inspection and capture fresh geotagged evidence.'
@@ -615,8 +643,8 @@ const UnifiedAiIntelligenceView = () => {
       finding: components.agency?.status === 'UNAVAILABLE'
         ? (isHi ? 'एजेंसी डेटा अनुपलब्ध है।' : 'Agency data unavailable.')
         : (isHi
-            ? `कार्यकारी एजेंसी जोखिम स्कोर ${components.agency?.agency_risk_score} (${components.agency?.agency_risk_tier})`
-            : `Implementing agency risk score is ${components.agency?.agency_risk_score} (${components.agency?.agency_risk_tier})`),
+          ? `कार्यकारी एजेंसी जोखिम स्कोर ${components.agency?.agency_risk_score} (${components.agency?.agency_risk_tier})`
+          : `Implementing agency risk score is ${components.agency?.agency_risk_score} (${components.agency?.agency_risk_tier})`),
       why: components.agency?.risk_factors ? components.agency.risk_factors.join('; ') : '',
       evidence: components.agency?.risk_factors ? components.agency.risk_factors.join('; ') : '',
       action: isHi ? 'एजेंसी के पिछले प्रदर्शन ट्रैक रिकॉर्ड की समीक्षा करें।' : 'Review agency past performance track record.'
@@ -635,8 +663,8 @@ const UnifiedAiIntelligenceView = () => {
       finding: components.payment?.status === 'UNAVAILABLE'
         ? (isHi ? 'भुगतान डेटा अनुपलब्ध है।' : 'Payment data unavailable.')
         : (isHi
-            ? `भुगतान विसंगति जोखिम स्कोर ${components.payment?.payment_risk_score} (HHI: ${components.payment?.hhi?.toFixed(1) || 0})`
-            : `Payment anomaly risk score is ${components.payment?.payment_risk_score} (HHI: ${components.payment?.hhi?.toFixed(1) || 0})`),
+          ? `भुगतान विसंगति जोखिम स्कोर ${components.payment?.payment_risk_score} (HHI: ${components.payment?.hhi?.toFixed(1) || 0})`
+          : `Payment anomaly risk score is ${components.payment?.payment_risk_score} (HHI: ${components.payment?.hhi?.toFixed(1) || 0})`),
       why: components.payment?.risk_factors ? components.payment.risk_factors.join(', ') : '',
       evidence: components.payment?.risk_factors ? components.payment.risk_factors.join(', ') : '',
       action: isHi ? 'भुगतान वाउचरों और विक्रेता एकाग्रता की समीक्षा करें।' : 'Review payment vouchers and vendor concentration.'
@@ -671,7 +699,7 @@ const UnifiedAiIntelligenceView = () => {
       summaryText = isHi
         ? `इस परियोजना का एकीकृत जोखिम स्कोर ${riskScore}/100 है। जोखिम स्तर ${riskLevel} है। `
         : `This project has a unified risk score of ${riskScore}/100. The risk tier is ${riskLevel}. `;
-      
+
       if (problemsList.length > 0) {
         summaryText += isHi
           ? `पहचानी गई प्रमुख विसंगतियां: ${problemsList.map(p => p.modelName).join(', ')}। सुधारक कार्रवाइयां शुरू करें।`
@@ -695,7 +723,7 @@ const UnifiedAiIntelligenceView = () => {
     if (!liveRiskData) return [];
     const drivers = [];
     const comps = liveRiskData.components || {};
-    
+
     if (comps.financial?.anomaly_reasons) {
       comps.financial.anomaly_reasons.forEach(r => drivers.push({ component: isHi ? 'वित्तीय जोखिम' : 'Financial Risk', text: r }));
     }
@@ -1071,9 +1099,10 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
             </button>
           </div>
         </div>
-      ) : hasAnyCompleted ? (
+      ) : (
         <>
           {/* Consolidated Report */}
+          {hasAnyCompleted && (
           <div
             style={{
               background: '#FFFFFF',
@@ -1443,6 +1472,7 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
               </div>
             </div>
           </div>
+          )}
 
           {/* 5. INDIVIDUAL MODEL ANALYSIS SECTION */}
           <div>
@@ -1473,10 +1503,10 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                 const statusText = isRunning
                   ? (isHi ? 'विश्लेषण जारी...' : 'Analyzing...')
                   : isCompleted
-                  ? (modelFinding.status === 'UNAVAILABLE'
+                    ? (modelFinding.status === 'UNAVAILABLE'
                       ? (isHi ? 'अनुपलब्ध' : 'UNAVAILABLE')
                       : (modelFinding.isProblem ? (isHi ? `${modelFinding.severity} समस्या` : `${modelFinding.severity} Issue`) : (isHi ? 'सत्यापित एवं सुरक्षित' : 'Verified Clean')))
-                  : (isHi ? 'निष्क्रिय / तैयार' : 'Idle / Ready');
+                    : (isHi ? 'निष्क्रिय / तैयार' : 'Idle / Ready');
 
                 const statusBg = isRunning ? '#E8F0FE' : isCompleted ? (modelFinding.status === 'UNAVAILABLE' ? '#F5F5F5' : (modelFinding.isProblem ? '#FFEBEE' : '#E8F5E9')) : '#FAF8F3';
                 const statusColor = isRunning ? '#1A73E8' : isCompleted ? (modelFinding.status === 'UNAVAILABLE' ? '#9E9E9E' : (modelFinding.isProblem ? '#D9534F' : '#1E7E34')) : 'var(--color-text-muted)';
@@ -1614,20 +1644,6 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
             </div>
           </div>
         </>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem', background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-lg)', boxShadow: '3px 4px 0px #1D1E22', gap: '1rem' }}>
-          <AlertCircle size={40} color="var(--color-text-muted)" />
-          <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1D1E22' }}>
-            {isHi ? 'कोई डेटा लोड नहीं हुआ' : 'No data loaded'}
-          </div>
-          <button
-            onClick={handleRunAnalysis}
-            className="btn-teal"
-            style={{ padding: '0.5rem 1.25rem', fontSize: '0.84rem', fontWeight: 800 }}
-          >
-            {isHi ? 'लोड करने के लिए क्लिक करें' : 'Click to Load'}
-          </button>
-        </div>
       )}
 
       {/* ─── FOOTER ─── */}

@@ -82,12 +82,7 @@ function LandingPage() {
     }
   };
 
-  const handleFeatureSelect = (featureId, target) => {
-    if (target === 'investigation') {
-      window.location.hash = `#investigation-${featureId}`;
-      scrollToSection('investigation');
-      return;
-    }
+  const handleFeatureSelect = (featureId) => {
     const targetPath = `/features/${featureId}`;
     if (location.pathname !== targetPath) {
       navigate(targetPath);
