@@ -443,7 +443,7 @@ const ProjectTimelineView = () => {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
-          const formattedReal = data.slice(0, 40).map((p, idx) => {
+          const formattedReal = data.map((p, idx) => {
             const isComp = p.type === 'completed' || p.status?.toLowerCase().includes('completed');
             const costNum = typeof p.cost === 'number' ? p.cost : 2000000;
             const expNum = typeof p.disbursed === 'number' ? p.disbursed : (isComp ? costNum : Math.round(costNum * 0.7));
@@ -535,18 +535,15 @@ const ProjectTimelineView = () => {
       });
   }, []);
 
-  // Filter project selector list
+  // Filter project selector list with tokenized multi-field matching
   const filteredProjects = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return projectPool;
-    return projectPool.filter(p =>
-      p.id.toLowerCase().includes(q) ||
-      p.title.toLowerCase().includes(q) ||
-      p.district.toLowerCase().includes(q) ||
-      p.state.toLowerCase().includes(q) ||
-      p.mp.toLowerCase().includes(q) ||
-      p.constituency.toLowerCase().includes(q)
-    );
+    const tokens = q.split(/\s+/).filter(Boolean);
+    return projectPool.filter(p => {
+      const corpus = `${p.id || ''} ${p.title || ''} ${p.district || ''} ${p.state || ''} ${p.mp || ''} ${p.constituency || ''} ${p.category || ''} ${p.agency || ''}`.toLowerCase();
+      return tokens.every(t => corpus.includes(t));
+    });
   }, [projectPool, searchQuery]);
 
   const handleSelectProject = (project) => {
@@ -691,7 +688,7 @@ const ProjectTimelineView = () => {
                   {isHi ? 'कोई मेल खाती परियोजना नहीं मिली' : 'No matching projects found.'}
                 </div>
               ) : (
-                filteredProjects.map((p) => {
+                filteredProjects.slice(0, 50).map((p) => {
                   const isSelected = selectedProject && selectedProject.id === p.id;
                   return (
                     <div

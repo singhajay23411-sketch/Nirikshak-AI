@@ -1,10 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Shield, AlertTriangle, CheckCircle2, Search, RefreshCw, Download,
   DollarSign, TrendingUp, Copy, Clock, Camera, Compass,
   ChevronDown, ChevronUp, FileText, Check, Play, Eye, ArrowRight,
-  HelpCircle, AlertCircle, Sparkles, MapPin, X, Cpu, Layers
+  HelpCircle, AlertCircle, Sparkles, MapPin, X, Cpu, Layers, Filter, RotateCcw, Building2
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -151,58 +151,73 @@ const SAMPLE_PROJECTS_POOL = [
   }
 ];
 
-// Helper to synthesize complete unified risk analysis from precomputed data
+// Helper to synthesize complete unified risk analysis from precomputed data or intelligent heuristics
 const synthesizeUnifiedRisk = (project, unifiedList, duplicatesList, anomaliesList) => {
-  const pId = project.workId || project.work_id || (typeof project.id === 'string' ? parseInt(project.id.replace('MPLADS-', ''), 10) : null);
+  const pId = project.workId || project.work_id || (typeof project.id === 'string' ? parseInt(project.id.replace(/[^\d]/g, ''), 10) : null);
   
   // Find in unified_project_evaluations
-  const foundUPE = (unifiedList || []).find(u => u.work_id === pId || `MPLADS-${u.work_id}` === project.id);
+  const foundUPE = (unifiedList || []).find(u => (pId && u.work_id === pId) || (project.id && `MPLADS-${u.work_id}` === project.id));
   
   // Find duplicate alert
-  const dupAlert = (duplicatesList || []).find(d => d.work_id_a === pId || d.work_id_b === pId);
+  const dupAlert = (duplicatesList || []).find(d => (pId && (d.work_id_a === pId || d.work_id_b === pId)));
   
   // Find cost anomaly
-  const costAnom = (anomaliesList || []).find(a => a.work_id === pId);
+  const costAnom = (anomaliesList || []).find(a => pId && a.work_id === pId);
 
-  const costZ = foundUPE?.cost_z_score ?? (costAnom?.cost_overrun_pct ? costAnom.cost_overrun_pct / 20 : 0.15);
+  const costZ = foundUPE?.cost_z_score ?? (costAnom?.cost_overrun_pct ? costAnom.cost_overrun_pct / 20 : (project.costDeviationPct ? project.costDeviationPct / 25 : 0.15));
   const delayDays = foundUPE?.completion_delay_days ?? (costAnom?.completion_delay_days ?? (project.delayMonths ? project.delayMonths * 30 : 0));
-  const finalScore = foundUPE ? Math.round(foundUPE.final_risk_score) : (project.riskScorePreset ?? (delayDays > 180 ? 74 : (costZ > 2 ? 68 : 12)));
+  
+  const expPct = project.expenditurePct || 0;
+  const physProg = project.physicalProgress || 0;
+  const hasMismatch = expPct > 80 && physProg < 50;
+
+  const baseFinScore = hasMismatch ? 78 : (costZ > 1.8 ? 68 : (expPct > 95 && physProg < 80 ? 45 : 12));
+  const finalScore = foundUPE 
+    ? Math.round(foundUPE.final_risk_score) 
+    : (project.riskScorePreset && project.riskScorePreset > 20 
+        ? project.riskScorePreset 
+        : (delayDays > 180 ? 74 : (hasMismatch ? 78 : (costZ > 2 ? 68 : 14))));
+        
   const riskTier = foundUPE?.risk_tier || (finalScore >= 80 ? 'CRITICAL' : finalScore >= 60 ? 'HIGH' : finalScore >= 30 ? 'MODERATE' : 'LOW');
 
   const components = {
     financial: {
       status: 'LIVE',
-      financial_risk_score: Math.min(100, Math.round(costZ > 1.5 ? 65 + costZ * 10 : (project.expenditurePct > 90 && (project.physicalProgress || 0) < 50 ? 80 : 12))),
-      financial_risk_tier: (project.expenditurePct > 90 && (project.physicalProgress || 0) < 50) ? 'HIGH' : 'LOW',
-      unified_risk_contribution: 0.20 * (costZ > 1.5 ? 65 : 12),
-      disbursement_ratio: ((project.expenditurePct || 100) / 100).toFixed(2),
-      anomaly_reasons: foundUPE?.top_risk_drivers ? [foundUPE.project_summary || 'Financial disbursal pattern verified.'] : ['Expenditure aligns with sanctioned physical milestones.'],
+      financial_risk_score: Math.min(100, Math.round(foundUPE?.financial_risk_score ?? baseFinScore)),
+      financial_risk_tier: (hasMismatch || baseFinScore > 60) ? 'HIGH' : (baseFinScore > 30 ? 'MODERATE' : 'LOW'),
+      unified_risk_contribution: 0.20 * (foundUPE?.financial_risk_score ?? baseFinScore),
+      disbursement_ratio: ((expPct || 100) / 100).toFixed(2),
+      anomaly_reasons: foundUPE?.top_risk_drivers 
+        ? [foundUPE.project_summary || 'Financial disbursal pattern verified against sanction order.'] 
+        : (hasMismatch 
+            ? [`Financial expenditure (${expPct}%) outpaces physical milestone completion (${physProg}%).`] 
+            : ['Expenditure aligns with sanctioned physical milestones.']),
       recommended_actions: ['Reconcile bank book with physical MB (Measurement Book).']
     },
     progress: {
       status: 'LIVE',
-      progress_risk_score: Math.min(100, Math.round((100 - (project.physicalProgress || 100)) * (delayDays > 90 ? 0.8 : 0.15))),
-      progress_risk_tier: delayDays > 180 ? 'HIGH' : 'LOW',
+      progress_risk_score: Math.min(100, Math.round(foundUPE?.progress_risk_score ?? ((100 - physProg) * (delayDays > 90 ? 0.8 : 0.15)))),
+      progress_risk_tier: delayDays > 180 ? 'HIGH' : (delayDays > 60 ? 'MODERATE' : 'LOW'),
       unified_risk_contribution: 0.20 * (delayDays > 180 ? 60 : 10),
-      stall_probability: delayDays > 180 ? 0.65 : 0.04,
+      stall_probability: delayDays > 180 ? 0.65 : (delayDays > 60 ? 0.35 : 0.04),
       risk_factors: [delayDays > 0 ? `Schedule overrun of ${delayDays} days detected.` : 'Work progressing on schedule without critical lag.']
     },
     cost: {
       status: 'LIVE',
-      cost_risk_score: Math.min(100, Math.round(Math.max(8, costZ * 25))),
-      cost_risk_tier: costZ > 2 ? 'HIGH' : 'NORMAL',
+      cost_risk_score: Math.min(100, Math.round(foundUPE?.cost_risk_score ?? Math.max(8, costZ * 25))),
+      cost_risk_tier: costZ > 2 ? 'HIGH' : (costZ > 1.2 ? 'MODERATE' : 'NORMAL'),
       unified_risk_contribution: 0.15 * Math.max(8, costZ * 25),
       cost_z_score: costZ,
       risk_factors: costZ > 1.5 ? [`Cost is ${(costZ * 15).toFixed(1)}% higher than local district benchmarks.`] : ['Cost is within standard schedule of rates (SoR).']
     },
     delay: {
       status: 'LIVE',
-      delay_risk_score: Math.min(100, Math.round(delayDays > 0 ? Math.min(95, (delayDays / 365) * 60 + 20) : 8)),
-      delay_risk_tier: delayDays > 180 ? 'HIGH' : 'LOW',
+      delay_risk_score: Math.min(100, Math.round(foundUPE?.delay_risk_score ?? (delayDays > 0 ? Math.min(95, (delayDays / 365) * 60 + 20) : 8))),
+      delay_risk_tier: delayDays > 180 ? 'HIGH' : (delayDays > 60 ? 'MODERATE' : 'LOW'),
       unified_risk_contribution: 0.15 * (delayDays > 0 ? 55 : 8),
       delay_days: delayDays,
       delay_probability: delayDays > 0 ? 0.72 : 0.05,
-      operational_status: delayDays > 180 ? 'Delayed' : 'On Track',
+      operational_status: delayDays > 180 ? 'Delayed' : (delayDays > 0 ? 'Review Needed' : 'On Track'),
       risk_factors: delayDays > 0 ? [`Completion delayed by ${delayDays} days beyond scheduled target.`] : ['Milestones achieved within targeted schedule.']
     },
     duplicate: {
@@ -214,18 +229,18 @@ const synthesizeUnifiedRisk = (project, unifiedList, duplicatesList, anomaliesLi
     evidence: {
       status: 'LIVE',
       evidence_risk_score: foundUPE?.agency_risk_tier === 'HIGH' ? 65 : 10,
-      evidence_risk_tier: 'LOW',
+      evidence_risk_tier: foundUPE?.agency_risk_tier === 'HIGH' ? 'MODERATE' : 'LOW',
       unified_risk_contribution: 0.10 * 10,
       flags: [],
       reason: 'Inspection geotags and photographic evidence successfully verified against e-Sakshi portal.'
     },
     agency: {
       status: 'LIVE',
-      agency_risk_score: foundUPE?.agency_risk_tier === 'HIGH' ? 75 : 12,
-      agency_risk_tier: foundUPE?.agency_risk_tier || 'STANDARD',
+      agency_risk_score: foundUPE?.agency_risk_tier === 'HIGH' ? 75 : (project.agencyPriorFlags > 0 ? 65 : 12),
+      agency_risk_tier: foundUPE?.agency_risk_tier || (project.agencyPriorFlags > 0 ? 'HIGH' : 'STANDARD'),
       unified_risk_contribution: 0.05 * 12,
       agency_name: project.agency || 'District Implementing Authority',
-      risk_factors: [`Executing entity track record: ${foundUPE?.agency_risk_tier || 'COMPLIANT'}`]
+      risk_factors: [`Executing entity track record: ${foundUPE?.agency_risk_tier || (project.agencyPriorFlags > 0 ? 'PRIOR_FLAGS' : 'COMPLIANT')}`]
     },
     payment: {
       status: 'LIVE',
@@ -254,95 +269,118 @@ const UnifiedAiIntelligenceView = () => {
   const isHi = language === 'hi';
 
   const { token } = useAuth();
-  const { unifiedProjects, costAnomalies, duplicateAlerts } = useData();
+  const { unifiedProjects, costAnomalies, duplicateAlerts, realProjects } = useData();
 
-  // 1. Construct the Merged Project Pool
+  const searchContainerRef = useRef(null);
+
+  // 1. Construct the Merged Project Pool (All 36 States & 579 Districts)
   const projectsPool = useMemo(() => {
-    let pool = [];
-    if (unifiedProjects && unifiedProjects.length > 0) {
-      pool = unifiedProjects.map(p => ({
-        id: `MPLADS-${p.work_id}`,
-        workId: p.work_id,
-        work_id: p.work_id,
-        title: p.activity_name || p.work_description || `Project #${p.work_id}`,
-        titleHi: p.activity_name || p.work_description || `परियोजना #${p.work_id}`,
-        category: p.work_category || 'General',
-        categoryHi: p.work_category || 'सामान्य',
-        state: p.state_name || p.state || 'India',
-        stateHi: p.state_name || p.state || 'भारत',
-        district: p.const_name || p.district || 'District',
-        districtHi: p.const_name || p.district || 'जिला',
-        constituency: p.const_name || p.constituency || 'Constituency',
-        constituencyHi: p.const_name || p.constituency || 'निर्वाचन क्षेत्र',
-        mpName: p.mp_name || 'MP',
-        mpNameHi: p.mp_name || 'सांसद',
-        sanctionedCost: p.sanction_amount ? `₹${p.sanction_amount.toLocaleString('en-IN')}` : 'N/A',
-        expenditure: p.total_disbursed ? `₹${p.total_disbursed.toLocaleString('en-IN')}` : (p.actual_amount ? `₹${p.actual_amount.toLocaleString('en-IN')}` : 'N/A'),
-        expenditurePct: p.sanction_amount ? Math.round(((p.total_disbursed || p.actual_amount || 0) / p.sanction_amount) * 100) : (p.utilization_rate ? Math.round(p.utilization_rate * 100) : 0),
-        physicalProgress: p.work_status === 'Completed' ? 100 : (p.physical_progress || (p.work_status === 'Sanctioned' ? 0 : 50)),
-        sanctionDate: p.sanction_date || 'N/A',
-        targetDate: p.actual_end_date || 'N/A',
-        status: p.work_status || 'Active',
-        statusHi: p.work_status || 'सक्रिय',
-        agency: p.primary_vendor_name || p.agency_name || 'N/A',
-        agencyPriorFlags: p.agency_risk_tier === 'HIGH' ? 3 : 0,
-        delayMonths: Math.round((p.completion_delay_days || 0) / 30),
-        costDeviationPct: Math.round(p.cost_overrun_pct || 0),
-        riskBandPreset: p.risk_tier ? (p.risk_tier.charAt(0).toUpperCase() + p.risk_tier.slice(1).toLowerCase()) : 'Normal',
-        riskScorePreset: Math.round(p.final_risk_score || 0)
-      }));
-    }
+    const map = new Map();
 
-    // Always ensure the test project 60423 is in the pool
-    if (!pool.some(p => p.workId === 60423)) {
-      pool.push({
-        id: 'MPLADS-60423',
-        workId: 60423,
-        work_id: 60423,
-        title: 'Raising of bricks (Hallow blocks) with ventilation facilities around the open hall Junglighat',
-        titleHi: 'जंगलीघाट में ओपन हॉल के चारों ओर वेंटिलेशन सुविधाओं के साथ ईंटों (हलो ब्लॉक) का निर्माण',
-        category: 'Normal/Others',
-        categoryHi: 'सामान्य/अन्य',
-        state: 'Andaman & Nicobar Islands',
-        stateHi: 'अंडमान और निकोबार द्वीप समूह',
-        district: 'South Andaman',
-        districtHi: 'दक्षिण अंडमान',
-        constituency: 'Andaman & Nicobar Islands Lok Sabha',
-        constituencyHi: 'अंडमान और निकोबार द्वीप समूह लोकसभा',
-        mpName: 'Shri Kuldeep Rai Sharma',
-        mpNameHi: 'श्री कुलदीप राय शर्मा',
-        sanctionedCost: '₹7,42,992',
-        expenditure: '₹7,42,992',
-        expenditurePct: 100,
-        physicalProgress: 100,
-        sanctionDate: '11 Jan 2024',
-        targetDate: '26 Apr 2024',
-        status: 'Completed & Verified',
-        statusHi: 'पूर्ण एवं सत्यापित',
-        agency: 'APWD Construction Division',
-        agencyPriorFlags: 0,
-        delayMonths: 0,
-        costDeviationPct: 0,
-        riskBandPreset: 'Normal',
-        riskScorePreset: 12
+    // Ingest all 4,684+ real projects covering ALL districts & states in India
+    if (Array.isArray(realProjects) && realProjects.length > 0) {
+      realProjects.forEach((p, idx) => {
+        const idStr = p.id || `MPLADS-${p.work_id || p.workId || `W${idx + 1000}`}`;
+        const numPart = idStr.replace(/^[^\d]+/, '');
+        const wId = /^\d+$/.test(numPart) ? parseInt(numPart, 10) : (p.work_id || p.workId || null);
+
+        const isComp = p.type === 'completed' || p.status?.toLowerCase().includes('complete');
+        const costVal = typeof p.cost === 'number' ? p.cost : (typeof p.sanction_amount === 'number' ? p.sanction_amount : 1500000);
+        const expVal = typeof p.disbursed === 'number' ? p.disbursed : (typeof p.actual_amount === 'number' ? p.actual_amount : (isComp ? costVal : Math.round(costVal * 0.7)));
+        const expPct = Math.min(100, Math.round((expVal / (costVal || 1)) * 100));
+        const physProg = isComp ? 100 : (typeof p.physicalProgress === 'number' ? p.physicalProgress : (p.status?.toLowerCase().includes('not started') ? 0 : 50));
+        const delayM = p.delayMonths || (p.completion_delay_days ? Math.round(p.completion_delay_days / 30) : 0);
+
+        map.set(idStr, {
+          id: idStr,
+          workId: wId,
+          work_id: wId,
+          title: p.title || p.activity_name || p.work_description || `Project ${idStr}`,
+          titleHi: p.titleHi || p.title || p.activity_name || `परियोजना ${idStr}`,
+          category: p.category || p.work_category || 'Infrastructure Development',
+          categoryHi: p.categoryHi || p.category || 'अवसंरचना विकास',
+          state: p.state || p.state_name || 'India',
+          stateHi: p.stateHi || p.state || 'भारत',
+          district: p.district || p.constituency || p.const_name || 'District Area',
+          districtHi: p.districtHi || p.district || p.constituency || 'जिला',
+          constituency: p.constituency || p.const_name || 'Constituency',
+          constituencyHi: p.constituencyHi || p.constituency || 'निर्वाचन क्षेत्र',
+          mpName: p.mp || p.mp_name || 'Member of Parliament',
+          mpNameHi: p.mpNameHi || p.mp || p.mp_name || 'सांसद',
+          sanctionedCost: typeof p.cost === 'number' ? `₹${p.cost.toLocaleString('en-IN')}` : (p.sanctionedCost || `₹${costVal.toLocaleString('en-IN')}`),
+          expenditure: typeof p.disbursed === 'number' ? `₹${p.disbursed.toLocaleString('en-IN')}` : (p.expenditure || `₹${expVal.toLocaleString('en-IN')}`),
+          expenditurePct: expPct,
+          physicalProgress: physProg,
+          sanctionDate: p.date || p.sanctionDate || p.sanction_date || '2024',
+          targetDate: p.targetDate || p.actual_end_date || (isComp ? '2024' : 'Late 2024'),
+          status: p.status || (isComp ? 'Completed & Verified' : 'In Progress'),
+          statusHi: p.statusHi || (isComp ? 'पूर्ण एवं सत्यापित' : 'प्रगति पर'),
+          agency: p.agency || p.primary_vendor_name || `${p.constituency || 'District'} Implementing Authority`,
+          agencyPriorFlags: 0,
+          delayMonths: delayM,
+          costDeviationPct: p.costDeviationPct || Math.round(p.cost_overrun_pct || 0),
+          riskBandPreset: p.riskBandPreset || (isComp ? 'Normal' : (delayM > 6 ? 'High' : 'Normal')),
+          riskScorePreset: p.riskScorePreset || (delayM > 6 ? 68 : 15),
+          coordinates: p.coordinates || null
+        });
       });
     }
 
-    // Merge with SAMPLE_PROJECTS_POOL for offline / fallback compatibility
-    SAMPLE_PROJECTS_POOL.forEach(sp => {
-      const numericPart = sp.id.replace('MPLADS-', '');
-      const workId = /^\d+$/.test(numericPart) ? parseInt(numericPart, 10) : null;
-      if (workId && !pool.some(p => p.workId === workId)) {
-        pool.push({
-          ...sp,
-          workId,
-          work_id: workId
+    // Ingest / Overlay unifiedProjects (Precomputed Machine Learning Risk Models)
+    if (Array.isArray(unifiedProjects) && unifiedProjects.length > 0) {
+      unifiedProjects.forEach(p => {
+        const idStr = `MPLADS-${p.work_id}`;
+        const costVal = p.sanction_amount || 0;
+        const expVal = p.total_disbursed || p.actual_amount || 0;
+        const expPct = costVal ? Math.round((expVal / costVal) * 100) : (p.utilization_rate ? Math.round(p.utilization_rate * 100) : 0);
+        const isComp = p.work_status === 'Completed';
+
+        map.set(idStr, {
+          id: idStr,
+          workId: p.work_id,
+          work_id: p.work_id,
+          title: p.activity_name || p.work_description || `Project #${p.work_id}`,
+          titleHi: p.activity_name || p.work_description || `परियोजना #${p.work_id}`,
+          category: p.work_category || 'General',
+          categoryHi: p.work_category || 'सामान्य',
+          state: p.state_name || p.state || 'India',
+          stateHi: p.state_name || p.state || 'भारत',
+          district: p.const_name || p.district || 'District',
+          districtHi: p.const_name || p.district || 'जिला',
+          constituency: p.const_name || p.constituency || 'Constituency',
+          constituencyHi: p.const_name || p.constituency || 'निर्वाचन क्षेत्र',
+          mpName: p.mp_name || 'MP',
+          mpNameHi: p.mp_name || 'सांसद',
+          sanctionedCost: costVal ? `₹${costVal.toLocaleString('en-IN')}` : 'N/A',
+          expenditure: expVal ? `₹${expVal.toLocaleString('en-IN')}` : 'N/A',
+          expenditurePct: expPct,
+          physicalProgress: isComp ? 100 : (p.physical_progress || (p.work_status === 'Sanctioned' ? 0 : 50)),
+          sanctionDate: p.sanction_date || 'N/A',
+          targetDate: p.actual_end_date || 'N/A',
+          status: p.work_status || 'Active',
+          statusHi: p.work_status || 'सक्रिय',
+          agency: p.primary_vendor_name || p.agency_name || p.ida_name || 'N/A',
+          agencyPriorFlags: p.agency_risk_tier === 'HIGH' ? 3 : 0,
+          delayMonths: Math.round((p.completion_delay_days || 0) / 30),
+          costDeviationPct: Math.round(p.cost_overrun_pct || 0),
+          riskBandPreset: p.risk_tier ? (p.risk_tier.charAt(0).toUpperCase() + p.risk_tier.slice(1).toLowerCase()) : 'Normal',
+          riskScorePreset: Math.round(p.final_risk_score || 0),
+          coordinates: null
         });
+      });
+    }
+
+    // Always ensure benchmark & sample projects exist
+    SAMPLE_PROJECTS_POOL.forEach(sp => {
+      if (!map.has(sp.id)) {
+        const num = sp.id.replace('MPLADS-', '');
+        const wId = /^\d+$/.test(num) ? parseInt(num, 10) : sp.workId;
+        map.set(sp.id, { ...sp, workId: wId, work_id: wId });
       }
     });
 
-    return pool;
-  }, [unifiedProjects]);
+    return Array.from(map.values());
+  }, [unifiedProjects, realProjects]);
 
   // 2. Initial Selected Project Selection
   const initialProject = useMemo(() => {
@@ -366,7 +404,42 @@ const UnifiedAiIntelligenceView = () => {
 
   const [selectedProject, setSelectedProject] = useState(initialProject);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStateFilter, setSelectedStateFilter] = useState('ALL');
+  const [selectedDistrictFilter, setSelectedDistrictFilter] = useState('ALL');
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState('ALL');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Close search dropdown on click outside
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
+  // Extract all distinct states & districts from projectsPool for filtering
+  const availableStates = useMemo(() => {
+    const set = new Set();
+    projectsPool.forEach(p => {
+      if (p.state && p.state !== 'India' && p.state !== 'National') set.add(p.state);
+    });
+    return Array.from(set).sort();
+  }, [projectsPool]);
+
+  const availableDistricts = useMemo(() => {
+    const set = new Set();
+    projectsPool.forEach(p => {
+      if (selectedStateFilter === 'ALL' || p.state === selectedStateFilter) {
+        if (p.district && p.district !== 'District Area' && p.district !== 'District') {
+          set.add(p.district);
+        }
+      }
+    });
+    return Array.from(set).sort();
+  }, [projectsPool, selectedStateFilter]);
 
   // 3. User Explicit Trigger State (By default: False -> Show 8 models in standby, no error/results)
   const [hasRunAnalysis, setHasRunAnalysis] = useState(false);
@@ -508,19 +581,103 @@ const UnifiedAiIntelligenceView = () => {
     return hasRunAnalysis && liveRiskData ? 8 : 0;
   }, [hasRunAnalysis, liveRiskData]);
 
+  // 4.5 High-performance Tokenized & Ranked Search Algorithm
   const filteredProjectsList = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim();
-    if (!q) return projectsPool;
-    return projectsPool.filter(p =>
-      p.title.toLowerCase().includes(q) ||
-      (p.titleHi && p.titleHi.includes(q)) ||
-      p.id.toLowerCase().includes(q) ||
-      p.district.toLowerCase().includes(q) ||
-      (p.districtHi && p.districtHi.includes(q)) ||
-      p.state.toLowerCase().includes(q) ||
-      p.mpName.toLowerCase().includes(q)
-    );
-  }, [searchQuery, projectsPool]);
+    const rawQ = searchQuery.toLowerCase().trim();
+    const tokens = rawQ ? rawQ.split(/\s+/).filter(Boolean) : [];
+
+    const results = [];
+
+    for (let i = 0; i < projectsPool.length; i++) {
+      const p = projectsPool[i];
+
+      // State Filter Check
+      if (selectedStateFilter !== 'ALL' && (p.state || '').toLowerCase() !== selectedStateFilter.toLowerCase()) {
+        continue;
+      }
+
+      // District Filter Check
+      if (selectedDistrictFilter !== 'ALL' && 
+          (p.district || '').toLowerCase() !== selectedDistrictFilter.toLowerCase() && 
+          (p.constituency || '').toLowerCase() !== selectedDistrictFilter.toLowerCase()) {
+        continue;
+      }
+
+      // Status Filter Check
+      if (selectedStatusFilter !== 'ALL') {
+        const sLower = (p.status || '').toLowerCase();
+        if (selectedStatusFilter === 'COMPLETED' && !sLower.includes('complete')) continue;
+        if (selectedStatusFilter === 'IN_PROGRESS' && !sLower.includes('progress') && !sLower.includes('ongoing') && !sLower.includes('sanctioned')) continue;
+        if (selectedStatusFilter === 'DELAYED' && !sLower.includes('delay')) continue;
+        if (selectedStatusFilter === 'HIGH_RISK' && (p.riskScorePreset || 0) < 60 && !sLower.includes('delay')) continue;
+      }
+
+      // If no query string, default relevance
+      if (tokens.length === 0) {
+        results.push({ item: p, score: p.id === 'MPLADS-60423' ? 1000 : (p.riskScorePreset || 10) });
+        continue;
+      }
+
+      // Searchable text corpus across all dimensions
+      const searchCorpus = `${p.id} ${p.workId || ''} ${p.title} ${p.titleHi || ''} ${p.district} ${p.districtHi || ''} ${p.constituency} ${p.constituencyHi || ''} ${p.state} ${p.stateHi || ''} ${p.mpName} ${p.mpNameHi || ''} ${p.category} ${p.categoryHi || ''} ${p.agency}`.toLowerCase();
+
+      // Check if all tokens match
+      const allTokensMatch = tokens.every(token => searchCorpus.includes(token));
+      if (!allTokensMatch) continue;
+
+      // Calculate precision ranking score
+      let score = 0;
+      const idLower = (p.id || '').toLowerCase();
+      const distLower = (p.district || '').toLowerCase();
+      const constLower = (p.constituency || '').toLowerCase();
+      const stateLower = (p.state || '').toLowerCase();
+      const mpLower = (p.mpName || '').toLowerCase();
+      const titleLower = (p.title || '').toLowerCase();
+
+      // Exact ID match
+      if (idLower === rawQ || String(p.workId) === rawQ || idLower.replace('mplads-', '') === rawQ) {
+        score += 2000;
+      } else if (idLower.includes(rawQ)) {
+        score += 800;
+      }
+
+      // District / Constituency match
+      if (distLower === rawQ || constLower === rawQ) {
+        score += 1200;
+      } else if (distLower.startsWith(rawQ) || constLower.startsWith(rawQ)) {
+        score += 600;
+      } else if (distLower.includes(rawQ) || constLower.includes(rawQ)) {
+        score += 400;
+      }
+
+      // State match
+      if (stateLower === rawQ) {
+        score += 500;
+      } else if (stateLower.includes(rawQ)) {
+        score += 250;
+      }
+
+      // MP match
+      if (mpLower.includes(rawQ)) {
+        score += 300;
+      }
+
+      // Title match
+      if (titleLower.includes(rawQ)) {
+        score += 150;
+      }
+
+      // High-risk priority weighting
+      score += Math.min(50, p.riskScorePreset || 0);
+
+      results.push({ item: p, score });
+    }
+
+    // Sort by score descending
+    results.sort((a, b) => b.score - a.score);
+
+    return results.map(r => r.item);
+  }, [projectsPool, searchQuery, selectedStateFilter, selectedDistrictFilter, selectedStatusFilter]);
 
   // 5. Bilingual Analysis Findings for Selected Project (Dynamic Live Mapping)
   const analysisData = useMemo(() => {
@@ -914,31 +1071,32 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
           </div>
 
           {/* Project Search Dropdown */}
-          <div style={{ position: 'relative', width: '340px', maxWidth: '100%' }}>
+          <div ref={searchContainerRef} style={{ position: 'relative', width: '380px', maxWidth: '100%' }}>
             <button
               type="button"
               onClick={() => setIsSearchOpen(!isSearchOpen)}
               style={{
                 width: '100%',
-                padding: '0.6rem 0.9rem',
-                fontSize: '0.84rem',
+                padding: '0.65rem 1rem',
+                fontSize: '0.86rem',
                 fontWeight: 700,
                 border: '1.5px solid #1D1E22',
-                borderRadius: 'var(--radius-sm)',
+                borderRadius: 'var(--radius-md)',
                 background: '#FAF8F3',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                boxShadow: isSearchOpen ? '1px 2px 0px #1D1E22' : 'none'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', overflow: 'hidden' }}>
-                <Search size={14} color="#0A2458" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', overflow: 'hidden' }}>
+                <Search size={15} color="#0A2458" />
                 <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                  {selectedProject.id || `WORK-${resolvedWorkId}`} ({isHi ? (selectedProject.districtHi || selectedProject.district) : selectedProject.district})
+                  {selectedProject.id || `WORK-${resolvedWorkId}`} — <strong>{isHi ? (selectedProject.districtHi || selectedProject.district) : selectedProject.district}</strong>
                 </span>
               </div>
-              <ChevronDown size={14} />
+              <ChevronDown size={15} style={{ transform: isSearchOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }} />
             </button>
 
             {/* Dropdown Menu */}
@@ -948,62 +1106,276 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                   position: 'absolute',
                   top: 'calc(100% + 6px)',
                   right: 0,
-                  width: '380px',
-                  maxWidth: '90vw',
+                  width: '520px',
+                  maxWidth: '92vw',
                   background: '#FFFFFF',
                   border: '1.5px solid #1D1E22',
-                  borderRadius: 'var(--radius-md)',
+                  borderRadius: 'var(--radius-lg)',
                   boxShadow: '4px 6px 0px #1D1E22',
-                  zIndex: 100,
-                  padding: '0.75rem'
+                  zIndex: 1100,
+                  padding: '0.85rem',
+                  boxSizing: 'border-box'
                 }}
               >
-                <input
-                  type="text"
-                  autoFocus
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={isHi ? 'परियोजना ID, जिला या सांसद खोजें...' : 'Search project ID, district, or MP...'}
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem 0.75rem',
-                    fontSize: '0.82rem',
-                    border: '1.2px solid #1D1E22',
-                    borderRadius: 'var(--radius-sm)',
-                    background: '#FAF8F3',
-                    marginBottom: '0.5rem',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-
-                <div style={{ maxHeight: '240px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                  {filteredProjectsList.map(item => (
-                    <div
-                      key={item.id}
-                      onClick={() => handleSelectProject(item)}
+                {/* 1. Search Input with Clear Button */}
+                <div style={{ position: 'relative', marginBottom: '0.65rem' }}>
+                  <Search size={15} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                  <input
+                    type="text"
+                    autoFocus
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={isHi ? 'परियोजना ID, जिला (उदा. Hamirpur, South Andaman, Varanasi), राज्य या सांसद खोजें...' : 'Search by district (e.g. Hamirpur, South Andaman, Varanasi), state, MP, or work ID...'}
+                    style={{
+                      width: '100%',
+                      padding: '0.55rem 2rem 0.55rem 2.2rem',
+                      fontSize: '0.84rem',
+                      border: '1.5px solid #1D1E22',
+                      borderRadius: 'var(--radius-sm)',
+                      background: '#FAF8F3',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                      fontWeight: 600
+                    }}
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
                       style={{
-                        padding: '0.55rem 0.75rem',
-                        borderRadius: 'var(--radius-sm)',
+                        position: 'absolute',
+                        right: '0.65rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
                         cursor: 'pointer',
-                        background: selectedProject.id === item.id ? '#F3EFE6' : 'transparent',
-                        border: selectedProject.id === item.id ? '1px solid #1D1E22' : '1px solid transparent',
-                        transition: 'all 0.12s ease'
+                        color: 'var(--color-text-muted)',
+                        padding: '0.2rem'
                       }}
-                      onMouseEnter={(e) => { if (selectedProject.id !== item.id) e.currentTarget.style.background = '#FAF8F3'; }}
-                      onMouseLeave={(e) => { if (selectedProject.id !== item.id) e.currentTarget.style.background = 'transparent'; }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'monospace' }}>{item.id}</span>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
-                          {isHi ? (item.districtHi || item.district) : item.district}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#1D1E22', marginTop: '0.2rem', lineHeight: 1.25 }}>
-                        {isHi ? (item.titleHi || item.title) : item.title}
-                      </div>
-                    </div>
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
+                {/* 2. Quick District & State Selectors */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.45rem', marginBottom: '0.65rem' }}>
+                  <select
+                    value={selectedStateFilter}
+                    onChange={(e) => {
+                      setSelectedStateFilter(e.target.value);
+                      setSelectedDistrictFilter('ALL');
+                    }}
+                    style={{
+                      padding: '0.35rem 0.5rem',
+                      fontSize: '0.76rem',
+                      fontWeight: 700,
+                      border: '1.2px solid #1D1E22',
+                      borderRadius: 'var(--radius-sm)',
+                      background: '#FAF8F3',
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="ALL">{isHi ? '🌐 सभी राज्य एवं UT (36)' : '🌐 All States & UTs (36)'}</option>
+                    {availableStates.map(st => (
+                      <option key={st} value={st}>{st}</option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={selectedDistrictFilter}
+                    onChange={(e) => setSelectedDistrictFilter(e.target.value)}
+                    style={{
+                      padding: '0.35rem 0.5rem',
+                      fontSize: '0.76rem',
+                      fontWeight: 700,
+                      border: '1.2px solid #1D1E22',
+                      borderRadius: 'var(--radius-sm)',
+                      background: '#FAF8F3',
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="ALL">{isHi ? '📍 सभी जिले / निर्वाचन क्षेत्र' : '📍 All Districts / Const.'}</option>
+                    {availableDistricts.map(dst => (
+                      <option key={dst} value={dst}>{dst}</option>
+                    ))}
+                  </select>
+
+                  {(selectedStateFilter !== 'ALL' || selectedDistrictFilter !== 'ALL' || selectedStatusFilter !== 'ALL' || searchQuery) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedStateFilter('ALL');
+                        setSelectedDistrictFilter('ALL');
+                        setSelectedStatusFilter('ALL');
+                        setSearchQuery('');
+                      }}
+                      title={isHi ? 'फ़िल्टर रीसेट करें' : 'Reset filters'}
+                      style={{
+                        padding: '0.35rem 0.6rem',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        border: '1.2px solid #1D1E22',
+                        borderRadius: 'var(--radius-sm)',
+                        background: '#FAF8F3',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem'
+                      }}
+                    >
+                      <RotateCcw size={12} />
+                      <span>{isHi ? 'रीसेट' : 'Reset'}</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* 3. Popular District Quick Chips */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', overflowX: 'auto', paddingBottom: '0.45rem', marginBottom: '0.45rem', borderBottom: '1px solid rgba(29,30,34,0.08)' }}>
+                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', flexShrink: 0 }}>
+                    {isHi ? 'लोकप्रिय जिले:' : 'Popular:'}
+                  </span>
+                  {['South Andaman', 'Hamirpur', 'Varanasi', 'Patna', 'Jabalpur', 'Jaipur', 'Kohima', 'Indore', 'Pune', 'Amritsar'].map(dst => (
+                    <button
+                      key={dst}
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery(dst);
+                        setSelectedStateFilter('ALL');
+                        setSelectedDistrictFilter('ALL');
+                      }}
+                      style={{
+                        padding: '0.2rem 0.5rem',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        border: '1px solid #1D1E22',
+                        borderRadius: 'var(--radius-full)',
+                        background: searchQuery.toLowerCase() === dst.toLowerCase() ? '#0A2458' : '#FAF8F3',
+                        color: searchQuery.toLowerCase() === dst.toLowerCase() ? '#FFFFFF' : '#1D1E22',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0
+                      }}
+                    >
+                      📍 {dst}
+                    </button>
                   ))}
+                </div>
+
+                {/* 4. Results Status Counter */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.4rem', padding: '0 0.2rem' }}>
+                  <span>
+                    {isHi
+                      ? `${filteredProjectsList.length} परियोजनाएं मिलीं (शीर्ष ${Math.min(40, filteredProjectsList.length)} प्रदर्शित)`
+                      : `Found ${filteredProjectsList.length} works (showing top ${Math.min(40, filteredProjectsList.length)})`}
+                  </span>
+                  {selectedProject && (
+                    <span style={{ color: '#0A2458' }}>
+                      {isHi ? 'वर्तमान चयन:' : 'Current:'} <strong>{selectedProject.id}</strong>
+                    </span>
+                  )}
+                </div>
+
+                {/* 5. Scrollable Results List */}
+                <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  {filteredProjectsList.slice(0, 40).map(item => {
+                    const isSelected = selectedProject.id === item.id;
+                    const isComp = item.status?.toLowerCase().includes('complete');
+                    const isDelayed = item.status?.toLowerCase().includes('delay');
+
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => handleSelectProject(item)}
+                        style={{
+                          padding: '0.65rem 0.8rem',
+                          borderRadius: 'var(--radius-sm)',
+                          cursor: 'pointer',
+                          background: isSelected ? '#F3EFE6' : '#FFFFFF',
+                          border: isSelected ? '1.5px solid #0A2458' : '1px solid rgba(29,30,34,0.15)',
+                          transition: 'all 0.12s ease',
+                          boxShadow: isSelected ? '1.5px 2px 0px #0A2458' : 'none'
+                        }}
+                        onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.background = '#FAF8F3'; }}
+                        onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.background = '#FFFFFF'; }}
+                      >
+                        {/* Top Meta Line: ID, District Badge, Status Pill */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: '0.76rem', fontWeight: 800, fontFamily: 'monospace', color: '#0A2458', background: 'rgba(10,36,88,0.08)', padding: '0.1rem 0.35rem', borderRadius: '3px' }}>
+                              {item.id}
+                            </span>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#1D1E22', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                              <MapPin size={11} color="#C84B31" />
+                              {isHi ? (item.districtHi || item.district) : item.district}, {item.state}
+                            </span>
+                          </div>
+                          <span style={{
+                            fontSize: '0.66rem',
+                            fontWeight: 800,
+                            padding: '0.15rem 0.45rem',
+                            borderRadius: 'var(--radius-full)',
+                            background: isComp ? '#E8F5E9' : (isDelayed ? '#FFEBEE' : '#FFF8E1'),
+                            color: isComp ? '#1E7E34' : (isDelayed ? '#D9534F' : '#B8860B'),
+                            border: `1px solid ${isComp ? '#1E7E34' : (isDelayed ? '#D9534F' : '#B8860B')}`,
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {isHi ? (item.statusHi || item.status) : item.status}
+                          </span>
+                        </div>
+
+                        {/* Work Title */}
+                        <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1D1E22', lineHeight: 1.3, marginBottom: '0.25rem' }}>
+                          {isHi ? (item.titleHi || item.title) : item.title}
+                        </div>
+
+                        {/* Bottom Row: Cost, MP, Category */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.7rem', color: 'var(--color-text-secondary)', flexWrap: 'wrap' }}>
+                          <span><strong>{item.sanctionedCost}</strong></span>
+                          <span>•</span>
+                          <span>{isHi ? (item.mpNameHi || item.mpName) : item.mpName}</span>
+                          <span>•</span>
+                          <span style={{ color: 'var(--color-text-muted)' }}>{isHi ? (item.categoryHi || item.category) : item.category}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {filteredProjectsList.length === 0 && (
+                    <div style={{ padding: '1.5rem 1rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                      <AlertCircle size={24} style={{ margin: '0 auto 0.5rem auto', color: '#B8860B' }} />
+                      <div style={{ fontSize: '0.86rem', fontWeight: 800, color: '#1D1E22' }}>
+                        {isHi ? 'कोई परियोजना नहीं मिली' : `No projects found for "${searchQuery}"`}
+                      </div>
+                      <p style={{ fontSize: '0.76rem', margin: '0.35rem 0 0.75rem 0' }}>
+                        {isHi
+                          ? 'कृपया कोई अन्य जिला या राज्य खोजें (जैसे Hamirpur, South Andaman, Varanasi, Patna)'
+                          : 'Try searching by district name (e.g. Hamirpur, South Andaman, Varanasi, Patna, Jabalpur)'}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery('');
+                          setSelectedStateFilter('ALL');
+                          setSelectedDistrictFilter('ALL');
+                        }}
+                        style={{
+                          padding: '0.35rem 0.8rem',
+                          fontSize: '0.74rem',
+                          fontWeight: 800,
+                          border: '1.2px solid #1D1E22',
+                          borderRadius: 'var(--radius-sm)',
+                          background: '#FAF8F3',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {isHi ? 'सभी 5,000+ परियोजनाएं देखें' : 'View All 5,000+ Projects'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

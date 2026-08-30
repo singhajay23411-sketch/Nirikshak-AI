@@ -383,14 +383,12 @@ const FindProjectsView = () => {
       if (costInLakhs > costMax) {
         return false;
       }
-      // Search query match (title, id, agency, mp)
+      // Search query multi-field match (title, id, district, constituency, state, category, agency, mp)
       if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        const matches =
-          p.title.toLowerCase().includes(query) ||
-          p.id.toLowerCase().includes(query) ||
-          p.agency.toLowerCase().includes(query) ||
-          p.mp.toLowerCase().includes(query);
+        const query = searchQuery.toLowerCase().trim();
+        const tokens = query.split(/\s+/).filter(Boolean);
+        const corpus = `${p.title || ''} ${p.id || ''} ${p.constituency || ''} ${p.district || ''} ${p.state || ''} ${p.category || ''} ${p.agency || ''} ${p.mp || ''}`.toLowerCase();
+        const matches = tokens.every(t => corpus.includes(t));
         if (!matches) return false;
       }
 
