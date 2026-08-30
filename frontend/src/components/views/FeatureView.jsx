@@ -21,6 +21,7 @@ import FeedbackView from './FeedbackView';
 import UnifiedAiIntelligenceView from './UnifiedAiIntelligenceView';
 import ProjectStatusView from './ProjectStatusView';
 import ProjectTimelineView from './ProjectTimelineView';
+import MeetTheTeamView from './MeetTheTeamView';
 
 // MOCK DATA SOURCED DIRECTLY FROM README.MD SPECIFICATIONS
 const MOCK_ANOMALY_PROJECTS = [
@@ -4828,6 +4829,19 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
       case 'projecttimeline':
         return <ProjectTimelineView />;
 
+      case 'team':
+      case 'teamSage':
+      case 'team-sage':
+      case 'teamsage':
+      case 'team_sage':
+      case 'meetTheTeam':
+      case 'meet-the-team':
+      case 'meet_the_team':
+      case 'meetTeamSage':
+      case 'meet-team-sage':
+      case 'meet_team_sage':
+        return <MeetTheTeamView />;
+
       // Default fallback
       default:
         return (
@@ -4917,6 +4931,8 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                           ? (isHi ? 'परियोजना स्थिति' : 'PROJECT STATUS')
                           : featureId === 'projectTimeline' || featureId === 'timeline' || featureId === 'timelines' || featureId === 'project-timeline' || featureId === 'project_timeline' || featureId === 'projecttimeline'
                             ? (isHi ? 'परियोजना समयरेखा' : 'PROJECT TIMELINE')
+                            : featureId === 'team' || featureId === 'teamSage' || featureId === 'team-sage' || featureId === 'teamsage' || featureId === 'team_sage' || featureId === 'meetTheTeam' || featureId === 'meet-the-team' || featureId === 'meet_the_team' || featureId === 'meetTeamSage' || featureId === 'meet-team-sage' || featureId === 'meet_team_sage'
+                              ? (isHi ? 'टीम (TEAM)' : 'TEAM')
                             : featureId === 'resolution' || featureId === 'investigation' || featureId === 'highRiskProjects' || featureId === 'evidenceReview' || featureId === 'fieldVerification'
                               ? (isHi ? 'समाधान एवं जांच' : 'RESOLUTION')
                               : featureId === 'unifiedAnalysis' || featureId === 'aiIntelligence' || featureId === 'aiAnalysis' || featureId === 'anomalyDetection' || featureId === 'financialAnomaly' || featureId === 'costOverrun' || featureId === 'duplicateProject' || featureId === 'delayRisk' || featureId === 'evidenceVerification' || featureId === 'geospatialIntelligence' || featureId === 'geospatial'
