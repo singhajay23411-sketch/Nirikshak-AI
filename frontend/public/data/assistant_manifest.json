@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-08-30T13:37:20.611004+00:00",
+  "index_version": "1.0.0",
+  "source_artifact_hashes": {
+    "constituency_hhi.json": "2e5d9f45a7318d9e7fb3500f430978aa5c9b86ea11df0eaa1172feafd4b4aceb",
+    "constituency_risk_heatmap.json": "8df25f5af78b631663cb4ecce84aa2eab8328ae860f0beb0d2ada3b6333d6707",
+    "cost_and_delay_anomalies.json": "f2be6819761d6d886ce5904a678c4e87f1c618ac9f320713c9ae7cd073e142d3",
+    "duplicate_project_alerts.json": "b85017e5fbd29e718b99d6ee55e271bf1ec47b670806a37391371db21ebec5e2",
+    "finguard_anomalies.json": "35aa4eb559435398ac866a7b4d2dc27b5d17237aa4e5197536f6ba9ed893546b",
+    "geointel_heatmap.geojson": "cc3adbbaa1491b737d0d5691d0e9a140cae671ba2babc2209e1fefb39421a4c9",
+    "mp_scorecard_summary.json": "0fbf8fd0be7ae95a6dce5b69b4ff3c71fadbc1efe2637c32f34b57c129ed518f",
+    "real_projects.json": "a7d9d625550121133ba6d812ed128d360774e452cb7a1842b58686c5355d53b5",
+    "unified_project_evaluations.json": "ec6b1d5f1add94d14ccd84e0f08cc4100ea7482766b893d5f3ad4496af2f9d77",
+    "vendor_risk_network.json": "41ead441e586c617fe77968bcbe0844b1733e1562f2d64382ddadf76bab54ded"
+  },
+  "source_record_counts": {
+    "constituency_hhi.json": 63,
+    "constituency_risk_heatmap.json": 65,
+    "cost_and_delay_anomalies.json": 1000,
+    "duplicate_project_alerts.json": 1000,
+    "finguard_anomalies.json": 2000,
+    "geointel_heatmap.geojson": 29,
+    "mp_scorecard_summary.json": 1198,
+    "real_projects.json": 4686,
+    "unified_project_evaluations.json": 1000,
+    "vendor_risk_network.json": 20
+  },
+  "total_mps_indexed": 1046,
+  "total_records_analyzed": 11061,
+  "total_works_indexed": 6484
+}

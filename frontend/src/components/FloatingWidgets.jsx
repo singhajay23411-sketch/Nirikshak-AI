@@ -1,34 +1,244 @@
-import React, { useState, useEffect } from 'react';
-import { MessageSquare, X, Send, ShieldAlert, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  MessageSquare, X, Send, ShieldAlert, ArrowRight, RotateCcw,
+  ChevronDown, ChevronUp, Database, Sparkles, AlertCircle, CheckCircle2, User, Bot
+} from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
-const FloatingWidgets = ({ onLoginClick }) => {
+/**
+ * Safe inline markdown-like formatter that parses bold, lists, and line breaks
+ * without using dangerouslySetInnerHTML.
+ */
+const FormattedMessage = ({ text }) => {
+  if (!text) return null;
+
+  const lines = text.split('\n');
+
+  return (
+    <div className="assistant-formatted-text" style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) {
+          return <div key={idx} style={{ height: '0.25rem' }} />;
+        }
+
+        // Parse bold segments **bold**
+        const parseBold = (str) => {
+          const parts = str.split(/(\*\*.*?\*\*)/g);
+          return parts.map((part, pIdx) => {
+            if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+              return <strong key={pIdx} style={{ fontWeight: 700, color: '#1D1E22' }}>{part.slice(2, -2)}</strong>;
+            }
+            return part;
+          });
+        };
+
+        // Bullet point
+        if (trimmed.startsWith('• ') || trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+          return (
+            <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', paddingLeft: '0.35rem' }}>
+              <span style={{ color: '#52B79A', fontWeight: 'bold' }}>•</span>
+              <span style={{ flex: 1 }}>{parseBold(trimmed.slice(2))}</span>
+            </div>
+          );
+        }
+
+        // Table header or row with pipes |
+        if (trimmed.includes('|') && !trimmed.startsWith('---')) {
+          const cells = trimmed.split('|').map(c => c.trim()).filter(c => c.length > 0);
+          if (cells.length > 1) {
+            return (
+              <div key={idx} style={{ display: 'grid', gridTemplateColumns: `repeat(${cells.length}, 1fr)`, gap: '0.3rem', background: '#F4EFE6', padding: '0.25rem 0.4rem', borderRadius: '4px', fontSize: '0.8rem' }}>
+                {cells.map((cell, cIdx) => (
+                  <span key={cIdx} style={{ fontWeight: cIdx === 0 ? 600 : 400 }}>{parseBold(cell)}</span>
+                ))}
+              </div>
+            );
+          }
+        }
+
+        // Numbered list item
+        const numMatch = trimmed.match(/^(\d+)\.\s+(.*)$/);
+        if (numMatch) {
+          return (
+            <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', paddingLeft: '0.35rem' }}>
+              <span style={{ fontWeight: 700, color: '#1D1E22', minWidth: '16px' }}>{numMatch[1]}.</span>
+              <span style={{ flex: 1 }}>{parseBold(numMatch[2])}</span>
+            </div>
+          );
+        }
+
+        return (
+          <div key={idx} style={{ wordBreak: 'break-word' }}>
+            {parseBold(line)}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const FloatingWidgets = ({ onLoginClick, selectedWorkId, selectedMpId, selectedConstituency, selectedState }) => {
   const { t, language } = useLanguage();
+  const { token, isAuthenticated, user } = useAuth();
+  
   const [chatOpen, setChatOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [conversationId, setConversationId] = useState('');
+  const [activeEvidenceIndex, setActiveEvidenceIndex] = useState(null);
+  const [dataSnapshot, setDataSnapshot] = useState(null);
 
-  // Update initial greeting when language changes if no conversation has started
+  const chatEndRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  // Initialize conversation ID on mount
   useEffect(() => {
-    setMessages([
-      { sender: 'assistant', text: t('floatingWidgets.greeting') }
-    ]);
-  }, [language, t]);
+    setConversationId(`conv-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`);
+  }, []);
 
-  const handleSend = (e) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
+  // Update initial greeting when language changes or on first load
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages([
+        {
+          id: 'greeting',
+          sender: 'assistant',
+          text: t('floatingWidgets.greeting'),
+          suggestions: [
+            'Show the top 5 highest-risk projects in Bihar',
+            'Which MPs have the highest risk?',
+            'Find duplicate alerts for work 158087',
+            'What does HHI mean?',
+          ],
+          evidence: [],
+          disclaimer: null,
+        }
+      ]);
+    }
+  }, [language, t, messages.length]);
 
-    const newMsgs = [...messages, { sender: 'user', text: inputText }];
-    setMessages(newMsgs);
+  // Auto scroll to bottom
+  useEffect(() => {
+    if (chatOpen && chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isLoading, chatOpen]);
+
+  const sendQuery = async (queryText) => {
+    const textToSend = queryText || inputText;
+    if (!textToSend || !textToSend.trim() || isLoading) return;
+
+    const userMessage = {
+      id: `user-${Date.now()}`,
+      sender: 'user',
+      text: textToSend.trim(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
     setInputText('');
+    setIsLoading(true);
+    setErrorMessage(null);
 
-    setTimeout(() => {
+    // Build context
+    const context = {
+      selected_work_id: selectedWorkId || null,
+      selected_mp_id: selectedMpId || null,
+      selected_constituency: selectedConstituency || null,
+      selected_state: selectedState || null,
+      current_page: window.location.pathname || 'home',
+    };
+
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch('/api/assistant/query', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          message: textToSend.trim(),
+          conversation_id: conversationId,
+          context,
+        }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error('Rate limit exceeded. Please wait a moment before asking again.');
+        }
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || errorData.message || t('floatingWidgets.error'));
+      }
+
+      const data = await response.json();
+
+      if (data.data_snapshot) {
+        setDataSnapshot(data.data_snapshot);
+      }
+
+      const assistantMessage = {
+        id: `assistant-${Date.now()}`,
+        sender: 'assistant',
+        text: data.answer || t('floatingWidgets.automatedReply'),
+        evidence: data.evidence || [],
+        suggestions: data.suggestions || [],
+        disclaimer: data.disclaimer || null,
+        dataSnapshot: data.data_snapshot || null,
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+    } catch (err) {
+      console.error('Assistant query error:', err);
+      setErrorMessage(err.message || t('floatingWidgets.error'));
       setMessages((prev) => [
         ...prev,
-        { sender: 'assistant', text: t('floatingWidgets.automatedReply') }
+        {
+          id: `error-${Date.now()}`,
+          sender: 'assistant',
+          isError: true,
+          text: err.message || t('floatingWidgets.error'),
+          retryQuery: textToSend.trim(),
+        }
       ]);
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    sendQuery();
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendQuery();
+    }
+  };
+
+  const handleClearChat = () => {
+    setMessages([
+      {
+        id: 'greeting-reset',
+        sender: 'assistant',
+        text: t('floatingWidgets.greeting'),
+        suggestions: [
+          'Show the top 5 highest-risk projects in Bihar',
+          'Which MPs have the highest risk?',
+          'What does HHI mean?',
+        ],
+        evidence: [],
+      }
+    ]);
+    setConversationId(`conv-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`);
+    setErrorMessage(null);
   };
 
   const scrollToGeospatial = () => {
@@ -96,7 +306,6 @@ const FloatingWidgets = ({ onLoginClick }) => {
             transition: 'box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
         >
-          {/* Detailed SVG Map Stamp Graphic */}
           <svg
             viewBox="0 0 100 100"
             style={{
@@ -106,7 +315,6 @@ const FloatingWidgets = ({ onLoginClick }) => {
             }}
           >
             <defs>
-              {/* Circular Path for the bottom text */}
               <path
                 id="riskMapCirclePath"
                 d="M 16,50 A 34,34 0 0,0 84,50"
@@ -114,7 +322,6 @@ const FloatingWidgets = ({ onLoginClick }) => {
               />
             </defs>
 
-            {/* Inner dashed ring */}
             <circle
               cx="50"
               cy="50"
@@ -127,12 +334,10 @@ const FloatingWidgets = ({ onLoginClick }) => {
               style={{ transition: 'all 0.2s ease' }}
             />
 
-            {/* Center Illustrated Folded Map Graphic */}
             <g
               transform={isRiskBtnHovered ? "translate(24, 13) scale(1.06)" : "translate(24, 14)"}
               style={{ transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
             >
-              {/* Fold 1 (Left panel) */}
               <polygon
                 points="2,9 18,3 18,37 2,43"
                 fill="#FFFDF7"
@@ -140,7 +345,6 @@ const FloatingWidgets = ({ onLoginClick }) => {
                 strokeWidth="1.6"
                 strokeLinejoin="round"
               />
-              {/* Fold 2 (Center panel) */}
               <polygon
                 points="18,3 34,9 34,43 18,37"
                 fill="#FAF5E8"
@@ -148,7 +352,6 @@ const FloatingWidgets = ({ onLoginClick }) => {
                 strokeWidth="1.6"
                 strokeLinejoin="round"
               />
-              {/* Fold 3 (Right panel) */}
               <polygon
                 points="34,9 50,3 50,37 34,43"
                 fill="#F2EBD9"
@@ -157,7 +360,6 @@ const FloatingWidgets = ({ onLoginClick }) => {
                 strokeLinejoin="round"
               />
 
-              {/* Map Route / Contour Line */}
               <path
                 d="M 8,30 Q 24,18 44,24"
                 fill="none"
@@ -167,17 +369,13 @@ const FloatingWidgets = ({ onLoginClick }) => {
                 strokeLinecap="round"
               />
 
-              {/* Road waypoint node */}
               <circle cx="10" cy="30" r="1.8" fill="#1D1E22" />
 
-              {/* Red Location Pin on Map */}
               <g
                 transform={isRiskBtnHovered ? "translate(0, -2)" : "translate(0, 0)"}
                 style={{ transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)' }}
               >
-                {/* Pin shadow */}
                 <ellipse cx="26" cy="24" rx="4" ry="1.5" fill="rgba(29,30,34,0.3)" />
-                {/* Pin body */}
                 <path
                   d="M 26,9 C 22,9 19,12 19,16 C 19,21.5 26,27 26,27 C 26,27 33,21.5 33,16 C 33,12 30,9 26,9 Z"
                   fill="#D9534F"
@@ -185,12 +383,10 @@ const FloatingWidgets = ({ onLoginClick }) => {
                   strokeWidth="1.4"
                   strokeLinejoin="round"
                 />
-                {/* Pin center eye */}
                 <circle cx="26" cy="15.5" r="2.2" fill="#FAF8F3" stroke="#1D1E22" strokeWidth="0.8" />
               </g>
             </g>
 
-            {/* Curved Outer Text Stamp */}
             <text
               fill="#1D1E22"
               fontSize="7.8"
@@ -231,79 +427,354 @@ const FloatingWidgets = ({ onLoginClick }) => {
             whiteSpace: 'nowrap'
           }}
         >
-          <span>{t('footer.actions.login')}</span>
+          <span>{isAuthenticated ? `${user?.name || user?.email} (${user?.role})` : t('footer.actions.login')}</span>
           <ArrowRight size={16} />
         </button>
+
         {chatOpen ? (
           <div
             style={{
-              width: 'min(340px, calc(100vw - 32px))',
-              height: 'clamp(360px, 65vh, 440px)',
+              width: 'clamp(320px, 92vw, 420px)',
+              height: 'clamp(420px, 78vh, 580px)',
               background: '#FAF8F3',
               border: '2px solid #1D1E22',
-              borderRadius: 'var(--radius-lg)',
-              boxShadow: '4px 6px 0px #1D1E22',
+              borderRadius: 'var(--radius-lg, 12px)',
+              boxShadow: '5px 7px 0px #1D1E22',
               display: 'flex',
               flexDirection: 'column',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              animation: 'slideUpFade 0.22s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
           >
             {/* Header */}
             <div
               style={{
                 background: '#52B79A',
-                borderBottom: '1.5px solid #1D1E22',
-                padding: '0.8rem 1rem',
+                borderBottom: '2px solid #1D1E22',
+                padding: '0.75rem 1rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between'
               }}
             >
-              <div style={{ fontWeight: 800, color: '#1D1E22', fontSize: '0.92rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <ShieldAlert size={18} />
-                {t('floatingWidgets.assistantTitle')}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <ShieldAlert size={20} color="#1D1E22" />
+                <div>
+                  <div style={{ fontWeight: 800, color: '#1D1E22', fontSize: '0.92rem', lineHeight: 1.2 }}>
+                    {t('floatingWidgets.assistantTitle')}
+                  </div>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#1D1E22', opacity: 0.85, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: isAuthenticated ? '#2A9D8F' : '#E76F51' }} />
+                    {isAuthenticated ? t('floatingWidgets.authBadge') : t('floatingWidgets.guestBadge')}
+                  </div>
+                </div>
               </div>
-              <button
-                onClick={() => setChatOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-              >
-                <X size={18} color="#1D1E22" />
-              </button>
-            </div>
-
-            {/* Chat Body */}
-            <div style={{ flex: 1, padding: '1rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-              {messages.map((m, i) => (
-                <div
-                  key={i}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <button
+                  onClick={handleClearChat}
+                  title={t('floatingWidgets.clearChat')}
+                  aria-label={t('floatingWidgets.clearChat')}
                   style={{
-                    alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start',
-                    background: m.sender === 'user' ? '#52B79A' : '#FFFFFF',
+                    background: '#FAF8F3',
                     border: '1px solid #1D1E22',
-                    borderRadius: '12px',
-                    padding: '0.65rem 0.9rem',
-                    fontSize: '0.85rem',
-                    maxWidth: '88%',
-                    color: '#1D1E22',
-                    lineHeight: 1.5
+                    borderRadius: '6px',
+                    padding: '0.3rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
-                  {m.text}
-                </div>
-              ))}
+                  <RotateCcw size={14} color="#1D1E22" />
+                </button>
+                <button
+                  onClick={() => setChatOpen(false)}
+                  aria-label="Close Assistant"
+                  style={{
+                    background: '#FAF8F3',
+                    border: '1px solid #1D1E22',
+                    borderRadius: '6px',
+                    padding: '0.3rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <X size={16} color="#1D1E22" />
+                </button>
+              </div>
             </div>
 
-            {/* Chat Input */}
-            <form onSubmit={handleSend} style={{ padding: '0.6rem', borderTop: '1.5px solid #1D1E22', background: '#FFFFFF', display: 'flex', gap: '0.4rem' }}>
-              <input
-                type="text"
+            {/* Guest notice if unauthenticated */}
+            {!isAuthenticated && (
+              <div
+                style={{
+                  background: '#FFF3CD',
+                  borderBottom: '1px solid #E5D5A5',
+                  padding: '0.4rem 0.8rem',
+                  fontSize: '0.75rem',
+                  color: '#856404',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}
+              >
+                <AlertCircle size={14} style={{ flexShrink: 0 }} />
+                <span style={{ flex: 1 }}>{t('floatingWidgets.guestNotice')}</span>
+              </div>
+            )}
+
+            {/* Chat Body */}
+            <div
+              style={{
+                flex: 1,
+                padding: '0.9rem',
+                overflowY: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.85rem',
+                background: '#FAF8F3'
+              }}
+            >
+              {messages.map((m, i) => (
+                <div
+                  key={m.id || i}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: m.sender === 'user' ? 'flex-end' : 'flex-start',
+                    gap: '0.35rem',
+                    maxWidth: '100%'
+                  }}
+                >
+                  {/* Bubble */}
+                  <div
+                    style={{
+                      background: m.sender === 'user' ? '#52B79A' : (m.isError ? '#FFEBE8' : '#FFFFFF'),
+                      border: '1.5px solid #1D1E22',
+                      borderRadius: m.sender === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
+                      boxShadow: '2px 3px 0px #1D1E22',
+                      padding: '0.75rem 0.95rem',
+                      fontSize: '0.86rem',
+                      maxWidth: '92%',
+                      color: '#1D1E22',
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    <FormattedMessage text={m.text} />
+
+                    {/* Retry button on error */}
+                    {m.isError && m.retryQuery && (
+                      <button
+                        onClick={() => sendQuery(m.retryQuery)}
+                        style={{
+                          marginTop: '0.5rem',
+                          background: '#D9534F',
+                          color: '#FFFFFF',
+                          border: '1px solid #1D1E22',
+                          borderRadius: '4px',
+                          padding: '0.3rem 0.6rem',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.3rem'
+                        }}
+                      >
+                        <RotateCcw size={12} />
+                        {t('floatingWidgets.retry')}
+                      </button>
+                    )}
+
+                    {/* Disclaimer if present */}
+                    {m.disclaimer && (
+                      <div
+                        style={{
+                          marginTop: '0.55rem',
+                          paddingTop: '0.45rem',
+                          borderTop: '1px dashed #D3CABA',
+                          fontSize: '0.72rem',
+                          color: '#666666',
+                          fontStyle: 'italic'
+                        }}
+                      >
+                        ℹ️ {m.disclaimer}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Evidence Accordion (Assistant only) */}
+                  {m.evidence && m.evidence.length > 0 && (
+                    <div style={{ width: '92%', marginLeft: '2px' }}>
+                      <button
+                        onClick={() => setActiveEvidenceIndex(activeEvidenceIndex === i ? null : i)}
+                        style={{
+                          background: '#EAE5D9',
+                          border: '1px solid #1D1E22',
+                          borderRadius: '6px',
+                          padding: '0.25rem 0.55rem',
+                          fontSize: '0.74rem',
+                          fontWeight: 700,
+                          color: '#1D1E22',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                        }}
+                      >
+                        <Database size={12} />
+                        {activeEvidenceIndex === i
+                          ? t('floatingWidgets.hideEvidence')
+                          : t('floatingWidgets.viewEvidence').replace('{count}', m.evidence.length)}
+                        {activeEvidenceIndex === i ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                      </button>
+
+                      {activeEvidenceIndex === i && (
+                        <div
+                          style={{
+                            marginTop: '0.35rem',
+                            background: '#FFFFFF',
+                            border: '1px solid #1D1E22',
+                            borderRadius: '6px',
+                            padding: '0.5rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.35rem',
+                            fontSize: '0.75rem',
+                            boxShadow: '2px 2px 0px #1D1E22'
+                          }}
+                        >
+                          <div style={{ fontWeight: 700, color: '#1D1E22', borderBottom: '1px solid #EAE5D9', paddingBottom: '0.2rem' }}>
+                            {t('floatingWidgets.evidence')}
+                          </div>
+                          {m.evidence.map((ev, evIdx) => (
+                            <div key={evIdx} style={{ padding: '0.2rem 0', borderBottom: evIdx < m.evidence.length - 1 ? '1px dashed #F0ECE1' : 'none' }}>
+                              <div style={{ fontWeight: 600, color: '#1D1E22' }}>{ev.label}: <span style={{ fontWeight: 400 }}>{ev.value}</span></div>
+                              <div style={{ fontSize: '0.68rem', color: '#777', display: 'flex', gap: '0.6rem' }}>
+                                <span>{t('floatingWidgets.sourceLabel')}: <strong>{ev.source}</strong></span>
+                                {ev.record_id && <span>{t('floatingWidgets.recordLabel')}: {ev.record_id}</span>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Suggestion Chips */}
+                  {m.suggestions && m.suggestions.length > 0 && i === messages.length - 1 && !isLoading && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', width: '92%', marginTop: '0.2rem' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#666' }}>{t('floatingWidgets.suggestions')}</span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                        {m.suggestions.map((sug, sIdx) => (
+                          <button
+                            key={sIdx}
+                            onClick={() => sendQuery(sug)}
+                            style={{
+                              background: '#FAF8F3',
+                              border: '1px solid #1D1E22',
+                              borderRadius: '16px',
+                              padding: '0.25rem 0.6rem',
+                              fontSize: '0.74rem',
+                              fontWeight: 600,
+                              color: '#1D1E22',
+                              cursor: 'pointer',
+                              textAlign: 'left',
+                              boxShadow: '1px 2px 0px #1D1E22',
+                              transition: 'transform 0.12s ease'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                          >
+                            💡 {sug}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Loading Indicator */}
+              {isLoading && (
+                <div
+                  style={{
+                    alignSelf: 'flex-start',
+                    background: '#FFFFFF',
+                    border: '1.5px solid #1D1E22',
+                    borderRadius: '12px 12px 12px 2px',
+                    boxShadow: '2px 3px 0px #1D1E22',
+                    padding: '0.65rem 0.95rem',
+                    fontSize: '0.8rem',
+                    color: '#555',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  <Sparkles size={16} color="#52B79A" className="animate-spin" />
+                  <span>{t('floatingWidgets.thinking')}</span>
+                </div>
+              )}
+
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Input Area */}
+            <form
+              onSubmit={handleFormSubmit}
+              style={{
+                padding: '0.6rem 0.75rem',
+                borderTop: '2px solid #1D1E22',
+                background: '#FFFFFF',
+                display: 'flex',
+                alignItems: 'flex-end',
+                gap: '0.5rem'
+              }}
+            >
+              <textarea
+                ref={textareaRef}
+                rows={1}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder={t('floatingWidgets.inputPlaceholder')}
-                style={{ flex: 1, border: 'none', outline: 'none', fontSize: '0.85rem', fontFamily: 'var(--font-sans)' }}
+                disabled={isLoading}
+                style={{
+                  flex: 1,
+                  border: '1px solid #1D1E22',
+                  borderRadius: '8px',
+                  padding: '0.5rem 0.65rem',
+                  fontSize: '0.84rem',
+                  fontFamily: 'inherit',
+                  outline: 'none',
+                  resize: 'none',
+                  maxHeight: '80px',
+                  lineHeight: 1.4,
+                  background: '#FAF8F3'
+                }}
               />
-              <button type="submit" style={{ background: '#52B79A', border: '1px solid #1D1E22', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <Send size={14} color="#1D1E22" />
+              <button
+                type="submit"
+                disabled={!inputText.trim() || isLoading}
+                aria-label="Send message"
+                style={{
+                  background: (!inputText.trim() || isLoading) ? '#CCCCCC' : '#52B79A',
+                  border: '1.5px solid #1D1E22',
+                  borderRadius: '8px',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: (!inputText.trim() || isLoading) ? 'not-allowed' : 'pointer',
+                  boxShadow: (!inputText.trim() || isLoading) ? 'none' : '2px 2px 0px #1D1E22',
+                  transition: 'all 0.12s ease'
+                }}
+              >
+                <Send size={15} color="#1D1E22" />
               </button>
             </form>
           </div>
@@ -311,7 +782,14 @@ const FloatingWidgets = ({ onLoginClick }) => {
           <button
             onClick={() => setChatOpen(true)}
             className="btn-teal"
-            style={{ padding: '0.75rem 1.4rem', fontSize: '0.9rem', boxShadow: '3px 4px 0px #1D1E22' }}
+            style={{
+              padding: '0.75rem 1.4rem',
+              fontSize: '0.9rem',
+              boxShadow: '3px 4px 0px #1D1E22',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
           >
             <MessageSquare size={18} />
             {t('floatingWidgets.openChatBtn')}
@@ -323,4 +801,3 @@ const FloatingWidgets = ({ onLoginClick }) => {
 };
 
 export default FloatingWidgets;
-

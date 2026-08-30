@@ -464,10 +464,24 @@ export const en = {
     riskMapTooltip: "Navigate to National Geospatial Risk Map",
     riskMapLabel: "↖ RISK MAP ↗",
     assistantTitle: "Nirikshak AI Assistant",
-    greeting: "Namaste! I am the Nirikshak AI Decision Support Assistant. How can I assist you with MPLADS risk scoring or anomaly explanations today?",
+    greeting: "Namaste! I am the Nirikshak AI Decision Support Assistant. How can I assist you with MPLADS risk scoring, anomalies, or project explanations today?",
     automatedReply: "Nirikshak AI evaluates project, financial, progress, and photographic data to flag potential irregularities for human field verification.",
-    inputPlaceholder: "Ask about anomaly detection...",
-    openChatBtn: "Ask Nirikshak AI"
+    inputPlaceholder: "Ask about project risk, anomalies, MPs, HHI...",
+    openChatBtn: "Ask Nirikshak AI",
+    thinking: "Analyzing precomputed analytics...",
+    clearChat: "Clear conversation",
+    evidence: "Evidence Grounding",
+    hideEvidence: "Hide Evidence",
+    viewEvidence: "View Evidence ({count})",
+    suggestions: "Suggested Questions:",
+    snapshot: "Data Snapshot: {date}",
+    error: "Could not retrieve response. Please check your connection and retry.",
+    retry: "Retry",
+    guestNotice: "Guest Mode — Log in for full project dossiers and entity details.",
+    authBadge: "OFFICIAL ACCESS",
+    guestBadge: "GUEST ACCESS",
+    sourceLabel: "Source",
+    recordLabel: "Record ID"
   },
 
   auth: {

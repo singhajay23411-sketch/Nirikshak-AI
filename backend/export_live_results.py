@@ -561,6 +561,14 @@ def main():
             src_file = os.path.join(LIVE_EXPORTS_DIR, filename)
             if os.path.isfile(src_file):
                 shutil.copy(src_file, os.path.join(frontend_data_dir, filename))
+
+    # Auto-generate assistant search index & manifest from exported artifacts
+    try:
+        from backend.build_assistant_index import build_assistant_indexes
+        log.info("Building assistant search index and manifest...")
+        build_assistant_indexes(data_dir=frontend_data_dir, output_dir=frontend_data_dir)
+    except Exception as e:
+        log.warning(f"Assistant index generation notice: {e}")
                 
     log.info("All live exports generated successfully.")
 

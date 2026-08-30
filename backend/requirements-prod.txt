@@ -3,6 +3,8 @@ uvicorn
 python-dotenv
 pyjwt
 passlib[bcrypt]
+pydantic
+rapidfuzz
 psycopg2-binary
 requests
 pandas

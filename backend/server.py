@@ -22,6 +22,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.auth.routes import router as auth_router
 from backend.works_routes import router as works_router
 from backend.analytics_routes import router as analytics_router
+from backend.assistant.routes import router as assistant_router
 from backend.auth.database import init_database
 
 # ─── Logging Setup ───
@@ -65,6 +66,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(works_router)
 app.include_router(analytics_router)
+app.include_router(assistant_router)
 
 
 
@@ -76,7 +78,17 @@ async def startup():
     log.info("  NIRIKSHAK AI — Backend Server Starting")
     log.info("═══════════════════════════════════════════════")
     init_database()
-    log.info("Auth database initialized. Server ready.")
+    log.info("Auth database initialized.")
+
+    # Initialize the assistant data repository
+    try:
+        from backend.assistant.data_repository import initialize_repository
+        initialize_repository()
+        log.info("Assistant data repository initialized.")
+    except Exception as e:
+        log.warning(f"Assistant initialization warning: {e}")
+
+    log.info("Server ready.")
 
 
 # ─── Health Check ───
