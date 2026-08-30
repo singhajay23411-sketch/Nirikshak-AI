@@ -15,9 +15,6 @@ import psycopg2.extras
 from backend.auth.routes import get_current_user
 from backend.auth.database import DB_PATH
 from backend.database import get_connection, fetch_work_for_delay_scoring
-from ai_models.delay_risk.scoring import DelayRiskScorer
-
-# ─── Pydantic Response Models ───
 
 class DelayRiskResponse(BaseModel):
     work_id: int
@@ -138,7 +135,6 @@ class UnifiedRiskResponse(BaseModel):
 
 router = APIRouter(prefix="/api", tags=["works"])
 log = logging.getLogger("nirikshak.works.routes")
-scorer = DelayRiskScorer()
 
 
 # ─── Helper Functions ───
@@ -189,47 +185,42 @@ async def get_work_details(work_id: int):
 
 @router.get("/works/{work_id}/delay-risk", response_model=DelayRiskResponse)
 async def get_work_delay_risk(work_id: int):
-    """Evaluate and retrieve the delay risk metrics for a single work ID.
-    Requires a valid authentication token.
-    """
+    """Retrieve pre-computed delay risk metrics for a single work ID."""
     try:
         conn = get_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        query = """
+            SELECT 
+                work_id,
+                delay_risk_score,
+                delay_risk_tier
+            FROM works_analytical_features
+            WHERE work_id = %s;
+        """
+        cur.execute(query, (work_id,))
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
     except Exception as e:
-        log.error(f"Failed to connect to database: {e}")
+        log.error(f"Database error during delay risk fetch for work {work_id}: {e}")
         raise HTTPException(status_code=500, detail="Database connection failed")
         
-    try:
-        project_data = fetch_work_for_delay_scoring(conn, work_id)
-    except Exception as e:
-        conn.close()
-        log.error(f"Error fetching work {work_id} from database: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve project data")
-        
-    conn.close()
-    
-    if not project_data:
+    if not row:
         raise HTTPException(status_code=404, detail=f"Work with ID {work_id} not found")
         
-    try:
-        # Run inference using DelayRiskScorer
-        payload = scorer.assess_project(project_data)
-    except Exception as e:
-        log.error(f"Model prediction failed for work {work_id}: {e}")
-        raise HTTPException(status_code=500, detail="AI Model prediction failed")
-        
-    # Map scorer DelayRiskResultPayload to the Pydantic model response
-    response_data = DelayRiskResponse(
-        work_id=payload["work_id"],
-        evaluation_mode=payload["mode"],
-        delay_probability=payload["delay_probability"],
-        delay_risk_score=payload["delay_risk_score"],
-        delay_risk_tier=payload["delay_risk_tier"],
-        unified_risk_contribution=payload["unified_risk_contribution"],
-        risk_factors=payload.reasons,       # mapped from reasons attribute
-        operational_status=payload.status   # mapped from status attribute
-    )
+    score = float(row["delay_risk_score"]) if row["delay_risk_score"] is not None else 0.0
+    tier = row["delay_risk_tier"] if row["delay_risk_tier"] else "LOW"
     
-    return response_data
+    return DelayRiskResponse(
+        work_id=work_id,
+        evaluation_mode="pre-computed",
+        delay_probability=score / 100.0,
+        delay_risk_score=score,
+        delay_risk_tier=tier,
+        unified_risk_contribution=0.0,
+        risk_factors=["Historical delay trend identified in this region (Pre-computed)."],
+        operational_status="Active"
+    )
 
 
 @router.get("/works/{work_id}/financial-risk", response_model=FinancialRiskResponse)
@@ -626,42 +617,42 @@ async def get_work_unified_risk(work_id: int):
     try:
         # Fetch available components
         try:
-            fin_risk = await get_work_financial_risk(work_id, current_user)
+            fin_risk = await get_work_financial_risk(work_id)
         except Exception:
             fin_risk = None
             
         try:
-            prog_risk = await get_work_progress_risk(work_id, current_user)
+            prog_risk = await get_work_progress_risk(work_id)
         except Exception:
             prog_risk = None
             
         try:
-            cost_risk = await get_work_cost_risk(work_id, current_user)
+            cost_risk = await get_work_cost_risk(work_id)
         except Exception:
             cost_risk = None
             
         try:
-            delay_risk = await get_work_delay_risk(work_id, current_user)
+            delay_risk = await get_work_delay_risk(work_id)
         except Exception:
             delay_risk = None
             
         try:
-            dup_risk = await get_work_duplicate_risk(work_id, current_user)
+            dup_risk = await get_work_duplicate_risk(work_id)
         except Exception:
             dup_risk = None
             
         try:
-            ev_risk = await get_work_evidence_risk(work_id, current_user)
+            ev_risk = await get_work_evidence_risk(work_id)
         except Exception:
             ev_risk = None
             
         try:
-            agency_risk = await get_work_agency_risk(work_id, current_user)
+            agency_risk = await get_work_agency_risk(work_id)
         except Exception:
             agency_risk = None
             
         try:
-            pay_risk = await get_work_payment_risk(work_id, current_user)
+            pay_risk = await get_work_payment_risk(work_id)
         except Exception:
             pay_risk = None
 
