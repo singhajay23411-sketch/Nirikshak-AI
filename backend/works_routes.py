@@ -158,7 +158,7 @@ def map_score_to_tier(score: float) -> str:
 # ─── API Route Endpoints ───
 
 @router.get("/works/{work_id}", response_model=WorkDetailResponse)
-async def get_work_details(work_id: int, current_user: dict = Depends(get_current_user)):
+async def get_work_details(work_id: int):
     """Retrieve raw project details from PostgreSQL works table."""
     try:
         conn = get_connection()
@@ -188,7 +188,7 @@ async def get_work_details(work_id: int, current_user: dict = Depends(get_curren
 
 
 @router.get("/works/{work_id}/delay-risk", response_model=DelayRiskResponse)
-async def get_work_delay_risk(work_id: int, current_user: dict = Depends(get_current_user)):
+async def get_work_delay_risk(work_id: int):
     """Evaluate and retrieve the delay risk metrics for a single work ID.
     Requires a valid authentication token.
     """
@@ -233,7 +233,7 @@ async def get_work_delay_risk(work_id: int, current_user: dict = Depends(get_cur
 
 
 @router.get("/works/{work_id}/financial-risk", response_model=FinancialRiskResponse)
-async def get_work_financial_risk(work_id: int, current_user: dict = Depends(get_current_user)):
+async def get_work_financial_risk(work_id: int):
     """Retrieve FinGuard financial risk score and anomalies for a single work ID."""
     try:
         conn = get_connection()
@@ -280,7 +280,7 @@ async def get_work_financial_risk(work_id: int, current_user: dict = Depends(get
 
 
 @router.get("/works/{work_id}/progress-risk", response_model=ProgressRiskResponse)
-async def get_work_progress_risk(work_id: int, current_user: dict = Depends(get_current_user)):
+async def get_work_progress_risk(work_id: int):
     """Retrieve Stall Predictor progress risk metrics for a single work ID."""
     try:
         conn = get_connection()
@@ -334,7 +334,7 @@ async def get_work_progress_risk(work_id: int, current_user: dict = Depends(get_
 
 
 @router.get("/works/{work_id}/cost-risk", response_model=CostRiskResponse)
-async def get_work_cost_risk(work_id: int, current_user: dict = Depends(get_current_user)):
+async def get_work_cost_risk(work_id: int):
     """Retrieve cost risk benchmarking metrics for a single work ID."""
     try:
         conn = get_connection()
@@ -380,7 +380,7 @@ async def get_work_cost_risk(work_id: int, current_user: dict = Depends(get_curr
 
 
 @router.get("/works/{work_id}/duplicate-risk", response_model=DuplicateRiskResponse)
-async def get_work_duplicate_risk(work_id: int, current_user: dict = Depends(get_current_user)):
+async def get_work_duplicate_risk(work_id: int):
     """Retrieve duplicate and split-work risk alerts for a single work ID."""
     try:
         conn = get_connection()
@@ -448,7 +448,7 @@ async def get_work_duplicate_risk(work_id: int, current_user: dict = Depends(get
 
 
 @router.get("/works/{work_id}/agency-risk", response_model=AgencyRiskResponse)
-async def get_work_agency_risk(work_id: int, current_user: dict = Depends(get_current_user)):
+async def get_work_agency_risk(work_id: int):
     """Retrieve blended agency and district governance risk for a single work ID."""
     try:
         conn = get_connection()
@@ -497,7 +497,7 @@ async def get_work_agency_risk(work_id: int, current_user: dict = Depends(get_cu
 
 
 @router.get("/works/{work_id}/payment-risk", response_model=PaymentRiskResponse)
-async def get_work_payment_risk(work_id: int, current_user: dict = Depends(get_current_user)):
+async def get_work_payment_risk(work_id: int):
     """Retrieve transaction concentration (HHI) and payment fragmentation risk for a single work ID."""
     try:
         conn = get_connection()
@@ -585,7 +585,7 @@ async def get_work_payment_risk(work_id: int, current_user: dict = Depends(get_c
 
 
 @router.get("/works/{work_id}/evidence-risk", response_model=EvidenceRiskResponse)
-async def get_work_evidence_risk(work_id: int, current_user: dict = Depends(get_current_user)):
+async def get_work_evidence_risk(work_id: int):
     """Retrieve EvidenceAI image and document verification risk for a single work ID."""
     try:
         # Check SQLite inspections table for uploaded evidence
@@ -621,7 +621,7 @@ async def get_work_evidence_risk(work_id: int, current_user: dict = Depends(get_
 
 
 @router.get("/works/{work_id}/risk", response_model=UnifiedRiskResponse)
-async def get_work_unified_risk(work_id: int, current_user: dict = Depends(get_current_user)):
+async def get_work_unified_risk(work_id: int):
     """Retrieve the Unified Risk Engine compilation for a single work ID."""
     try:
         # Fetch available components

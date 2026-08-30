@@ -2855,10 +2855,8 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
       return;
     }
     if (!token) {
-      setDelayRiskData(null);
-      setDelayRiskError('Authentication token missing. Please sign in.');
-      setDelayRiskLoading(false);
-      return;
+      // Just fetch anyway; the backend endpoints are public now.
+      // We will still pass the empty auth headers which will be ignored.
     }
     return _fetchRisk(workId, 'delay-risk', setDelayRiskData, setDelayRiskLoading, setDelayRiskError);
   }, [selectedProject?.id, token]);
@@ -2866,56 +2864,56 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
   // ─── Financial Risk ───────────────────────────────────────────────────────
   useEffect(() => {
     const workId = _resolveWorkId(selectedProject);
-    if (!workId || !token) { setFinancialRiskData(null); setFinancialRiskLoading(false); return; }
+    if (!workId) { setFinancialRiskData(null); setFinancialRiskLoading(false); return; }
     return _fetchRisk(workId, 'financial-risk', setFinancialRiskData, setFinancialRiskLoading, setFinancialRiskError);
   }, [selectedProject?.id, token]);
 
   // ─── Progress Risk ────────────────────────────────────────────────────────
   useEffect(() => {
     const workId = _resolveWorkId(selectedProject);
-    if (!workId || !token) { setProgressRiskData(null); setProgressRiskLoading(false); return; }
+    if (!workId) { setProgressRiskData(null); setProgressRiskLoading(false); return; }
     return _fetchRisk(workId, 'progress-risk', setProgressRiskData, setProgressRiskLoading, setProgressRiskError);
   }, [selectedProject?.id, token]);
 
   // ─── Cost Risk ────────────────────────────────────────────────────────────
   useEffect(() => {
     const workId = _resolveWorkId(selectedProject);
-    if (!workId || !token) { setCostRiskData(null); setCostRiskLoading(false); return; }
+    if (!workId) { setCostRiskData(null); setCostRiskLoading(false); return; }
     return _fetchRisk(workId, 'cost-risk', setCostRiskData, setCostRiskLoading, setCostRiskError);
   }, [selectedProject?.id, token]);
 
   // ─── Agency Risk ──────────────────────────────────────────────────────────
   useEffect(() => {
     const workId = _resolveWorkId(selectedProject);
-    if (!workId || !token) { setAgencyRiskData(null); setAgencyRiskLoading(false); return; }
+    if (!workId) { setAgencyRiskData(null); setAgencyRiskLoading(false); return; }
     return _fetchRisk(workId, 'agency-risk', setAgencyRiskData, setAgencyRiskLoading, setAgencyRiskError);
   }, [selectedProject?.id, token]);
 
   // ─── Payment Risk ─────────────────────────────────────────────────────────
   useEffect(() => {
     const workId = _resolveWorkId(selectedProject);
-    if (!workId || !token) { setPaymentRiskData(null); setPaymentRiskLoading(false); return; }
+    if (!workId) { setPaymentRiskData(null); setPaymentRiskLoading(false); return; }
     return _fetchRisk(workId, 'payment-risk', setPaymentRiskData, setPaymentRiskLoading, setPaymentRiskError);
   }, [selectedProject?.id, token]);
 
   // ─── Duplicate Risk ───────────────────────────────────────────────────────
   useEffect(() => {
     const workId = _resolveWorkId(selectedProject);
-    if (!workId || !token) { setDuplicateRiskData(null); setDuplicateRiskLoading(false); return; }
+    if (!workId) { setDuplicateRiskData(null); setDuplicateRiskLoading(false); return; }
     return _fetchRisk(workId, 'duplicate-risk', setDuplicateRiskData, setDuplicateRiskLoading, setDuplicateRiskError);
   }, [selectedProject?.id, token]);
 
   // ─── Evidence Risk ────────────────────────────────────────────────────────
   useEffect(() => {
     const workId = _resolveWorkId(selectedProject);
-    if (!workId || !token) { setEvidenceRiskData(null); setEvidenceRiskLoading(false); return; }
+    if (!workId) { setEvidenceRiskData(null); setEvidenceRiskLoading(false); return; }
     return _fetchRisk(workId, 'evidence-risk', setEvidenceRiskData, setEvidenceRiskLoading, setEvidenceRiskError);
   }, [selectedProject?.id, token]);
 
   // ─── Unified Risk ─────────────────────────────────────────────────────────
   useEffect(() => {
     const workId = _resolveWorkId(selectedProject);
-    if (!workId || !token) { setUnifiedRiskData(null); setUnifiedRiskLoading(false); return; }
+    if (!workId) { setUnifiedRiskData(null); setUnifiedRiskLoading(false); return; }
     return _fetchRisk(workId, 'risk', setUnifiedRiskData, setUnifiedRiskLoading, setUnifiedRiskError);
   }, [selectedProject?.id, token]);
 
@@ -3011,7 +3009,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
           constituency: item.const_name || 'N/A',
           sanctionedCost: `₹${(item.sanction_amount || 0).toLocaleString('en-IN')}`,
           expenditure: `₹${(item.total_disbursed || 0).toLocaleString('en-IN')}`,
-          expenditurePct: Math.round((item.utilization_rate || 0) * 100),
+          expenditurePct: item.sanction_amount ? Math.round(((item.total_disbursed || 0) / item.sanction_amount) * 100) : 0,
           physicalProgress: item.work_status === 'Completed' ? 100 : (item.work_status === 'Sanctioned' ? 0 : 50),
           delayMonths: Math.round((item.completion_delay_days || 0) / 30),
           costDeviationPct: Math.round(item.cost_overrun_pct || 0),

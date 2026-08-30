@@ -3,3 +3,4 @@ uvicorn
 python-dotenv
 pyjwt
 passlib[bcrypt]
+psycopg2-binary
