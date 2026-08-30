@@ -4,3 +4,15 @@ python-dotenv
 pyjwt
 passlib[bcrypt]
 psycopg2-binary
+requests
+pandas
+tenacity
+tqdm
+sentence-transformers
+scikit-learn
+thefuzz
+python-Levenshtein
+pyarrow
+numpy
+geopy
+networkx
