@@ -15,6 +15,7 @@ import RoleDashboardLayout from './components/dashboard/RoleDashboardLayout';
 import FeatureView from './components/views/FeatureView';
 import StateDetailView from './components/views/StateDetailView';
 import MpDetailView from './components/views/MpDetailView';
+import QrDemoView from './components/views/QrDemoView';
 import { useAuth } from './context/AuthContext';
 
 // Helper component to scroll to top on route change
@@ -196,6 +197,10 @@ function App() {
 
         {/* Authentication */}
         <Route path="/login" element={<LoginPage />} />
+
+        {/* Smart QR Code Access Routes */}
+        <Route path="/demo" element={<QrDemoView />} />
+        <Route path="/qr" element={<QrDemoView />} />
 
         {/* Authenticated Dashboard */}
         <Route path="/dashboard" element={<DashboardPage />} />

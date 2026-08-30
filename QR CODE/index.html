@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Explore Nirikshak AI • MPLADS Platform Access</title>
+  
+  <!-- Modern Serif & Sans Typography from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --color-bg: #FAF8F3;
+      --color-card: #FFFFFF;
+      --color-border: #1D1E22;
+      --color-text-primary: #1D1E22;
+      --color-text-secondary: #4A4D55;
+      --color-text-muted: #6B7280;
+      --color-teal: #52B79A;
+      --color-teal-hover: #439E83;
+      --color-teal-light: #EBF8F4;
+      --color-gold: #E5B842;
+      --color-navy: #0A2458;
+      --font-serif: 'Lora', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem 1rem;
+      background-image: 
+        radial-gradient(rgba(29, 30, 34, 0.05) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Top Brand Eyebrow */
+    .brand-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: #FFFFFF;
+      border: 1.5px solid var(--color-border);
+      border-radius: 9999px;
+      padding: 0.35rem 0.95rem;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-navy);
+      box-shadow: 2px 2.5px 0px var(--color-border);
+      margin-bottom: 0.75rem;
+    }
+
+    .brand-badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--color-teal);
+      box-shadow: 0 0 0 2px rgba(82, 183, 154, 0.3);
+    }
+
+    .brand-title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.85rem, 5vw, 2.35rem);
+      font-weight: 700;
+      color: var(--color-text-primary);
+      line-height: 1.18;
+      letter-spacing: -0.015em;
+      margin-bottom: 0.45rem;
+    }
+
+    .brand-subtitle {
+      font-size: 0.95rem;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    /* Main Selection Card */
+    .selection-card {
+      background: var(--color-card);
+      border: 2px solid var(--color-border);
+      border-radius: 22px;
+      padding: 1.75rem 1.5rem;
+      box-shadow: 4px 6px 0px var(--color-border);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Option Container */
+    .option-box {
+      border: 1.5px solid var(--color-border);
+      border-radius: 16px;
+      padding: 1.25rem;
+      background: #FFFFFF;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+      position: relative;
+    }
+
+    .option-box.recommended {
+      background: var(--color-teal-light);
+      border-color: var(--color-border);
+      box-shadow: 3px 4px 0px var(--color-border);
+    }
+
+    .rec-badge {
+      position: absolute;
+      top: -10px;
+      right: 14px;
+      background: var(--color-teal);
+      border: 1.5px solid var(--color-border);
+      border-radius: 9999px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.15rem 0.6rem;
+      color: var(--color-border);
+      box-shadow: 1.5px 2px 0px var(--color-border);
+    }
+
+    .option-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .option-icon {
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: #FFFFFF;
+      border: 1.5px solid var(--color-border);
+      border-radius: 12px;
+      box-shadow: 2px 2px 0px var(--color-border);
+    }
+
+    .option-title {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .option-desc {
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+      line-height: 1.45;
+      margin-bottom: 0.95rem;
+    }
+
+    /* Action Buttons */
+    .btn-primary {
+      width: 100%;
+      background: var(--color-teal);
+      color: var(--color-border);
+      border: 1.5px solid var(--color-border);
+      border-radius: 9999px;
+      padding: 0.82rem 1.4rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      box-shadow: 2px 3px 0px var(--color-border);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--color-teal-hover);
+      transform: translateY(-2px);
+      box-shadow: 3px 5px 0px var(--color-border);
+    }
+
+    .btn-primary:active {
+      transform: translate(2px, 3px);
+      box-shadow: 0px 0px 0px var(--color-border);
+    }
+
+    .btn-secondary {
+      width: 100%;
+      background: #FFFFFF;
+      color: var(--color-border);
+      border: 1.5px solid var(--color-border);
+      border-radius: 9999px;
+      padding: 0.82rem 1.4rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      box-shadow: 2px 3px 0px var(--color-border);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+      user-select: none;
+    }
+
+    .btn-secondary:hover {
+      background: #F4EFE6;
+      transform: translateY(-2px);
+      box-shadow: 3px 5px 0px var(--color-border);
+    }
+
+    .btn-secondary:active {
+      transform: translate(2px, 3px);
+      box-shadow: 0px 0px 0px var(--color-border);
+    }
+
+    /* Laptop Details Box (Revealed) */
+    .laptop-details {
+      margin-top: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px dashed rgba(29, 30, 34, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .url-copy-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .url-display {
+      flex: 1;
+      background: #FFFFFF;
+      border: 1.5px solid var(--color-border);
+      border-radius: 10px;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--color-navy);
+      font-family: monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      user-select: all;
+    }
+
+    .btn-copy {
+      background: var(--color-border);
+      color: #FFFFFF;
+      border: 1.5px solid var(--color-border);
+      border-radius: 10px;
+      padding: 0.6rem 0.95rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .btn-copy.copied {
+      background: var(--color-teal);
+      color: var(--color-border);
+    }
+
+    .instruction-text {
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* Footer Meta */
+    .footer-meta {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.76rem;
+      color: var(--color-text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .live-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      font-weight: 600;
+      color: #1E7E34;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #1E7E34;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0.4; transform: scale(0.9); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Brand Header -->
+    <div class="brand-header">
+      <div class="brand-badge">
+        <span class="brand-badge-dot"></span>
+        <span>NIRIKSHΛK ΛI • MPLADS</span>
+      </div>
+      <h1 class="brand-title">Explore Nirikshak AI</h1>
+      <p class="brand-subtitle">Choose how you want to access the platform</p>
+    </div>
+
+    <!-- Main Interactive Card -->
+    <div class="selection-card">
+
+      <!-- Option 1: Open on Phone -->
+      <div class="option-box" id="phoneOptionBox">
+        <span class="rec-badge" id="phoneRecBadge" style="display: none;">Recommended</span>
+        
+        <div class="option-header">
+          <div class="option-icon">📱</div>
+          <div class="option-title">Open on Phone</div>
+        </div>
+        
+        <p class="option-desc">Open the live website directly on this device</p>
+        
+        <a 
+          href="http://155.248.255.235" 
+          id="phoneBtn" 
+          class="btn-primary"
+        >
+          <span>Launch on Phone</span>
+          <span>→</span>
+        </a>
+      </div>
+
+      <!-- Option 2: Open on Laptop -->
+      <div class="option-box" id="laptopOptionBox">
+        <span class="rec-badge" id="laptopRecBadge" style="display: none;">Recommended</span>
+        
+        <div class="option-header">
+          <div class="option-icon">💻</div>
+          <div class="option-title">Open on Laptop</div>
+        </div>
+        
+        <p class="option-desc">Continue on your laptop</p>
+        
+        <div class="laptop-details">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-text-secondary);">
+            Open this link on your laptop:
+          </div>
+
+          <div class="url-copy-row">
+            <div class="url-display" id="urlText" title="http://155.248.255.235">http://155.248.255.235</div>
+            <button class="btn-copy" id="copyBtn" onclick="copyLink()">
+              <span id="copyIcon">📋</span>
+              <span id="copyText">Copy Link</span>
+            </button>
+          </div>
+
+          <p class="instruction-text">
+            <span>ℹ️</span>
+            <span>Copy the link and paste it into your laptop browser.</span>
+          </p>
+
+          <a 
+            href="http://155.248.255.235" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style="font-size: 0.82rem; font-weight: 700; color: var(--color-navy); text-decoration: underline; margin-top: 0.2rem; text-align: center; display: block;"
+          >
+            Or open directly in new tab ↗
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer Attribution -->
+    <div class="footer-meta">
+      <div>Ministry of Statistics & Programme Implementation (MoSPI) • Government of India</div>
+      <div class="live-status">
+        <span class="status-dot"></span>
+        <span>Live System Online (155.248.255.235)</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const LIVE_URL = "http://155.248.255.235";
+
+    // ─── Automatic Device Detection ───
+    function detectDevice() {
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(userAgent);
+      const isSmallScreen = window.innerWidth <= 768;
+      const isMobile = isMobileUA || isSmallScreen;
+
+      const phoneBox = document.getElementById('phoneOptionBox');
+      const laptopBox = document.getElementById('laptopOptionBox');
+      const phoneBadge = document.getElementById('phoneRecBadge');
+      const laptopBadge = document.getElementById('laptopRecBadge');
+      const phoneBtn = document.getElementById('phoneBtn');
+
+      if (isMobile) {
+        // Mobile Mode
+        phoneBox.classList.add('recommended');
+        phoneBadge.style.display = 'inline-block';
+        phoneBtn.className = 'btn-primary';
+      } else {
+        // Desktop / Laptop Mode
+        laptopBox.classList.add('recommended');
+        laptopBadge.style.display = 'inline-block';
+        phoneBtn.className = 'btn-secondary';
+      }
+    }
+
+    // ─── Clipboard Copy Functionality ───
+    function copyLink() {
+      const copyBtn = document.getElementById('copyBtn');
+      const copyText = document.getElementById('copyText');
+      const copyIcon = document.getElementById('copyIcon');
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(LIVE_URL).then(onCopied).catch(() => fallbackCopy());
+      } else {
+        fallbackCopy();
+      }
+
+      function onCopied() {
+        copyBtn.classList.add('copied');
+        copyIcon.textContent = '✓';
+        copyText.textContent = 'Link Copied';
+        
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyIcon.textContent = '📋';
+          copyText.textContent = 'Copy Link';
+        }, 2500);
+      }
+
+      function fallbackCopy() {
+        const textarea = document.createElement('textarea');
+        textarea.value = LIVE_URL;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          onCopied();
+        } catch (err) {
+          alert('Link: ' + LIVE_URL);
+        }
+        document.body.removeChild(textarea);
+      }
+    }
+
+    // Initialize detection on load and resize
+    window.addEventListener('DOMContentLoaded', detectDevice);
+    window.addEventListener('resize', detectDevice);
+  </script>
+</body>
+</html>

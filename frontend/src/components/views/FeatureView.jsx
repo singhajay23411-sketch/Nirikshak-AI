@@ -22,6 +22,7 @@ import UnifiedAiIntelligenceView from './UnifiedAiIntelligenceView';
 import ProjectStatusView from './ProjectStatusView';
 import ProjectTimelineView from './ProjectTimelineView';
 import MeetTheTeamView from './MeetTheTeamView';
+import QrDemoView from './QrDemoView';
 
 // MOCK DATA SOURCED DIRECTLY FROM README.MD SPECIFICATIONS
 const MOCK_ANOMALY_PROJECTS = [
@@ -4924,6 +4925,14 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
       case 'meet_team_sage':
         return <MeetTheTeamView />;
 
+      case 'demo':
+      case 'qr':
+      case 'qrdemo':
+      case 'qr_demo':
+      case 'smart-access':
+      case 'device-selection':
+        return <QrDemoView />;
+
       // Default fallback
       default:
         return (
@@ -4956,6 +4965,10 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
         );
     }
   };
+
+  if (featureId === 'demo' || featureId === 'qr' || featureId === 'qrdemo' || featureId === 'qr_demo') {
+    return <QrDemoView />;
+  }
 
   return (
     <div style={{ background: 'var(--color-bg-light)', color: 'var(--color-text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
