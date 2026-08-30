@@ -61,19 +61,26 @@ body {
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--color-bg-light);
 }
+
 ::-webkit-scrollbar-thumb {
   background: #C8C3B8;
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent-teal);
 }
 
 /* Typography Hierarchy */
-h1, h2, h3, h4, .font-serif {
+h1,
+h2,
+h3,
+h4,
+.font-serif {
   font-family: var(--font-serif-primary);
   letter-spacing: -0.01em;
   line-height: 1.2;
@@ -122,16 +129,23 @@ p.lead {
 }
 
 /* Authentic Tactile Buttons (Hover Lift & Press-Down Interaction) */
-button, .btn-teal, .btn-outline-dark, .btn-pill-action {
+button,
+.btn-teal,
+.btn-outline-dark,
+.btn-pill-action {
   cursor: pointer;
   transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, color 0.2s ease;
 }
 
-button:hover, .btn-teal:hover, .btn-outline-dark:hover {
+button:hover,
+.btn-teal:hover,
+.btn-outline-dark:hover {
   transform: translate(-1.5px, -2px);
 }
 
-button:active, .btn-teal:active, .btn-outline-dark:active {
+button:active,
+.btn-teal:active,
+.btn-outline-dark:active {
   transform: translate(2px, 3px) !important;
   box-shadow: 0px 0px 0px #1D1E22 !important;
 }
@@ -231,14 +245,19 @@ button:active, .btn-teal:active, .btn-outline-dark:active {
 }
 
 /* Global Responsive & Mobile Utilities */
-html, body, #root {
+html,
+body,
+#root {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
   position: relative;
 }
 
-img, video, canvas, svg {
+img,
+video,
+canvas,
+svg {
   max-width: 100%;
 }
 
@@ -253,9 +272,11 @@ img, video, canvas, svg {
   .section-padding {
     padding: 4.5rem 0;
   }
+
   .container {
     padding: 0 1.25rem;
   }
+
   .card-light {
     padding: 1.75rem;
   }
@@ -265,23 +286,30 @@ img, video, canvas, svg {
   .section-padding {
     padding: 3.5rem 0;
   }
+
   .container {
     padding: 0 1rem;
   }
+
   .card-light {
     padding: 1.35rem;
     border-radius: var(--radius-md);
   }
+
   h1 {
     font-size: clamp(1.85rem, 6.5vw, 2.5rem);
   }
+
   h2 {
     font-size: clamp(1.5rem, 5vw, 2.1rem);
   }
+
   h3 {
     font-size: clamp(1.2rem, 4vw, 1.6rem);
   }
-  .btn-teal, .btn-outline-dark {
+
+  .btn-teal,
+  .btn-outline-dark {
     padding: 0.65rem 1.35rem;
     font-size: 0.88rem;
   }
@@ -291,22 +319,29 @@ img, video, canvas, svg {
   .section-padding {
     padding: 2.75rem 0;
   }
+
   .container {
     padding: 0 0.85rem;
   }
+
   .card-light {
     padding: 1.15rem;
   }
+
   h1 {
     font-size: clamp(1.75rem, 7.5vw, 2.2rem);
   }
+
   h2 {
     font-size: clamp(1.35rem, 6vw, 1.8rem);
   }
+
   h3 {
     font-size: clamp(1.15rem, 5vw, 1.45rem);
   }
-  .btn-teal, .btn-outline-dark {
+
+  .btn-teal,
+  .btn-outline-dark {
     padding: 0.6rem 1.15rem;
     font-size: 0.84rem;
   }
@@ -322,6 +357,7 @@ img, video, canvas, svg {
     opacity: 0;
     transform: translateY(6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -332,6 +368,7 @@ img, video, canvas, svg {
   .registry-table-desktop {
     display: none !important;
   }
+
   .registry-cards-mobile {
     display: flex !important;
   }
@@ -357,6 +394,3 @@ img, video, canvas, svg {
     grid-template-columns: 1fr;
   }
 }
-
-
-

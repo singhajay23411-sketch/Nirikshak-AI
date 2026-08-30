@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  ArrowLeft, Shield, AlertTriangle, CheckCircle, Database, TrendingUp, 
-  MapPin, Clock, FileText, Search, Filter, Download, ExternalLink, 
+import {
+  ArrowLeft, Shield, AlertTriangle, CheckCircle, Database, TrendingUp,
+  MapPin, Clock, FileText, Search, Filter, Download, ExternalLink,
   Layers, Camera, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, Eye, RefreshCw, BarChart3, AlertCircle,
   FileCheck, Users, Send, CheckSquare, Copy, X
 } from 'lucide-react';
@@ -19,6 +19,8 @@ import BrowseMpsView from './BrowseMpsView';
 import CompareView from './CompareView';
 import FeedbackView from './FeedbackView';
 import UnifiedAiIntelligenceView from './UnifiedAiIntelligenceView';
+import ProjectStatusView from './ProjectStatusView';
+import ProjectTimelineView from './ProjectTimelineView';
 
 // MOCK DATA SOURCED DIRECTLY FROM README.MD SPECIFICATIONS
 const MOCK_ANOMALY_PROJECTS = [
@@ -1090,7 +1092,7 @@ const FinancialAnomalyDashboard = ({ isHi }) => {
     }));
   };
   const anomalyProjects = mapAnomalyData(costAndDelayAnomalies);
-  
+
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisStatus, setAnalysisStatus] = useState('Last Run: Today, 10:45 AM • 218K Records Scanned');
   const [selectedAnomaly, setSelectedAnomaly] = useState(null);
@@ -2154,7 +2156,7 @@ const DuplicateDetectionDashboard = ({ isHi }) => {
             const B_sanction = item.B_sanction_amount || 0;
             const costDiffVal = Math.abs(A_sanction - B_sanction);
             const costDiffPctVal = A_sanction > 0 ? (costDiffVal / A_sanction * 100) : 0;
-            
+
             return {
               pairId: `DUP-${item.work_id_A}-${item.work_id_B}`,
               confidenceScore: Math.round(item.risk_confidence_score || 90),
@@ -2985,20 +2987,20 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
         const riskBand = item.risk_tier ? (item.risk_tier.charAt(0).toUpperCase() + item.risk_tier.slice(1).toLowerCase()) : 'Low';
         const reasons = item.top_risk_drivers && item.top_risk_drivers.length > 0
           ? (typeof item.top_risk_drivers === 'string' ? JSON.parse(item.top_risk_drivers) : item.top_risk_drivers).map(d => {
-              const pillars = {
-                'financial_risk_score': 'Financial over-disbursement',
-                'progress_risk_score': 'High project stall probability',
-                'cost_risk_score': 'Severe cost escalation',
-                'delay_risk_score': 'Chronic completion delays',
-                'duplicate_risk_score': 'Duplicate/split-work alerts',
-                'evidence_risk_score': 'Prohibited guidelines violation',
-                'agency_risk_score': 'Poor executing agency track record',
-                'payment_risk_score': 'High cartel or payment fragmentation'
-              };
-              return pillars[d.pillar] || d.pillar;
-            })
+            const pillars = {
+              'financial_risk_score': 'Financial over-disbursement',
+              'progress_risk_score': 'High project stall probability',
+              'cost_risk_score': 'Severe cost escalation',
+              'delay_risk_score': 'Chronic completion delays',
+              'duplicate_risk_score': 'Duplicate/split-work alerts',
+              'evidence_risk_score': 'Prohibited guidelines violation',
+              'agency_risk_score': 'Poor executing agency track record',
+              'payment_risk_score': 'High cartel or payment fragmentation'
+            };
+            return pillars[d.pillar] || d.pillar;
+          })
           : [item.project_summary || 'General risk flagged'];
-        
+
         return {
           id: `MPLADS-${item.work_id}`,
           workId: item.work_id, // PRESERVE WORK ID!
@@ -3032,9 +3034,9 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
 
   // Filter projects
   const filteredProjects = anomalyProjects.filter(p => {
-    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          p.district.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.district.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = selectedFilter === 'ALL' || p.riskBand.toUpperCase() === selectedFilter;
     return matchesSearch && matchesFilter;
   });
@@ -3386,7 +3388,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                   {isHi ? 'MPLADS डैशबोर्ड' : 'MPLADS Dashboard'}
                 </h1>
                 <p style={{ fontSize: '0.92rem', color: 'var(--color-text-secondary)', marginTop: '0.4rem', margin: 0, maxWidth: '720px', lineHeight: 1.5 }}>
-                  {isHi 
+                  {isHi
                     ? '543 लोकसभा और 245 राज्यसभा निर्वाचन क्षेत्रों में एमपीलैड्स विकास कार्यों, निधि उपयोग और विसंगति सत्यापन की निगरानी।'
                     : 'Monitoring MPLADS works, fund utilization, and anomaly verification across 543 Lok Sabha and 245 Rajya Sabha constituencies.'}
                 </p>
@@ -4137,93 +4139,500 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
       case 'fieldVerification':
       case 'resolution':
         return (
-          <div>
-            {/* Search & Filter Bar */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <div style={{ position: 'relative', flex: '1 1 300px' }}>
-                <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={isHi ? 'परियोजना ID, शीर्षक या जिला खोजें...' : 'Search project ID, title or district...'}
-                  style={{
-                    width: '100%',
-                    padding: '0.65rem 0.85rem 0.65rem 2.4rem',
-                    border: '1.5px solid #1D1E22',
-                    borderRadius: 'var(--radius-md)',
-                    fontSize: '0.88rem',
-                    background: '#FFFFFF'
-                  }}
-                />
-              </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
+            {(() => {
+              const q = searchQuery.toLowerCase().trim();
+              const filteredAnomalyProjects = anomalyProjects.filter(p => {
+                const matchesSearch = !q || (
+                  p.id.toLowerCase().includes(q) ||
+                  p.title.toLowerCase().includes(q) ||
+                  p.district.toLowerCase().includes(q) ||
+                  p.state.toLowerCase().includes(q) ||
+                  p.category.toLowerCase().includes(q) ||
+                  (p.constituency && p.constituency.toLowerCase().includes(q)) ||
+                  (p.agency && p.agency.toLowerCase().includes(q))
+                );
+                const matchesFilter = selectedFilter === 'ALL' || p.riskBand.toUpperCase() === selectedFilter.toUpperCase();
+                return matchesSearch && matchesFilter;
+              });
 
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                {['ALL', 'CRITICAL', 'HIGH'].map(filter => (
-                  <button
-                    key={filter}
-                    onClick={() => setSelectedFilter(filter)}
+              const pageSize = 10;
+              const totalProjects = filteredAnomalyProjects.length;
+              const totalPages = Math.max(1, Math.ceil(totalProjects / pageSize));
+              const safePage = Math.min(Math.max(1, registryCurrentPage), totalPages);
+
+              const startIndex = (safePage - 1) * pageSize;
+              const endIndex = Math.min(startIndex + pageSize, totalProjects);
+              const displayedRegistryProjects = filteredAnomalyProjects.slice(startIndex, endIndex);
+
+              // Generate page numbers array with smart windowing if many pages
+              const getPageNumbers = () => {
+                if (totalPages <= 5) {
+                  return Array.from({ length: totalPages }, (_, i) => i + 1);
+                }
+                if (safePage <= 3) {
+                  return [1, 2, 3, 4, '...', totalPages];
+                }
+                if (safePage >= totalPages - 2) {
+                  return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                }
+                return [1, '...', safePage - 1, safePage, safePage + 1, '...', totalPages];
+              };
+
+              return (
+                <div style={{ width: '100%' }}>
+                  {/* Search & Filter Toolbar Directly Above Registry */}
+                  <div
                     style={{
-                      padding: '0.55rem 1rem',
-                      borderRadius: 'var(--radius-md)',
-                      fontSize: '0.82rem',
-                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '1rem',
+                      flexWrap: 'wrap',
+                      marginBottom: '1rem',
+                      background: '#FAF8F3',
                       border: '1.5px solid #1D1E22',
-                      background: selectedFilter === filter ? 'var(--color-accent-teal)' : '#FFFFFF',
-                      cursor: 'pointer'
+                      borderRadius: 'var(--radius-lg)',
+                      padding: '0.85rem 1.25rem',
+                      boxShadow: '2px 3px 0px #1D1E22'
                     }}
                   >
-                    {filter}
-                  </button>
-                ))}
-              </div>
-            </div>
+                    {/* Wide Prominent Search Input */}
+                    <div style={{ position: 'relative', flex: '1 1 340px', minWidth: '240px' }}>
+                      <Search
+                        size={18}
+                        style={{
+                          position: 'absolute',
+                          left: '1rem',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          color: '#1D1E22'
+                        }}
+                      />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder={
+                          isHi
+                            ? 'परियोजना ID, शीर्षक, जिला, राज्य, श्रेणी या एजेंसी खोजें...'
+                            : 'Search projects by ID, title, district, state, category, agency...'
+                        }
+                        style={{
+                          width: '100%',
+                          padding: '0.65rem 2.4rem 0.65rem 2.75rem',
+                          border: '1.5px solid #1D1E22',
+                          borderRadius: 'var(--radius-md)',
+                          fontSize: '0.88rem',
+                          fontWeight: 600,
+                          color: '#1D1E22',
+                          background: '#FFFFFF',
+                          boxSizing: 'border-box',
+                          outline: 'none',
+                          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
+                        }}
+                      />
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchQuery('')}
+                          style={{
+                            position: 'absolute',
+                            right: '0.75rem',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '0.2rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            color: 'var(--color-text-muted)'
+                          }}
+                          title="Clear search"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
+                    </div>
 
-            {/* Master-Detail Investigation Split View */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1fr) minmax(380px, 1.2fr)', gap: '1.5rem' }}>
-              {/* Project List */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                {filteredProjects.map((p) => {
-                  const isSelected = selectedProject.id === p.id;
-                  return (
-                    <div
-                      key={p.id}
-                      onClick={() => setSelectedProject(p)}
-                      style={{
-                        padding: '1.15rem',
-                        background: isSelected ? '#F3EFE6' : '#FFFFFF',
-                        border: '1.5px solid #1D1E22',
-                        borderRadius: 'var(--radius-md)',
-                        boxShadow: isSelected ? '3px 4px 0px #1D1E22' : '1.5px 2px 0px #1D1E22',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                        <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'monospace' }}>{p.id}</span>
-                        <span style={{
-                          padding: '0.15rem 0.5rem', borderRadius: 'var(--radius-full)', fontSize: '0.72rem', fontWeight: 800,
-                          background: p.riskScore > 80 ? '#FEF2F2' : '#FFF8E1',
-                          color: p.riskScore > 80 ? '#D9534F' : '#E5B842',
-                          border: `1px solid ${p.riskScore > 80 ? '#D9534F' : '#E5B842'}`
-                        }}>
-                          Score {p.riskScore}
+                    {/* Filter Buttons */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginRight: '0.25rem', letterSpacing: '0.04em' }}>
+                        <Filter size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.25rem' }} />
+                        {isHi ? 'जोखिम फ़िल्टर:' : 'Filter:'}
+                      </span>
+                      {[
+                        { id: 'ALL', labelEn: 'All Works', labelHi: 'सभी' },
+                        { id: 'CRITICAL', labelEn: 'Critical Risk', labelHi: 'गंभीर जोखिम' },
+                        { id: 'HIGH', labelEn: 'High Risk', labelHi: 'उच्च जोखिम' }
+                      ].map((f) => {
+                        const isSelected = selectedFilter === f.id;
+                        const count = f.id === 'ALL'
+                          ? anomalyProjects.length
+                          : anomalyProjects.filter(p => p.riskBand.toUpperCase() === f.id).length;
+
+                        return (
+                          <button
+                            key={f.id}
+                            type="button"
+                            onClick={() => setSelectedFilter(f.id)}
+                            style={{
+                              padding: '0.45rem 0.95rem',
+                              fontSize: '0.82rem',
+                              fontWeight: isSelected ? 800 : 700,
+                              borderRadius: 'var(--radius-sm)',
+                              border: isSelected ? '1.5px solid #1D1E22' : '1px solid rgba(29,30,34,0.3)',
+                              background: isSelected ? (f.id === 'CRITICAL' ? '#FEF2F2' : f.id === 'HIGH' ? '#FFF8E1' : 'var(--color-accent-teal)') : '#FFFFFF',
+                              color: isSelected ? (f.id === 'CRITICAL' ? '#D9534F' : f.id === 'HIGH' ? '#B8860B' : '#1D1E22') : '#1D1E22',
+                              cursor: 'pointer',
+                              boxShadow: isSelected ? '1.5px 2px 0px #1D1E22' : 'none',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            <span>{isHi ? f.labelHi : f.labelEn}</span>
+                            <span
+                              style={{
+                                padding: '0.05rem 0.4rem',
+                                borderRadius: 'var(--radius-full)',
+                                fontSize: '0.7rem',
+                                fontWeight: 800,
+                                background: isSelected ? 'rgba(0,0,0,0.08)' : '#FAF8F3',
+                                border: '1px solid rgba(0,0,0,0.1)'
+                              }}
+                            >
+                              {count}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Main High-Risk Projects Registry Card */}
+                  <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: '3px 4px 0px #1D1E22', width: '100%' }}>
+                    {/* Registry Table Header */}
+                    <div style={{ padding: '1.25rem 1.75rem', background: '#F3EFE6', borderBottom: '1.5px solid #1D1E22', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                      <div>
+                        <h3 style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.35rem', color: '#1D1E22', margin: 0, fontWeight: 800 }}>
+                          {isHi ? 'उच्च जोखिम परियोजनाएं' : 'High-Risk Projects Registry'}
+                        </h3>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', fontWeight: 500, marginTop: '0.2rem', display: 'block' }}>
+                          {isHi ? 'भौतिक क्षेत्र सत्यापन एवं ऑडिट के लिए प्राथमिकता दी गई' : 'Prioritized for Physical Field Inspection & Verification'}
                         </span>
                       </div>
-                      <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#1D1E22', lineHeight: 1.35, marginBottom: '0.4rem' }}>
-                        {p.title}
-                      </div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--color-text-secondary)' }}>
-                        {p.district}, {p.state} • Cost: {p.sanctionedCost}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                        <span style={{
+                          fontSize: '0.76rem',
+                          fontWeight: 800,
+                          padding: '0.25rem 0.75rem',
+                          background: '#FAF8F3',
+                          border: '1px solid #1D1E22',
+                          borderRadius: 'var(--radius-full)',
+                          color: '#0A2458'
+                        }}>
+                          {isHi ? `पेज ${safePage} / ${totalPages}` : `Page ${safePage} of ${totalPages}`}
+                        </span>
+                        <span style={{
+                          fontSize: '0.76rem',
+                          fontWeight: 700,
+                          padding: '0.25rem 0.75rem',
+                          background: '#FEF2F2',
+                          color: '#D9534F',
+                          border: '1px solid #D9534F',
+                          borderRadius: 'var(--radius-full)'
+                        }}>
+                          {totalProjects} {isHi ? 'कुल परियोजनाएं' : 'Total Flagged'}
+                        </span>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
 
-              {/* Investigation Dossier Detail */}
-              {selectedProject && renderDossierDetail()}
-            </div>
+                    {/* Desktop & Tablet Table View (Full width, no horizontal scroll) */}
+                    <div className="registry-table-desktop" style={{ width: '100%' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.86rem', tableLayout: 'auto' }}>
+                        <thead>
+                          <tr style={{ background: '#FAFAFA', borderBottom: '1.5px solid #1D1E22', textAlign: 'left' }}>
+                            <th style={{ padding: '0.95rem 1.25rem', width: '14%', fontWeight: 800, color: '#1D1E22' }}>Work ID</th>
+                            <th style={{ padding: '0.95rem 1.25rem', width: '32%', fontWeight: 800, color: '#1D1E22' }}>Project Title & Category</th>
+                            <th style={{ padding: '0.95rem 1.25rem', width: '16%', fontWeight: 800, color: '#1D1E22' }}>District & State</th>
+                            <th style={{ padding: '0.95rem 1.25rem', width: '13%', fontWeight: 800, color: '#1D1E22' }}>Sanctioned Amount</th>
+                            <th style={{ padding: '0.95rem 1.25rem', width: '13%', fontWeight: 800, color: '#1D1E22' }}>Spent / Progress</th>
+                            <th style={{ padding: '0.95rem 1.25rem', width: '12%', textAlign: 'right', fontWeight: 800, color: '#1D1E22' }}>Risk Assessment</th>
+                          </tr>
+                        </thead>
+                        <tbody key={`page-${safePage}`}>
+                          {displayedRegistryProjects.length === 0 ? (
+                            <tr>
+                              <td colSpan={6} style={{ padding: '3rem 1.5rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
+                                {isHi ? 'कोई मेल खाती उच्च जोखिम परियोजना नहीं मिली' : 'No matching high-risk projects found.'}
+                              </td>
+                            </tr>
+                          ) : (
+                            displayedRegistryProjects.map((project, idx) => (
+                              <tr
+                                key={project.id}
+                                className="registry-row-animate"
+                                style={{
+                                  borderBottom: '1px solid #F0F0F0',
+                                  background: idx % 2 === 0 ? '#FFFFFF' : '#FDFCF9',
+                                  transition: 'background-color 0.15s ease'
+                                }}
+                              >
+                                <td style={{ padding: '1rem 1.25rem', fontFamily: 'monospace', fontWeight: 800, color: '#0A2458', verticalAlign: 'top' }}>
+                                  {project.id}
+                                </td>
+                                <td style={{ padding: '1rem 1.25rem', verticalAlign: 'top' }}>
+                                  <div style={{ fontWeight: 700, color: '#1D1E22', marginBottom: '0.3rem', lineHeight: 1.4, wordBreak: 'break-word' }}>
+                                    {project.title}
+                                  </div>
+                                  <div style={{ fontSize: '0.76rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                                    {project.category}
+                                  </div>
+                                  {project.reasons && project.reasons.length > 0 && (
+                                    <div style={{ fontSize: '0.75rem', color: '#854D0E', background: '#FEF9C3', padding: '0.25rem 0.5rem', borderRadius: '4px', marginTop: '0.4rem', border: '1px solid #FDE047', lineHeight: 1.35 }}>
+                                      <strong>{isHi ? 'कारण:' : 'Flag:'}</strong> {project.reasons[0]}
+                                    </div>
+                                  )}
+                                </td>
+                                <td style={{ padding: '1rem 1.25rem', verticalAlign: 'top', color: '#1D1E22' }}>
+                                  <div style={{ fontWeight: 700 }}>{project.district}</div>
+                                  <div style={{ fontSize: '0.76rem', color: 'var(--color-text-secondary)', marginTop: '0.15rem' }}>{project.state}</div>
+                                </td>
+                                <td style={{ padding: '1rem 1.25rem', fontWeight: 800, color: '#1D1E22', verticalAlign: 'top' }}>
+                                  {project.sanctionedCost}
+                                </td>
+                                <td style={{ padding: '1rem 1.25rem', verticalAlign: 'top' }}>
+                                  <div style={{ color: '#D9534F', fontWeight: 800, fontSize: '0.88rem' }}>
+                                    {project.expenditurePct}% spent
+                                  </div>
+                                  <div style={{ color: 'var(--color-accent-teal-hover)', fontWeight: 700, fontSize: '0.8rem', marginTop: '0.15rem' }}>
+                                    {project.physicalProgress}% completed
+                                  </div>
+                                </td>
+                                <td style={{ padding: '1rem 1.25rem', textAlign: 'right', verticalAlign: 'top' }}>
+                                  <span style={{
+                                    display: 'inline-block',
+                                    padding: '0.3rem 0.65rem',
+                                    borderRadius: '4px',
+                                    fontSize: '0.78rem',
+                                    fontWeight: 800,
+                                    background: project.riskScore > 80 ? '#FEF2F2' : '#FFF8E1',
+                                    color: project.riskScore > 80 ? '#D9534F' : '#B8860B',
+                                    border: `1px solid ${project.riskScore > 80 ? '#D9534F' : '#E5B842'}`,
+                                    whiteSpace: 'nowrap'
+                                  }}>
+                                    {project.riskScore}/100 • {project.riskBand}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile Card List View (<768px, zero horizontal overflow) */}
+                    <div className="registry-cards-mobile" style={{ display: 'none', padding: '1rem', flexDirection: 'column', gap: '0.85rem' }}>
+                      {displayedRegistryProjects.length === 0 ? (
+                        <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+                          {isHi ? 'कोई मेल खाती उच्च जोखिम परियोजना नहीं मिली' : 'No matching high-risk projects found.'}
+                        </div>
+                      ) : (
+                        displayedRegistryProjects.map((project) => (
+                          <div
+                            key={project.id}
+                            style={{
+                              background: '#FFFFFF',
+                              border: '1.5px solid #1D1E22',
+                              borderRadius: 'var(--radius-md)',
+                              padding: '1.15rem',
+                              boxShadow: '2px 3px 0px #1D1E22',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '0.65rem'
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem' }}>
+                              <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '0.84rem', color: '#0A2458' }}>
+                                {project.id}
+                              </span>
+                              <span style={{
+                                padding: '0.2rem 0.55rem',
+                                borderRadius: '4px',
+                                fontSize: '0.74rem',
+                                fontWeight: 800,
+                                background: project.riskScore > 80 ? '#FEF2F2' : '#FFF8E1',
+                                color: project.riskScore > 80 ? '#D9534F' : '#B8860B',
+                                border: `1px solid ${project.riskScore > 80 ? '#D9534F' : '#E5B842'}`
+                              }}>
+                                {project.riskScore}/100 • {project.riskBand}
+                              </span>
+                            </div>
+
+                            <div style={{ fontWeight: 700, fontSize: '0.94rem', color: '#1D1E22', lineHeight: 1.35, wordBreak: 'break-word' }}>
+                              {project.title}
+                            </div>
+
+                            <div style={{ fontSize: '0.78rem', color: 'var(--color-text-secondary)' }}>
+                              <strong>{project.category}</strong> • {project.district}, {project.state}
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FAF8F3', padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(29, 30, 34, 0.12)' }}>
+                              <div>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>SANCTIONED</div>
+                                <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#1D1E22' }}>{project.sanctionedCost}</div>
+                              </div>
+                              <div style={{ textAlign: 'right' }}>
+                                <div style={{ fontSize: '0.72rem', color: '#D9534F', fontWeight: 800 }}>{project.expenditurePct}% SPENT</div>
+                                <div style={{ fontSize: '0.78rem', color: 'var(--color-accent-teal-hover)', fontWeight: 800 }}>{project.physicalProgress}% PROGRESS</div>
+                              </div>
+                            </div>
+
+                            {project.reasons && project.reasons.length > 0 && (
+                              <div style={{ fontSize: '0.76rem', color: '#854D0E', background: '#FEF9C3', padding: '0.35rem 0.6rem', borderRadius: '4px', border: '1px solid #FDE047', lineHeight: 1.35 }}>
+                                <strong>{isHi ? 'कारण:' : 'Flag:'}</strong> {project.reasons[0]}
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* True Data-Driven Pagination Bar (10 items per page) */}
+                    <div
+                      style={{
+                        padding: '0.95rem 1.75rem',
+                        background: '#FAF8F3',
+                        borderTop: '1.5px solid #1D1E22',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: '0.85rem'
+                      }}
+                    >
+                      {/* Range / Count Indicator */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.84rem', color: '#1D1E22', fontWeight: 600 }}>
+                        <span style={{
+                          padding: '0.15rem 0.55rem',
+                          borderRadius: 'var(--radius-full)',
+                          background: '#FFFFFF',
+                          border: '1px solid #1D1E22',
+                          fontSize: '0.76rem',
+                          fontWeight: 800,
+                          color: '#0A2458'
+                        }}>
+                          {totalProjects === 0 ? 0 : startIndex + 1}–{endIndex}
+                        </span>
+                        <span>
+                          {isHi
+                            ? `कुल ${totalProjects} में से ${totalProjects === 0 ? 0 : startIndex + 1}–${endIndex} परियोजनाएं`
+                            : `Showing ${totalProjects === 0 ? 0 : startIndex + 1}–${endIndex} of ${totalProjects} projects`}
+                        </span>
+                      </div>
+
+                      {/* Pagination Controls */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        {/* Previous Button */}
+                        <button
+                          type="button"
+                          onClick={() => setRegistryCurrentPage(p => Math.max(1, p - 1))}
+                          disabled={safePage <= 1}
+                          className="btn-outline-dark"
+                          style={{
+                            padding: '0.4rem 0.85rem',
+                            fontSize: '0.82rem',
+                            fontWeight: 700,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            background: '#FFFFFF',
+                            cursor: safePage <= 1 ? 'not-allowed' : 'pointer',
+                            opacity: safePage <= 1 ? 0.45 : 1,
+                            boxShadow: safePage <= 1 ? 'none' : '1.5px 2px 0px #1D1E22'
+                          }}
+                        >
+                          <ChevronLeft size={14} strokeWidth={2.4} />
+                          <span>{isHi ? 'पिछला' : 'Previous'}</span>
+                        </button>
+
+                        {/* Page Numbers */}
+                        {getPageNumbers().map((pageNum, idx) => {
+                          if (pageNum === '...') {
+                            return (
+                              <span
+                                key={`ellipsis-${idx}`}
+                                style={{
+                                  padding: '0.35rem 0.5rem',
+                                  fontSize: '0.84rem',
+                                  fontWeight: 700,
+                                  color: 'var(--color-text-muted)'
+                                }}
+                              >
+                                …
+                              </span>
+                            );
+                          }
+                          const isCurrent = pageNum === safePage;
+                          return (
+                            <button
+                              key={`page-${pageNum}`}
+                              type="button"
+                              onClick={() => setRegistryCurrentPage(pageNum)}
+                              style={{
+                                minWidth: '34px',
+                                height: '34px',
+                                padding: '0 0.45rem',
+                                fontSize: '0.84rem',
+                                fontWeight: 800,
+                                borderRadius: 'var(--radius-sm)',
+                                border: '1.5px solid #1D1E22',
+                                background: isCurrent ? 'var(--color-accent-teal)' : '#FFFFFF',
+                                color: '#1D1E22',
+                                cursor: 'pointer',
+                                boxShadow: isCurrent ? '1.5px 2px 0px #1D1E22' : 'none',
+                                transition: 'all 0.15s ease'
+                              }}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+
+                        {/* Next Button */}
+                        <button
+                          type="button"
+                          onClick={() => setRegistryCurrentPage(p => Math.min(totalPages, p + 1))}
+                          disabled={safePage >= totalPages || totalProjects === 0}
+                          className="btn-outline-dark"
+                          style={{
+                            padding: '0.4rem 0.85rem',
+                            fontSize: '0.82rem',
+                            fontWeight: 700,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            background: '#FFFFFF',
+                            cursor: (safePage >= totalPages || totalProjects === 0) ? 'not-allowed' : 'pointer',
+                            opacity: (safePage >= totalPages || totalProjects === 0) ? 0.45 : 1,
+                            boxShadow: (safePage >= totalPages || totalProjects === 0) ? 'none' : '1.5px 2px 0px #1D1E22'
+                          }}
+                        >
+                          <span>{isHi ? 'अगला' : 'Next'}</span>
+                          <ChevronRight size={14} strokeWidth={2.4} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Reusing Landing Page Footer at the bottom with CTA buttons hidden */}
+            <Footer hideCTAButtons={true} />
           </div>
         );
 
@@ -4404,6 +4813,21 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
       case 'reportIssue':
         return <FeedbackView />;
 
+      case 'projectStatus':
+      case 'status':
+      case 'project-status':
+      case 'project_status':
+      case 'projectstatus':
+        return <ProjectStatusView />;
+
+      case 'projectTimeline':
+      case 'timeline':
+      case 'timelines':
+      case 'project-timeline':
+      case 'project_timeline':
+      case 'projecttimeline':
+        return <ProjectTimelineView />;
+
       // Default fallback
       default:
         return (
@@ -4482,16 +4906,22 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
               {featureId === 'findProject' || featureId === 'findProjects'
                 ? (isHi ? 'परियोजनाएं खोजें' : 'FIND PROJECTS')
                 : featureId === 'browseState' || featureId === 'browseStates' || featureId === 'states'
-                ? (isHi ? 'राज्य-वार प्रदर्शन' : 'BROWSE STATES')
-                : featureId === 'browseMpMla' || featureId === 'browseMps' || featureId === 'mps'
-                ? (isHi ? 'सांसद प्रदर्शन' : 'BROWSE MPS')
-                : featureId === 'compare' || featureId === 'compareConstituencies'
-                ? (isHi ? 'निर्वाचन क्षेत्र तुलना' : 'COMPARE CONSTITUENCIES')
-                : featureId === 'feedback' || featureId === 'reportIssue'
-                ? (isHi ? 'मुद्दा / प्रतिपुष्टि दर्ज करें' : 'REPORT AN ISSUE')
-                : featureId === 'unifiedAnalysis' || featureId === 'aiIntelligence' || featureId === 'aiAnalysis' || featureId === 'anomalyDetection' || featureId === 'financialAnomaly' || featureId === 'costOverrun' || featureId === 'duplicateProject' || featureId === 'delayRisk' || featureId === 'evidenceVerification' || featureId === 'geospatialIntelligence' || featureId === 'geospatial'
-                ? (isHi ? 'एकीकृत विश्लेषण' : 'UNIFIED ANALYSIS')
-                : featureId.toUpperCase()}
+                  ? (isHi ? 'राज्य-वार प्रदर्शन' : 'BROWSE STATES')
+                  : featureId === 'browseMpMla' || featureId === 'browseMps' || featureId === 'mps'
+                    ? (isHi ? 'सांसद प्रदर्शन' : 'BROWSE MPS')
+                    : featureId === 'compare' || featureId === 'compareConstituencies'
+                      ? (isHi ? 'निर्वाचन क्षेत्र तुलना' : 'COMPARE CONSTITUENCIES')
+                      : featureId === 'feedback' || featureId === 'reportIssue'
+                        ? (isHi ? 'मुद्दा / प्रतिपुष्टि दर्ज करें' : 'REPORT AN ISSUE')
+                        : featureId === 'projectStatus' || featureId === 'status' || featureId === 'project-status' || featureId === 'project_status' || featureId === 'projectstatus'
+                          ? (isHi ? 'परियोजना स्थिति' : 'PROJECT STATUS')
+                          : featureId === 'projectTimeline' || featureId === 'timeline' || featureId === 'timelines' || featureId === 'project-timeline' || featureId === 'project_timeline' || featureId === 'projecttimeline'
+                            ? (isHi ? 'परियोजना समयरेखा' : 'PROJECT TIMELINE')
+                            : featureId === 'resolution' || featureId === 'investigation' || featureId === 'highRiskProjects' || featureId === 'evidenceReview' || featureId === 'fieldVerification'
+                              ? (isHi ? 'समाधान एवं जांच' : 'RESOLUTION')
+                              : featureId === 'unifiedAnalysis' || featureId === 'aiIntelligence' || featureId === 'aiAnalysis' || featureId === 'anomalyDetection' || featureId === 'financialAnomaly' || featureId === 'costOverrun' || featureId === 'duplicateProject' || featureId === 'delayRisk' || featureId === 'evidenceVerification' || featureId === 'geospatialIntelligence' || featureId === 'geospatial'
+                                ? (isHi ? 'एकीकृत विश्लेषण' : 'UNIFIED ANALYSIS')
+                                : featureId.toUpperCase()}
             </div>
           </div>
         </div>

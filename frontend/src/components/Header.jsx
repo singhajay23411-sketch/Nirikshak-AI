@@ -157,6 +157,7 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
 
   // Desktop continuous sliding drawer states
   const [activeDrawer, setActiveDrawer] = useState(null); // 'home' | 'problem' | ... | 'more'
+  const [hoveredNav, setHoveredNav] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerPos, setDrawerPos] = useState({ left: 0, top: 0, height: 168 });
 
@@ -198,7 +199,7 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // 7 Main Navigation Groups: 6 Primary + "More"
+  // Main Navigation Groups
   const navGroups = [
     {
       id: 'home',
@@ -207,30 +208,19 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
       items: [
         { id: 'overview', label: t('header.drawers.home.overview'), target: 'hero' },
         { id: 'keyMetrics', label: t('header.drawers.home.keyMetrics'), target: 'stats-marquee' },
-        { id: 'riskSummary', label: t('header.drawers.home.riskSummary'), target: 'risk-scoring' },
-        { id: 'recentAlerts', label: t('header.drawers.home.recentAlerts'), target: 'problem' },
       ]
     },
     {
       id: 'problem',
       label: t('header.nav.problem'),
       target: 'problem',
-      items: [
-        { id: 'mpladsOverview', label: t('header.drawers.problem.mpladsOverview'), target: 'problem' },
-        { id: 'monitoringChallenges', label: t('header.drawers.problem.monitoringChallenges'), target: 'problem' },
-        { id: 'commonIrregularities', label: t('header.drawers.problem.commonIrregularities'), target: 'problem' },
-      ]
+      noDropdown: true
     },
     {
       id: 'solution',
       label: t('header.nav.solution'),
       target: 'process',
-      items: [
-        { id: 'dataCollection', label: t('header.drawers.solution.dataCollection'), target: 'process' },
-        { id: 'aiAnalysis', label: t('header.drawers.solution.aiAnalysis'), target: 'process' },
-        { id: 'anomalyDetection', label: t('header.drawers.solution.anomalyDetection'), target: 'ai-detection' },
-        { id: 'investigationWorkflow', label: t('header.drawers.solution.investigationWorkflow'), target: 'investigation' },
-      ]
+      noDropdown: true
     },
     {
       id: 'aiIntelligence',
@@ -355,7 +345,7 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
     if (group?.isGrouped && group?.subGroups) {
       // 4 group titles (24px each) + 9 items (36px each) = 96 + 324 = 420px
       const totalItems = group.subGroups.reduce((acc, sg) => acc + sg.items.length, 0);
-      calculatedHeight = group.subGroups.length * 24 + totalItems * 36;
+      calculatedHeight = group.subGroups.length * 28 + totalItems * 36 + 6;
     } else if (group?.items) {
       calculatedHeight = group.items.length * 42;
     }
@@ -371,6 +361,14 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current);
       closeTimerRef.current = null;
+    }
+
+    const group = navGroups.find(g => g.id === groupId);
+    const hasDropdown = Boolean(group && !group.noDropdown && (group.items?.length > 0 || group.subGroups?.length > 0));
+    if (!hasDropdown) {
+      setIsDrawerOpen(false);
+      setActiveDrawer(null);
+      return;
     }
 
     setActiveDrawer(groupId);
@@ -454,12 +452,18 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
           onMouseLeave={handleNavMouseLeave}
         >
           {navGroups.map((group) => {
-            const isHovered = activeDrawer === group.id;
+            const isHovered = activeDrawer === group.id || hoveredNav === group.id;
             return (
               <div
                 key={group.id}
                 ref={(el) => { navButtonRefs.current[group.id] = el; }}
-                onMouseEnter={() => handleNavMouseEnter(group.id)}
+                onMouseEnter={() => {
+                  setHoveredNav(group.id);
+                  handleNavMouseEnter(group.id);
+                }}
+                onMouseLeave={() => {
+                  setHoveredNav(null);
+                }}
                 style={{
                   position: 'relative',
                   display: 'inline-flex',
@@ -771,13 +775,18 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
                       navigate('/features/aiIntelligence');
                       return;
                     }
+                    if (group.noDropdown || !group.items) {
+                      setMobileMenuOpen(false);
+                      handleNavClick(group.target);
+                      return;
+                    }
                     setMobileExpandedGroup(isExpanded ? null : group.id);
                   }}
                 >
                   <span style={{ fontSize: '1rem', fontWeight: 700, color: '#1D1E22' }}>
                     {group.label}
                   </span>
-                  {group.id !== 'aiIntelligence' && (
+                  {group.id !== 'aiIntelligence' && !group.noDropdown && (
                     <ChevronDown
                       size={18}
                       style={{
