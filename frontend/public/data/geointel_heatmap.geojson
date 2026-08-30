@@ -6,6 +6,586 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          78.5339895,
+          19.6759452
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "ADILABAD(ST)",
+        "state_name": "Telangana",
+        "total_projects": 6,
+        "high_risk_projects": 0,
+        "total_sanctioned": 1538000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.639,
+          26.4691
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "AJMER",
+        "state_name": "Rajasthan",
+        "total_projects": 8,
+        "high_risk_projects": 0,
+        "total_sanctioned": 2224000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.1358153,
+          27.8761073
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "ALIGARH",
+        "state_name": "Uttar Pradesh",
+        "total_projects": 9,
+        "high_risk_projects": 2,
+        "total_sanctioned": 2187000.0,
+        "spatial_risk_score": 0.2222,
+        "cluster_id": 0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.003476,
+          17.68897
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "ANAKAPALLE",
+        "state_name": "Andhra Pradesh",
+        "total_projects": 20,
+        "high_risk_projects": 2,
+        "total_sanctioned": 5857000.0,
+        "spatial_risk_score": 0.1,
+        "cluster_id": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          87.4654062,
+          26.1346459
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "ARARIA",
+        "state_name": "Bihar",
+        "total_projects": 9,
+        "high_risk_projects": 1,
+        "total_sanctioned": 3861000.0,
+        "spatial_risk_score": 0.1111,
+        "cluster_id": 2
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.4228984,
+          27.2625165
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "ARUNACHAL WEST",
+        "state_name": "Arunachal Pradesh",
+        "total_projects": 2,
+        "high_risk_projects": 0,
+        "total_sanctioned": 566000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 2
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.5367513,
+          24.2693869
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "BANASKANTHA",
+        "state_name": "Gujarat",
+        "total_projects": 5,
+        "high_risk_projects": 0,
+        "total_sanctioned": 1295000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.3361225,
+          13.0010872
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "BANGALORE RURAL",
+        "state_name": "Karnataka",
+        "total_projects": 2,
+        "high_risk_projects": 0,
+        "total_sanctioned": 566000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 7
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.039708,
+          26.345941
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "BARPETA",
+        "state_name": "Assam",
+        "total_projects": 2,
+        "high_risk_projects": 0,
+        "total_sanctioned": 526000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 2
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.8940642,
+          21.8957942
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "BETUL(ST)",
+        "state_name": "Madhya Pradesh",
+        "total_projects": 3,
+        "high_risk_projects": 0,
+        "total_sanctioned": 809000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.9463699,
+          30.206791
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "BHATINDA",
+        "state_name": "Punjab",
+        "total_projects": 11,
+        "high_risk_projects": 0,
+        "total_sanctioned": 3033000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.5273594,
+          31.7096767
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "HAMIRPUR_HP",
+        "state_name": "Himachal Pradesh",
+        "total_projects": 1,
+        "high_risk_projects": 0,
+        "total_sanctioned": 243000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.3965501,
+          21.897618
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "RAIGARH(ST)",
+        "state_name": "Chhattisgarh",
+        "total_projects": 1,
+        "high_risk_projects": 0,
+        "total_sanctioned": 243000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.0444182,
+          21.2222313
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "RAVER",
+        "state_name": "Maharashtra",
+        "total_projects": 9,
+        "high_risk_projects": 0,
+        "total_sanctioned": 2547000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.1510394,
+          28.9895406
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "SONEPAT",
+        "state_name": "Haryana",
+        "total_projects": 4,
+        "high_risk_projects": 0,
+        "total_sanctioned": 972000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.5805178,
+          8.5495014
+        ]
+      },
+      "properties": {
+        "constituency_id": -33,
+        "const_name": "TIRUNELVELI",
+        "state_name": "Tamil Nadu",
+        "total_projects": 1,
+        "high_risk_projects": 0,
+        "total_sanctioned": 243000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 7
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.5339895,
+          19.6759452
+        ]
+      },
+      "properties": {
+        "constituency_id": -20,
+        "const_name": "ADILABAD(ST)",
+        "state_name": "Telangana",
+        "total_projects": 1,
+        "high_risk_projects": 0,
+        "total_sanctioned": 114000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.003476,
+          17.68897
+        ]
+      },
+      "properties": {
+        "constituency_id": -20,
+        "const_name": "ANAKAPALLE",
+        "state_name": "Andhra Pradesh",
+        "total_projects": 3,
+        "high_risk_projects": 0,
+        "total_sanctioned": 358000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.8940642,
+          21.8957942
+        ]
+      },
+      "properties": {
+        "constituency_id": -20,
+        "const_name": "BETUL(ST)",
+        "state_name": "Madhya Pradesh",
+        "total_projects": 3,
+        "high_risk_projects": 1,
+        "total_sanctioned": 1552998.0,
+        "spatial_risk_score": 0.3333,
+        "cluster_id": 1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.1510394,
+          28.9895406
+        ]
+      },
+      "properties": {
+        "constituency_id": -20,
+        "const_name": "SONEPAT",
+        "state_name": "Haryana",
+        "total_projects": 1,
+        "high_risk_projects": 0,
+        "total_sanctioned": 300000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.5339895,
+          19.6759452
+        ]
+      },
+      "properties": {
+        "constituency_id": -17,
+        "const_name": "ADILABAD(ST)",
+        "state_name": "Telangana",
+        "total_projects": 2,
+        "high_risk_projects": 2,
+        "total_sanctioned": 1500000.0,
+        "spatial_risk_score": 1.0,
+        "cluster_id": 5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.003476,
+          17.68897
+        ]
+      },
+      "properties": {
+        "constituency_id": -17,
+        "const_name": "ANAKAPALLE",
+        "state_name": "Andhra Pradesh",
+        "total_projects": 2,
+        "high_risk_projects": 2,
+        "total_sanctioned": 900000.0,
+        "spatial_risk_score": 1.0,
+        "cluster_id": 5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.5367513,
+          24.2693869
+        ]
+      },
+      "properties": {
+        "constituency_id": -17,
+        "const_name": "BANASKANTHA",
+        "state_name": "Gujarat",
+        "total_projects": 4,
+        "high_risk_projects": 4,
+        "total_sanctioned": 2950000.0,
+        "spatial_risk_score": 1.0,
+        "cluster_id": 8
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.3361225,
+          13.0010872
+        ]
+      },
+      "properties": {
+        "constituency_id": -17,
+        "const_name": "BANGALORE RURAL",
+        "state_name": "Karnataka",
+        "total_projects": 5,
+        "high_risk_projects": 5,
+        "total_sanctioned": 4250000.0,
+        "spatial_risk_score": 1.0,
+        "cluster_id": 3
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.9463699,
+          30.206791
+        ]
+      },
+      "properties": {
+        "constituency_id": -17,
+        "const_name": "BHATINDA",
+        "state_name": "Punjab",
+        "total_projects": 4,
+        "high_risk_projects": 4,
+        "total_sanctioned": 3450000.0,
+        "spatial_risk_score": 1.0,
+        "cluster_id": 8
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.0444182,
+          21.2222313
+        ]
+      },
+      "properties": {
+        "constituency_id": -17,
+        "const_name": "RAVER",
+        "state_name": "Maharashtra",
+        "total_projects": 1,
+        "high_risk_projects": 0,
+        "total_sanctioned": 1200000.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          78.1358153,
+          27.8761073
+        ]
+      },
+      "properties": {
+        "constituency_id": -6,
+        "const_name": "ALIGARH",
+        "state_name": "Uttar Pradesh",
+        "total_projects": 1,
+        "high_risk_projects": 1,
+        "total_sanctioned": 1385546.0,
+        "spatial_risk_score": 1.0,
+        "cluster_id": 8
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.003476,
+          17.68897
+        ]
+      },
+      "properties": {
+        "constituency_id": -6,
+        "const_name": "ANAKAPALLE",
+        "state_name": "Andhra Pradesh",
+        "total_projects": 4,
+        "high_risk_projects": 1,
+        "total_sanctioned": 5065785.0,
+        "spatial_risk_score": 0.25,
+        "cluster_id": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.0444182,
+          21.2222313
+        ]
+      },
+      "properties": {
+        "constituency_id": -6,
+        "const_name": "RAVER",
+        "state_name": "Maharashtra",
+        "total_projects": 3,
+        "high_risk_projects": 0,
+        "total_sanctioned": 3464408.0,
+        "spatial_risk_score": 0.0,
+        "cluster_id": 1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           92.7401576,
           11.6644385
         ]
@@ -38,7 +618,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 495000.0,
         "spatial_risk_score": 0.0,
-        "cluster_id": 1
+        "cluster_id": 6
       }
     },
     {
@@ -78,7 +658,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 953452.0,
         "spatial_risk_score": 0.5,
-        "cluster_id": 8
+        "cluster_id": 0
       }
     },
     {
@@ -98,7 +678,7 @@
         "high_risk_projects": 96,
         "total_sanctioned": 418909342.0,
         "spatial_risk_score": 0.1531,
-        "cluster_id": 0
+        "cluster_id": 2
       }
     },
     {
@@ -118,7 +698,7 @@
         "high_risk_projects": 705,
         "total_sanctioned": 2476634450.08,
         "spatial_risk_score": 0.1727,
-        "cluster_id": 0
+        "cluster_id": 2
       }
     },
     {
@@ -158,7 +738,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 6580054.0,
         "spatial_risk_score": 0.125,
-        "cluster_id": 3
+        "cluster_id": 6
       }
     },
     {
@@ -178,7 +758,7 @@
         "high_risk_projects": 4,
         "total_sanctioned": 6690542.0,
         "spatial_risk_score": 0.3636,
-        "cluster_id": 8
+        "cluster_id": 0
       }
     },
     {
@@ -198,7 +778,7 @@
         "high_risk_projects": 3,
         "total_sanctioned": 14879697.0,
         "spatial_risk_score": 0.375,
-        "cluster_id": 9
+        "cluster_id": 4
       }
     },
     {
@@ -218,7 +798,7 @@
         "high_risk_projects": 1390,
         "total_sanctioned": 7756384116.0,
         "spatial_risk_score": 0.1224,
-        "cluster_id": 0
+        "cluster_id": 2
       }
     },
     {
@@ -258,7 +838,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 548000.0,
         "spatial_risk_score": 0.0,
-        "cluster_id": 6
+        "cluster_id": 7
       }
     },
     {
@@ -278,7 +858,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 1361697.0,
         "spatial_risk_score": 1.0,
-        "cluster_id": 7
+        "cluster_id": 9
       }
     },
     {
@@ -298,7 +878,7 @@
         "high_risk_projects": 3,
         "total_sanctioned": 6230939.0,
         "spatial_risk_score": 0.375,
-        "cluster_id": 8
+        "cluster_id": 0
       }
     },
     {
@@ -338,7 +918,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 548000.0,
         "spatial_risk_score": 0.0,
-        "cluster_id": 3
+        "cluster_id": 6
       }
     },
     {
@@ -358,7 +938,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 683337.0,
         "spatial_risk_score": 1.0,
-        "cluster_id": 2
+        "cluster_id": 3
       }
     },
     {
@@ -378,7 +958,7 @@
         "high_risk_projects": 17,
         "total_sanctioned": 130558458.82,
         "spatial_risk_score": 0.1197,
-        "cluster_id": 3
+        "cluster_id": 6
       }
     },
     {
@@ -398,7 +978,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 395363.0,
         "spatial_risk_score": 1.0,
-        "cluster_id": 2
+        "cluster_id": 5
       }
     },
     {
@@ -418,7 +998,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 1298310.0,
         "spatial_risk_score": 0.5,
-        "cluster_id": 8
+        "cluster_id": 0
       }
     },
     {
@@ -438,7 +1018,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 900000.0,
         "spatial_risk_score": 0.5,
-        "cluster_id": 9
+        "cluster_id": 4
       }
     },
     {
@@ -458,7 +1038,7 @@
         "high_risk_projects": 2,
         "total_sanctioned": 800000.0,
         "spatial_risk_score": 1.0,
-        "cluster_id": 7
+        "cluster_id": 9
       }
     },
     {
@@ -478,7 +1058,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 1799520.0,
         "spatial_risk_score": 0.2,
-        "cluster_id": 6
+        "cluster_id": 7
       }
     },
     {
@@ -538,7 +1118,7 @@
         "high_risk_projects": 42,
         "total_sanctioned": 454993814.61,
         "spatial_risk_score": 0.1154,
-        "cluster_id": 6
+        "cluster_id": 7
       }
     },
     {
@@ -578,7 +1158,7 @@
         "high_risk_projects": 564,
         "total_sanctioned": 1706714971.38,
         "spatial_risk_score": 0.1676,
-        "cluster_id": 3
+        "cluster_id": 6
       }
     },
     {
@@ -598,7 +1178,7 @@
         "high_risk_projects": 733,
         "total_sanctioned": 722987154.0,
         "spatial_risk_score": 0.2138,
-        "cluster_id": 3
+        "cluster_id": 6
       }
     },
     {
@@ -618,7 +1198,7 @@
         "high_risk_projects": 383,
         "total_sanctioned": 770326637.56,
         "spatial_risk_score": 0.2064,
-        "cluster_id": 3
+        "cluster_id": 6
       }
     },
     {
@@ -658,7 +1238,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 300000.0,
         "spatial_risk_score": 0.0,
-        "cluster_id": 3
+        "cluster_id": 6
       }
     },
     {
@@ -698,7 +1278,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 900000.0,
         "spatial_risk_score": 0.0,
-        "cluster_id": 6
+        "cluster_id": 7
       }
     },
     {
@@ -718,7 +1298,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 250000.0,
         "spatial_risk_score": 0.0,
-        "cluster_id": 3
+        "cluster_id": 6
       }
     },
     {
@@ -738,7 +1318,7 @@
         "high_risk_projects": 882,
         "total_sanctioned": 2484533691.0,
         "spatial_risk_score": 0.1246,
-        "cluster_id": 4
+        "cluster_id": 2
       }
     },
     {
@@ -758,7 +1338,7 @@
         "high_risk_projects": 949,
         "total_sanctioned": 5188718028.0,
         "spatial_risk_score": 0.1007,
-        "cluster_id": 6
+        "cluster_id": 7
       }
     },
     {
@@ -778,7 +1358,7 @@
         "high_risk_projects": 469,
         "total_sanctioned": 4049547665.75,
         "spatial_risk_score": 0.0638,
-        "cluster_id": 6
+        "cluster_id": 7
       }
     },
     {
@@ -798,7 +1378,7 @@
         "high_risk_projects": 23,
         "total_sanctioned": 146478200.0,
         "spatial_risk_score": 0.1022,
-        "cluster_id": 3
+        "cluster_id": 6
       }
     },
     {
@@ -878,7 +1458,7 @@
         "high_risk_projects": 140,
         "total_sanctioned": 391555000.0,
         "spatial_risk_score": 0.1254,
-        "cluster_id": 0
+        "cluster_id": 2
       }
     },
     {
@@ -898,7 +1478,7 @@
         "high_risk_projects": 11,
         "total_sanctioned": 196000000.0,
         "spatial_risk_score": 0.1549,
-        "cluster_id": 0
+        "cluster_id": 2
       }
     },
     {
@@ -938,7 +1518,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 400000.0,
         "spatial_risk_score": 0.0,
-        "cluster_id": 1
+        "cluster_id": 6
       }
     },
     {
@@ -978,7 +1558,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 100000.0,
         "spatial_risk_score": 0.0,
-        "cluster_id": 0
+        "cluster_id": 2
       }
     },
     {
@@ -998,7 +1578,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 300000.0,
         "spatial_risk_score": 0.0,
-        "cluster_id": 0
+        "cluster_id": 2
       }
     },
     {
@@ -1038,7 +1618,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 400000.0,
         "spatial_risk_score": 0.0,
-        "cluster_id": 6
+        "cluster_id": 7
       }
     },
     {
@@ -1058,7 +1638,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 100000.0,
         "spatial_risk_score": 0.0,
-        "cluster_id": 3
+        "cluster_id": 6
       }
     },
     {
@@ -1138,7 +1718,7 @@
         "high_risk_projects": 2,
         "total_sanctioned": 700000.0,
         "spatial_risk_score": 0.4,
-        "cluster_id": 8
+        "cluster_id": 0
       }
     },
     {
@@ -1158,7 +1738,7 @@
         "high_risk_projects": 162,
         "total_sanctioned": 1285518175.0,
         "spatial_risk_score": 0.0392,
-        "cluster_id": 3
+        "cluster_id": 6
       }
     },
     {
@@ -1178,7 +1758,7 @@
         "high_risk_projects": 1897,
         "total_sanctioned": 4151848486.01,
         "spatial_risk_score": 0.2519,
-        "cluster_id": 8
+        "cluster_id": 0
       }
     },
     {
@@ -1198,7 +1778,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 917512.0,
         "spatial_risk_score": 1.0,
-        "cluster_id": 2
+        "cluster_id": 5
       }
     },
     {
@@ -1218,7 +1798,7 @@
         "high_risk_projects": 21,
         "total_sanctioned": 237061826.0,
         "spatial_risk_score": 0.1154,
-        "cluster_id": 0
+        "cluster_id": 2
       }
     },
     {
@@ -1238,7 +1818,7 @@
         "high_risk_projects": 870,
         "total_sanctioned": 8138332235.5,
         "spatial_risk_score": 0.0874,
-        "cluster_id": 6
+        "cluster_id": 7
       }
     },
     {
@@ -1278,7 +1858,7 @@
         "high_risk_projects": 83,
         "total_sanctioned": 419532528.0,
         "spatial_risk_score": 0.2852,
-        "cluster_id": 0
+        "cluster_id": 2
       }
     },
     {
@@ -1298,7 +1878,7 @@
         "high_risk_projects": 2,
         "total_sanctioned": 1373761.28,
         "spatial_risk_score": 0.4,
-        "cluster_id": 9
+        "cluster_id": 1
       }
     },
     {
@@ -1318,7 +1898,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 151933.26,
         "spatial_risk_score": 1.0,
-        "cluster_id": 5
+        "cluster_id": 8
       }
     },
     {
@@ -1338,7 +1918,7 @@
         "high_risk_projects": 8994,
         "total_sanctioned": 14605464256.58,
         "spatial_risk_score": 0.2743,
-        "cluster_id": 8
+        "cluster_id": 0
       }
     },
     {
@@ -1358,7 +1938,7 @@
         "high_risk_projects": 2,
         "total_sanctioned": 894138.0800000001,
         "spatial_risk_score": 0.6667,
-        "cluster_id": 9
+        "cluster_id": 5
       }
     },
     {
@@ -1378,7 +1958,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 455780.9,
         "spatial_risk_score": 0.3333,
-        "cluster_id": 0
+        "cluster_id": 2
       }
     },
     {
@@ -1398,7 +1978,7 @@
         "high_risk_projects": 2,
         "total_sanctioned": 455790.34,
         "spatial_risk_score": 0.6667,
-        "cluster_id": 5
+        "cluster_id": 8
       }
     },
     {
@@ -1418,7 +1998,7 @@
         "high_risk_projects": 2,
         "total_sanctioned": 303847.64,
         "spatial_risk_score": 1.0,
-        "cluster_id": 2
+        "cluster_id": 3
       }
     },
     {
@@ -1438,7 +2018,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 303847.64,
         "spatial_risk_score": 0.0,
-        "cluster_id": 0
+        "cluster_id": 2
       }
     },
     {
@@ -1458,7 +2038,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 303857.08,
         "spatial_risk_score": 0.5,
-        "cluster_id": 9
+        "cluster_id": 0
       }
     },
     {
@@ -1478,7 +2058,7 @@
         "high_risk_projects": 2,
         "total_sanctioned": 1215418.8800000001,
         "spatial_risk_score": 0.25,
-        "cluster_id": 3
+        "cluster_id": 0
       }
     },
     {
@@ -1498,7 +2078,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 151923.82,
         "spatial_risk_score": 0.0,
-        "cluster_id": 4
+        "cluster_id": 2
       }
     },
     {
@@ -1538,7 +2118,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 303857.08,
         "spatial_risk_score": 0.0,
-        "cluster_id": 3
+        "cluster_id": 6
       }
     },
     {
@@ -1558,7 +2138,7 @@
         "high_risk_projects": 0,
         "total_sanctioned": 150000.0,
         "spatial_risk_score": 0.0,
-        "cluster_id": 3
+        "cluster_id": 6
       }
     },
     {
@@ -1578,7 +2158,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 399695.0,
         "spatial_risk_score": 0.5,
-        "cluster_id": 9
+        "cluster_id": 4
       }
     },
     {
@@ -1618,7 +2198,7 @@
         "high_risk_projects": 4,
         "total_sanctioned": 1193456.0,
         "spatial_risk_score": 0.5714,
-        "cluster_id": 8
+        "cluster_id": 0
       }
     },
     {
@@ -1638,7 +2218,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 5000000.0,
         "spatial_risk_score": 1.0,
-        "cluster_id": 5
+        "cluster_id": 8
       }
     },
     {
@@ -1658,7 +2238,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 2998802.0,
         "spatial_risk_score": 1.0,
-        "cluster_id": 2
+        "cluster_id": 3
       }
     },
     {
@@ -1678,7 +2258,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 1699693.0,
         "spatial_risk_score": 1.0,
-        "cluster_id": 5
+        "cluster_id": 8
       }
     },
     {
@@ -1698,7 +2278,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 1477537.0,
         "spatial_risk_score": 1.0,
-        "cluster_id": 5
+        "cluster_id": 8
       }
     },
     {
@@ -1718,7 +2298,7 @@
         "high_risk_projects": 1,
         "total_sanctioned": 484498.0,
         "spatial_risk_score": 1.0,
-        "cluster_id": 2
+        "cluster_id": 3
       }
     },
     {
@@ -1738,7 +2318,7 @@
         "high_risk_projects": 6,
         "total_sanctioned": 230248804.0,
         "spatial_risk_score": 0.0444,
-        "cluster_id": 6
+        "cluster_id": 7
       }
     }
   ]

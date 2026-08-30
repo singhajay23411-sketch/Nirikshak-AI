@@ -1,98 +1,11 @@
 // Generated constituencies list mapping
 export const INDIA_STATES_AND_UT = [
   {
-    "slug": "punjab",
-    "state": "Punjab",
-    "stateHi": "\u092a\u0902\u091c\u093e\u092c",
-    "type": "State",
-    "rank": 1,
-    "performanceCategory": "High",
-    "mpCount": 18,
-    "totalAllocatedCr": 141.4,
-    "totalUtilizedCr": 137.6,
-    "utilizationPct": 97.3,
-    "worksRecommended": 5227,
-    "worksCompleted": 1989,
-    "completionPct": 38.1,
-    "constituencies": [
-      {
-        "id": "amritsar",
-        "name": "AMRITSAR",
-        "nameHi": "AMRITSAR"
-      },
-      {
-        "id": "anandpur-sahib",
-        "name": "ANANDPUR SAHIB",
-        "nameHi": "ANANDPUR SAHIB"
-      },
-      {
-        "id": "bhatinda",
-        "name": "BHATINDA",
-        "nameHi": "BHATINDA"
-      },
-      {
-        "id": "faridkot-sc",
-        "name": "FARIDKOT(SC)",
-        "nameHi": "FARIDKOT(SC)"
-      },
-      {
-        "id": "fatehgarh-sahib-sc",
-        "name": "FATEHGARH SAHIB(SC)",
-        "nameHi": "FATEHGARH SAHIB(SC)"
-      },
-      {
-        "id": "firozpur",
-        "name": "FIROZPUR",
-        "nameHi": "FIROZPUR"
-      },
-      {
-        "id": "gurdaspur",
-        "name": "GURDASPUR",
-        "nameHi": "GURDASPUR"
-      },
-      {
-        "id": "hoshiarpur-sc",
-        "name": "HOSHIARPUR(SC)",
-        "nameHi": "HOSHIARPUR(SC)"
-      },
-      {
-        "id": "jalandhar-sc",
-        "name": "JALANDHAR(SC)",
-        "nameHi": "JALANDHAR(SC)"
-      },
-      {
-        "id": "khadoor-sahib",
-        "name": "KHADOOR SAHIB",
-        "nameHi": "KHADOOR SAHIB"
-      },
-      {
-        "id": "ludhiana",
-        "name": "LUDHIANA",
-        "nameHi": "LUDHIANA"
-      },
-      {
-        "id": "patiala",
-        "name": "PATIALA",
-        "nameHi": "PATIALA"
-      },
-      {
-        "id": "punjab-rajya-sabha-nodal-district",
-        "name": "Punjab (Rajya Sabha Nodal District)",
-        "nameHi": "Punjab (Rajya Sabha Nodal District)"
-      },
-      {
-        "id": "sangrur",
-        "name": "SANGRUR",
-        "nameHi": "SANGRUR"
-      }
-    ]
-  },
-  {
     "slug": "manipur",
     "state": "Manipur",
     "stateHi": "\u092e\u0923\u093f\u092a\u0941\u0930",
     "type": "State",
-    "rank": 2,
+    "rank": 1,
     "performanceCategory": "High",
     "mpCount": 5,
     "totalAllocatedCr": 32.8,
@@ -124,7 +37,7 @@ export const INDIA_STATES_AND_UT = [
     "state": "Meghalaya",
     "stateHi": "\u092e\u0947\u0918\u093e\u0932\u092f",
     "type": "State",
-    "rank": 3,
+    "rank": 2,
     "performanceCategory": "High",
     "mpCount": 4,
     "totalAllocatedCr": 30.4,
@@ -156,7 +69,7 @@ export const INDIA_STATES_AND_UT = [
     "state": "Mizoram",
     "stateHi": "\u092e\u093f\u091c\u094b\u0930\u092e",
     "type": "State",
-    "rank": 4,
+    "rank": 3,
     "performanceCategory": "High",
     "mpCount": 2,
     "totalAllocatedCr": 12.6,
@@ -183,7 +96,7 @@ export const INDIA_STATES_AND_UT = [
     "state": "Nagaland",
     "stateHi": "\u0928\u093e\u0917\u093e\u0932\u0948\u0902\u0921",
     "type": "State",
-    "rank": 5,
+    "rank": 4,
     "performanceCategory": "High",
     "mpCount": 3,
     "totalAllocatedCr": 16.7,
@@ -210,11 +123,11 @@ export const INDIA_STATES_AND_UT = [
     "state": "Sikkim",
     "stateHi": "\u0938\u093f\u0915\u094d\u0915\u093f\u092e",
     "type": "State",
-    "rank": 6,
+    "rank": 5,
     "performanceCategory": "High",
     "mpCount": 3,
     "totalAllocatedCr": 22.1,
-    "totalUtilizedCr": 28.6,
+    "totalUtilizedCr": 27.8,
     "utilizationPct": 95.2,
     "worksRecommended": 300,
     "worksCompleted": 173,
@@ -237,13 +150,13 @@ export const INDIA_STATES_AND_UT = [
     "state": "Tamil Nadu",
     "stateHi": "\u0924\u092e\u093f\u0932\u0928\u093e\u0921\u0941",
     "type": "State",
-    "rank": 7,
+    "rank": 6,
     "performanceCategory": "High",
     "mpCount": 91,
     "totalAllocatedCr": 678.0,
-    "totalUtilizedCr": 700.9,
+    "totalUtilizedCr": 699.0,
     "utilizationPct": 95.2,
-    "worksRecommended": 11167,
+    "worksRecommended": 11168,
     "worksCompleted": 7545,
     "completionPct": 67.6,
     "constituencies": [
@@ -454,15 +367,15 @@ export const INDIA_STATES_AND_UT = [
     "state": "Uttar Pradesh",
     "stateHi": "\u0909\u0924\u094d\u0924\u0930 \u092a\u094d\u0930\u0926\u0947\u0936",
     "type": "State",
-    "rank": 8,
+    "rank": 7,
     "performanceCategory": "High",
     "mpCount": 192,
-    "totalAllocatedCr": 1387.6,
-    "totalUtilizedCr": 1455.5,
+    "totalAllocatedCr": 1387.4,
+    "totalUtilizedCr": 1449.1,
     "utilizationPct": 95.2,
-    "worksRecommended": 38646,
-    "worksCompleted": 21887,
-    "completionPct": 56.6,
+    "worksRecommended": 38523,
+    "worksCompleted": 21760,
+    "completionPct": 56.5,
     "constituencies": [
       {
         "id": "agra-sc",
@@ -876,15 +789,15 @@ export const INDIA_STATES_AND_UT = [
     "state": "Arunachal Pradesh",
     "stateHi": "\u0905\u0930\u0941\u0923\u093e\u091a\u0932 \u092a\u094d\u0930\u0926\u0947\u0936",
     "type": "State",
-    "rank": 9,
+    "rank": 8,
     "performanceCategory": "High",
     "mpCount": 4,
     "totalAllocatedCr": 24.9,
-    "totalUtilizedCr": 38.1,
+    "totalUtilizedCr": 37.8,
     "utilizationPct": 95.2,
-    "worksRecommended": 638,
+    "worksRecommended": 640,
     "worksCompleted": 547,
-    "completionPct": 85.7,
+    "completionPct": 85.5,
     "constituencies": [
       {
         "id": "arunachal-east",
@@ -908,14 +821,14 @@ export const INDIA_STATES_AND_UT = [
     "state": "Bihar",
     "stateHi": "\u092c\u093f\u0939\u093e\u0930",
     "type": "State",
-    "rank": 10,
+    "rank": 9,
     "performanceCategory": "High",
     "mpCount": 91,
-    "totalAllocatedCr": 642.9,
-    "totalUtilizedCr": 978.8,
+    "totalAllocatedCr": 643.0,
+    "totalUtilizedCr": 978.2,
     "utilizationPct": 95.2,
-    "worksRecommended": 13199,
-    "worksCompleted": 9205,
+    "worksRecommended": 13203,
+    "worksCompleted": 9197,
     "completionPct": 69.7,
     "constituencies": [
       {
@@ -1130,13 +1043,13 @@ export const INDIA_STATES_AND_UT = [
     "state": "Chhattisgarh",
     "stateHi": "\u091b\u0924\u094d\u0924\u0940\u0938\u0917\u0922\u093c",
     "type": "State",
-    "rank": 11,
+    "rank": 10,
     "performanceCategory": "High",
     "mpCount": 27,
     "totalAllocatedCr": 163.5,
-    "totalUtilizedCr": 164.0,
+    "totalUtilizedCr": 164.1,
     "utilizationPct": 95.2,
-    "worksRecommended": 4249,
+    "worksRecommended": 4250,
     "worksCompleted": 2372,
     "completionPct": 55.8,
     "constituencies": [
@@ -1203,6 +1116,93 @@ export const INDIA_STATES_AND_UT = [
     ]
   },
   {
+    "slug": "punjab",
+    "state": "Punjab",
+    "stateHi": "\u092a\u0902\u091c\u093e\u092c",
+    "type": "State",
+    "rank": 11,
+    "performanceCategory": "High",
+    "mpCount": 18,
+    "totalAllocatedCr": 141.4,
+    "totalUtilizedCr": 134.5,
+    "utilizationPct": 95.1,
+    "worksRecommended": 5244,
+    "worksCompleted": 1989,
+    "completionPct": 37.9,
+    "constituencies": [
+      {
+        "id": "amritsar",
+        "name": "AMRITSAR",
+        "nameHi": "AMRITSAR"
+      },
+      {
+        "id": "anandpur-sahib",
+        "name": "ANANDPUR SAHIB",
+        "nameHi": "ANANDPUR SAHIB"
+      },
+      {
+        "id": "bhatinda",
+        "name": "BHATINDA",
+        "nameHi": "BHATINDA"
+      },
+      {
+        "id": "faridkot-sc",
+        "name": "FARIDKOT(SC)",
+        "nameHi": "FARIDKOT(SC)"
+      },
+      {
+        "id": "fatehgarh-sahib-sc",
+        "name": "FATEHGARH SAHIB(SC)",
+        "nameHi": "FATEHGARH SAHIB(SC)"
+      },
+      {
+        "id": "firozpur",
+        "name": "FIROZPUR",
+        "nameHi": "FIROZPUR"
+      },
+      {
+        "id": "gurdaspur",
+        "name": "GURDASPUR",
+        "nameHi": "GURDASPUR"
+      },
+      {
+        "id": "hoshiarpur-sc",
+        "name": "HOSHIARPUR(SC)",
+        "nameHi": "HOSHIARPUR(SC)"
+      },
+      {
+        "id": "jalandhar-sc",
+        "name": "JALANDHAR(SC)",
+        "nameHi": "JALANDHAR(SC)"
+      },
+      {
+        "id": "khadoor-sahib",
+        "name": "KHADOOR SAHIB",
+        "nameHi": "KHADOOR SAHIB"
+      },
+      {
+        "id": "ludhiana",
+        "name": "LUDHIANA",
+        "nameHi": "LUDHIANA"
+      },
+      {
+        "id": "patiala",
+        "name": "PATIALA",
+        "nameHi": "PATIALA"
+      },
+      {
+        "id": "punjab-rajya-sabha-nodal-district",
+        "name": "Punjab (Rajya Sabha Nodal District)",
+        "nameHi": "Punjab (Rajya Sabha Nodal District)"
+      },
+      {
+        "id": "sangrur",
+        "name": "SANGRUR",
+        "nameHi": "SANGRUR"
+      }
+    ]
+  },
+  {
     "slug": "himachal-pradesh",
     "state": "Himachal Pradesh",
     "stateHi": "\u0939\u093f\u092e\u093e\u091a\u0932 \u092a\u094d\u0930\u0926\u0947\u0936",
@@ -1212,8 +1212,8 @@ export const INDIA_STATES_AND_UT = [
     "mpCount": 10,
     "totalAllocatedCr": 79.3,
     "totalUtilizedCr": 70.6,
-    "utilizationPct": 89.0,
-    "worksRecommended": 4297,
+    "utilizationPct": 89.1,
+    "worksRecommended": 4300,
     "worksCompleted": 1482,
     "completionPct": 34.5,
     "constituencies": [
@@ -1252,11 +1252,11 @@ export const INDIA_STATES_AND_UT = [
     "rank": 13,
     "performanceCategory": "High",
     "mpCount": 66,
-    "totalAllocatedCr": 502.8,
+    "totalAllocatedCr": 502.7,
     "totalUtilizedCr": 433.0,
     "utilizationPct": 86.1,
-    "worksRecommended": 16342,
-    "worksCompleted": 7307,
+    "worksRecommended": 16343,
+    "worksCompleted": 7304,
     "completionPct": 44.7,
     "constituencies": [
       {
@@ -1419,12 +1419,12 @@ export const INDIA_STATES_AND_UT = [
     "rank": 14,
     "performanceCategory": "High",
     "mpCount": 31,
-    "totalAllocatedCr": 265.8,
-    "totalUtilizedCr": 216.1,
-    "utilizationPct": 81.3,
-    "worksRecommended": 8364,
-    "worksCompleted": 2443,
-    "completionPct": 29.2,
+    "totalAllocatedCr": 265.9,
+    "totalUtilizedCr": 215.3,
+    "utilizationPct": 81.0,
+    "worksRecommended": 8359,
+    "worksCompleted": 2435,
+    "completionPct": 29.1,
     "constituencies": [
       {
         "id": "chatra",
@@ -1539,9 +1539,9 @@ export const INDIA_STATES_AND_UT = [
     "performanceCategory": "Average",
     "mpCount": 57,
     "totalAllocatedCr": 420.4,
-    "totalUtilizedCr": 319.8,
-    "utilizationPct": 76.1,
-    "worksRecommended": 8562,
+    "totalUtilizedCr": 316.9,
+    "utilizationPct": 75.4,
+    "worksRecommended": 8573,
     "worksCompleted": 4368,
     "completionPct": 51.0,
     "constituencies": [
@@ -1688,7 +1688,7 @@ export const INDIA_STATES_AND_UT = [
     "totalAllocatedCr": 721.7,
     "totalUtilizedCr": 541.4,
     "utilizationPct": 75.0,
-    "worksRecommended": 11906,
+    "worksRecommended": 11907,
     "worksCompleted": 7028,
     "completionPct": 59.0,
     "constituencies": [
@@ -1945,11 +1945,11 @@ export const INDIA_STATES_AND_UT = [
     "performanceCategory": "Average",
     "mpCount": 13,
     "totalAllocatedCr": 107.6,
-    "totalUtilizedCr": 78.5,
-    "utilizationPct": 72.9,
-    "worksRecommended": 4065,
+    "totalUtilizedCr": 78.8,
+    "utilizationPct": 73.2,
+    "worksRecommended": 4072,
     "worksCompleted": 2221,
-    "completionPct": 54.6,
+    "completionPct": 54.5,
     "constituencies": [
       {
         "id": "almora-sc",
@@ -2024,11 +2024,11 @@ export const INDIA_STATES_AND_UT = [
     "performanceCategory": "Average",
     "mpCount": 60,
     "totalAllocatedCr": 454.0,
-    "totalUtilizedCr": 319.5,
-    "utilizationPct": 70.4,
-    "worksRecommended": 8013,
+    "totalUtilizedCr": 321.3,
+    "utilizationPct": 70.8,
+    "worksRecommended": 8045,
     "worksCompleted": 4447,
-    "completionPct": 55.5,
+    "completionPct": 55.3,
     "constituencies": [
       {
         "id": "amalapuram-sc",
@@ -2171,8 +2171,8 @@ export const INDIA_STATES_AND_UT = [
     "performanceCategory": "Needs Improvement",
     "mpCount": 12,
     "totalAllocatedCr": 70.8,
-    "totalUtilizedCr": 49.4,
-    "utilizationPct": 69.8,
+    "totalUtilizedCr": 49.0,
+    "utilizationPct": 69.2,
     "worksRecommended": 2076,
     "worksCompleted": 1242,
     "completionPct": 59.8,
@@ -2218,9 +2218,9 @@ export const INDIA_STATES_AND_UT = [
     "performanceCategory": "Needs Improvement",
     "mpCount": 67,
     "totalAllocatedCr": 568.2,
-    "totalUtilizedCr": 382.8,
-    "utilizationPct": 67.4,
-    "worksRecommended": 10761,
+    "totalUtilizedCr": 380.7,
+    "utilizationPct": 67.0,
+    "worksRecommended": 10769,
     "worksCompleted": 4120,
     "completionPct": 38.3,
     "constituencies": [
@@ -2382,7 +2382,7 @@ export const INDIA_STATES_AND_UT = [
     "totalAllocatedCr": 459.0,
     "totalUtilizedCr": 305.7,
     "utilizationPct": 66.6,
-    "worksRecommended": 16179,
+    "worksRecommended": 16188,
     "worksCompleted": 8655,
     "completionPct": 53.5,
     "constituencies": [
@@ -2532,11 +2532,11 @@ export const INDIA_STATES_AND_UT = [
     "performanceCategory": "Needs Improvement",
     "mpCount": 39,
     "totalAllocatedCr": 338.9,
-    "totalUtilizedCr": 223.5,
+    "totalUtilizedCr": 223.8,
     "utilizationPct": 66.0,
-    "worksRecommended": 10400,
+    "worksRecommended": 10409,
     "worksCompleted": 5282,
-    "completionPct": 50.8,
+    "completionPct": 50.7,
     "constituencies": [
       {
         "id": "adilabad-st",
@@ -2639,8 +2639,8 @@ export const INDIA_STATES_AND_UT = [
     "performanceCategory": "Needs Improvement",
     "mpCount": 3,
     "totalAllocatedCr": 13.3,
-    "totalUtilizedCr": 8.8,
-    "utilizationPct": 65.9,
+    "totalUtilizedCr": 8.7,
+    "utilizationPct": 65.4,
     "worksRecommended": 166,
     "worksCompleted": 60,
     "completionPct": 36.1,
@@ -2666,9 +2666,9 @@ export const INDIA_STATES_AND_UT = [
     "performanceCategory": "Needs Improvement",
     "mpCount": 33,
     "totalAllocatedCr": 285.3,
-    "totalUtilizedCr": 181.2,
-    "utilizationPct": 63.5,
-    "worksRecommended": 4583,
+    "totalUtilizedCr": 178.4,
+    "utilizationPct": 62.5,
+    "worksRecommended": 4585,
     "worksCompleted": 955,
     "completionPct": 20.8,
     "constituencies": [
@@ -2758,9 +2758,9 @@ export const INDIA_STATES_AND_UT = [
     "performanceCategory": "Needs Improvement",
     "mpCount": 107,
     "totalAllocatedCr": 884.1,
-    "totalUtilizedCr": 542.8,
-    "utilizationPct": 61.4,
-    "worksRecommended": 11430,
+    "totalUtilizedCr": 543.6,
+    "utilizationPct": 61.5,
+    "worksRecommended": 11443,
     "worksCompleted": 5729,
     "completionPct": 50.1,
     "constituencies": [
@@ -3020,11 +3020,11 @@ export const INDIA_STATES_AND_UT = [
     "performanceCategory": "Needs Improvement",
     "mpCount": 23,
     "totalAllocatedCr": 174.4,
-    "totalUtilizedCr": 105.3,
-    "utilizationPct": 60.4,
-    "worksRecommended": 3662,
+    "totalUtilizedCr": 105.2,
+    "utilizationPct": 60.3,
+    "worksRecommended": 3667,
     "worksCompleted": 1365,
-    "completionPct": 37.3,
+    "completionPct": 37.2,
     "constituencies": [
       {
         "id": "ambala-sc",
@@ -3092,11 +3092,11 @@ export const INDIA_STATES_AND_UT = [
     "performanceCategory": "Needs Improvement",
     "mpCount": 18,
     "totalAllocatedCr": 131.7,
-    "totalUtilizedCr": 72.2,
-    "utilizationPct": 54.8,
-    "worksRecommended": 1276,
+    "totalUtilizedCr": 72.3,
+    "utilizationPct": 54.9,
+    "worksRecommended": 1279,
     "worksCompleted": 679,
-    "completionPct": 53.2,
+    "completionPct": 53.1,
     "constituencies": [
       {
         "id": "chandini-chowk",
@@ -3149,8 +3149,8 @@ export const INDIA_STATES_AND_UT = [
     "performanceCategory": "Needs Improvement",
     "mpCount": 3,
     "totalAllocatedCr": 38.1,
-    "totalUtilizedCr": 20.2,
-    "utilizationPct": 53.1,
+    "totalUtilizedCr": 20.1,
+    "utilizationPct": 52.9,
     "worksRecommended": 242,
     "worksCompleted": 92,
     "completionPct": 38.0,
@@ -3176,8 +3176,8 @@ export const INDIA_STATES_AND_UT = [
     "performanceCategory": "Needs Improvement",
     "mpCount": 51,
     "totalAllocatedCr": 485.6,
-    "totalUtilizedCr": 256.7,
-    "utilizationPct": 52.9,
+    "totalUtilizedCr": 256.3,
+    "utilizationPct": 52.8,
     "worksRecommended": 8876,
     "worksCompleted": 4031,
     "completionPct": 45.4,
@@ -3299,7 +3299,7 @@ export const INDIA_STATES_AND_UT = [
     "mpCount": 50,
     "totalAllocatedCr": 406.2,
     "totalUtilizedCr": 188.7,
-    "utilizationPct": 46.4,
+    "utilizationPct": 46.5,
     "worksRecommended": 12247,
     "worksCompleted": 4703,
     "completionPct": 38.4,
@@ -3485,8 +3485,8 @@ export const INDIA_STATES_AND_UT = [
     "mpCount": 2,
     "totalAllocatedCr": 25.3,
     "totalUtilizedCr": 0.0,
-    "utilizationPct": 0.1,
-    "worksRecommended": 63,
+    "utilizationPct": 0.2,
+    "worksRecommended": 64,
     "worksCompleted": 0,
     "completionPct": 0.0,
     "constituencies": [

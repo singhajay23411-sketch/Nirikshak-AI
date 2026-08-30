@@ -4,7 +4,7 @@
     "total_sanctioned": 121293347373.79,
     "total_disbursed": 80078824602.12,
     "total_projects": 218913,
-    "avg_national_risk": 22.004242690018412
+    "avg_national_risk": 22.004950733853175
   },
   "state_wise_benchmarks": [
     {
@@ -17,34 +17,34 @@
     },
     {
       "state_name": "Andhra Pradesh",
-      "total_sanctioned": 5374370631.3,
-      "total_spent": 3186523538.22,
-      "avg_risk": 22.88,
-      "total_projects": 7966,
-      "utilization_rate": 0.5929
+      "total_sanctioned": 5387280416.3,
+      "total_spent": 3199075315.22,
+      "avg_risk": 22.91,
+      "total_projects": 7998,
+      "utilization_rate": 0.5938
     },
     {
       "state_name": "Arunachal Pradesh",
-      "total_sanctioned": 420009342.0,
-      "total_spent": 379485220.0,
+      "total_sanctioned": 420575342.0,
+      "total_spent": 380051220.0,
       "avg_risk": 28.29,
-      "total_projects": 631,
-      "utilization_rate": 0.9035
+      "total_projects": 633,
+      "utilization_rate": 0.9036
     },
     {
       "state_name": "Assam",
-      "total_sanctioned": 3020315838.26,
-      "total_spent": 1783191200.33,
-      "avg_risk": 17.92,
-      "total_projects": 4574,
-      "utilization_rate": 0.5904
+      "total_sanctioned": 3020841838.26,
+      "total_spent": 1783717200.33,
+      "avg_risk": 17.93,
+      "total_projects": 4576,
+      "utilization_rate": 0.5905
     },
     {
       "state_name": "Bihar",
-      "total_sanctioned": 9427050309.72,
-      "total_spent": 9754680046.72,
+      "total_sanctioned": 9421521570.72,
+      "total_spent": 9749139301.22,
       "avg_risk": 23.99,
-      "total_projects": 13163,
+      "total_projects": 13166,
       "utilization_rate": 1.0348
     },
     {
@@ -57,19 +57,19 @@
     },
     {
       "state_name": "Chhattisgarh",
-      "total_sanctioned": 2177578788.23,
-      "total_spent": 1635910325.13,
+      "total_sanctioned": 2177821788.23,
+      "total_spent": 1636153325.13,
       "avg_risk": 24.49,
-      "total_projects": 4223,
+      "total_projects": 4224,
       "utilization_rate": 0.7513
     },
     {
       "state_name": "Delhi",
-      "total_sanctioned": 1472383974.63,
-      "total_spent": 717571669.0,
-      "avg_risk": 20.8,
-      "total_projects": 1274,
-      "utilization_rate": 0.4874
+      "total_sanctioned": 1472909974.63,
+      "total_spent": 718097669.0,
+      "avg_risk": 20.81,
+      "total_projects": 1276,
+      "utilization_rate": 0.4875
     },
     {
       "state_name": "Goa",
@@ -81,27 +81,27 @@
     },
     {
       "state_name": "Gujarat",
-      "total_sanctioned": 5567402566.22,
-      "total_spent": 3045622097.22,
+      "total_sanctioned": 5571647566.22,
+      "total_spent": 3049867097.22,
       "avg_risk": 21.8,
-      "total_projects": 15897,
-      "utilization_rate": 0.547
+      "total_projects": 15906,
+      "utilization_rate": 0.5474
     },
     {
       "state_name": "Haryana",
-      "total_sanctioned": 1934814412.46,
-      "total_spent": 1046447639.5,
-      "avg_risk": 20.18,
-      "total_projects": 3660,
-      "utilization_rate": 0.5409
+      "total_sanctioned": 1936086412.46,
+      "total_spent": 1047719639.5,
+      "avg_risk": 20.19,
+      "total_projects": 3665,
+      "utilization_rate": 0.5412
     },
     {
       "state_name": "Himachal Pradesh",
-      "total_sanctioned": 1007986842.04,
-      "total_spent": 702156347.04,
+      "total_sanctioned": 1008626842.04,
+      "total_spent": 702682347.04,
       "avg_risk": 21.1,
-      "total_projects": 4282,
-      "utilization_rate": 0.6966
+      "total_projects": 4285,
+      "utilization_rate": 0.6967
     },
     {
       "state_name": "Jammu And Kashmir",
@@ -113,19 +113,19 @@
     },
     {
       "state_name": "Jharkhand",
-      "total_sanctioned": 3134456156.54,
-      "total_spent": 2158379634.23,
-      "avg_risk": 19.04,
-      "total_projects": 8292,
-      "utilization_rate": 0.6886
+      "total_sanctioned": 3128610156.54,
+      "total_spent": 2152533634.23,
+      "avg_risk": 19.01,
+      "total_projects": 8287,
+      "utilization_rate": 0.688
     },
     {
       "state_name": "Karnataka",
-      "total_sanctioned": 6448352760.46,
-      "total_spent": 3811219060.95,
-      "avg_risk": 18.78,
-      "total_projects": 10755,
-      "utilization_rate": 0.591
+      "total_sanctioned": 6452681760.46,
+      "total_spent": 3815548060.95,
+      "avg_risk": 18.8,
+      "total_projects": 10763,
+      "utilization_rate": 0.5913
     },
     {
       "state_name": "Kerala",
@@ -153,19 +153,19 @@
     },
     {
       "state_name": "Madhya Pradesh",
-      "total_sanctioned": 6151269823.98,
-      "total_spent": 4310954392.53,
-      "avg_risk": 20.63,
-      "total_projects": 16280,
-      "utilization_rate": 0.7008
+      "total_sanctioned": 6150340823.98,
+      "total_spent": 4310511392.53,
+      "avg_risk": 20.64,
+      "total_projects": 16281,
+      "utilization_rate": 0.7009
     },
     {
       "state_name": "Maharashtra",
-      "total_sanctioned": 9845892606.32,
-      "total_spent": 5420554121.03,
-      "avg_risk": 17.79,
-      "total_projects": 11426,
-      "utilization_rate": 0.5505
+      "total_sanctioned": 9853104014.32,
+      "total_spent": 5427765529.03,
+      "avg_risk": 17.81,
+      "total_projects": 11439,
+      "utilization_rate": 0.5509
     },
     {
       "state_name": "Manipur",
@@ -217,19 +217,19 @@
     },
     {
       "state_name": "Punjab",
-      "total_sanctioned": 2147042010.96,
-      "total_spent": 1354866609.37,
-      "avg_risk": 18.16,
-      "total_projects": 5084,
-      "utilization_rate": 0.631
+      "total_sanctioned": 2154091010.96,
+      "total_spent": 1361915609.37,
+      "avg_risk": 18.21,
+      "total_projects": 5101,
+      "utilization_rate": 0.6322
     },
     {
       "state_name": "Rajasthan",
-      "total_sanctioned": 5059827938.35,
-      "total_spent": 3170938217.35,
-      "avg_risk": 24.86,
-      "total_projects": 8544,
-      "utilization_rate": 0.6267
+      "total_sanctioned": 5061573938.35,
+      "total_spent": 3172684217.35,
+      "avg_risk": 24.87,
+      "total_projects": 8555,
+      "utilization_rate": 0.6268
     },
     {
       "state_name": "Sikkim",
@@ -241,27 +241,27 @@
     },
     {
       "state_name": "Tamil Nadu",
-      "total_sanctioned": 9563835496.5,
-      "total_spent": 6973481413.34,
+      "total_sanctioned": 9564078496.5,
+      "total_spent": 6973724413.34,
       "avg_risk": 21.32,
-      "total_projects": 11154,
+      "total_projects": 11155,
       "utilization_rate": 0.7292
     },
     {
       "state_name": "Telangana",
-      "total_sanctioned": 4101244655.38,
-      "total_spent": 2233535722.38,
-      "avg_risk": 18.98,
-      "total_projects": 10391,
-      "utilization_rate": 0.5446
+      "total_sanctioned": 4104396655.38,
+      "total_spent": 2236573722.38,
+      "avg_risk": 18.99,
+      "total_projects": 10400,
+      "utilization_rate": 0.5449
     },
     {
       "state_name": "The Dadra And Nagar Haveli And Daman And Diu",
-      "total_sanctioned": 253636200.0,
-      "total_spent": 150000.0,
-      "avg_risk": 13.93,
-      "total_projects": 63,
-      "utilization_rate": 0.0006
+      "total_sanctioned": 253879200.0,
+      "total_spent": 393000.0,
+      "avg_risk": 16.58,
+      "total_projects": 64,
+      "utilization_rate": 0.0015
     },
     {
       "state_name": "Tripura",
@@ -273,26 +273,26 @@
     },
     {
       "state_name": "Uttar Pradesh",
-      "total_sanctioned": 19211997201.21,
-      "total_spent": 14560218232.74,
-      "avg_risk": 25.66,
-      "total_projects": 38517,
-      "utilization_rate": 0.7579
+      "total_sanctioned": 19176878747.21,
+      "total_spent": 14525211793.24,
+      "avg_risk": 25.64,
+      "total_projects": 38394,
+      "utilization_rate": 0.7574
     },
     {
       "state_name": "Uttarakhand",
-      "total_sanctioned": 1288648923.33,
-      "total_spent": 784338236.44,
-      "avg_risk": 25.86,
-      "total_projects": 4065,
-      "utilization_rate": 0.6087
+      "total_sanctioned": 1290669923.33,
+      "total_spent": 786359236.44,
+      "avg_risk": 25.87,
+      "total_projects": 4072,
+      "utilization_rate": 0.6093
     },
     {
       "state_name": "West Bengal",
-      "total_sanctioned": 8598747352.28,
-      "total_spent": 5401519406.15,
+      "total_sanctioned": 8599247352.28,
+      "total_spent": 5402019406.15,
       "avg_risk": 24.79,
-      "total_projects": 11886,
+      "total_projects": 11887,
       "utilization_rate": 0.6282
     }
   ],

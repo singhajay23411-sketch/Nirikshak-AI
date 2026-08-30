@@ -16,10 +16,48 @@
     ]
   },
   {
+    "vendor_name": "HIDAYA QIRAT ENTERPRISES",
+    "constituencies_operated": 29,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 218623819.0,
+    "risk_score": 3.45,
+    "regions": [
+      "ARUNACHAL WEST",
+      "NAINITAL UDHAM SINGH NAG.",
+      "Punjab (Rajya Sabha Nodal District)",
+      "BARPETA",
+      "TIRUNELVELI",
+      "RAVER",
+      "ANAKAPALLE",
+      "Uttar Pradesh (Rajya Sabha Nodal District)",
+      "BANASKANTHA",
+      "Madhya Pradesh (Rajya Sabha Nodal District)",
+      "Andhra Pradesh (Rajya Sabha Nodal District)",
+      "Delhi (Rajya Sabha Nodal District)",
+      "BANGALORE RURAL",
+      "Bihar (Rajya Sabha Nodal District)",
+      "ALIGARH",
+      "Jharkhand (Rajya Sabha Nodal District)",
+      "RAIGARH(ST)",
+      "Karnataka (Rajya Sabha Nodal District)",
+      "DAMAN and DIU",
+      "HAMIRPUR_HP",
+      "BETUL(ST)",
+      "BHATINDA",
+      "Rajasthan (Rajya Sabha Nodal District)",
+      "SONEPAT",
+      "ADILABAD(ST)",
+      "AJMER",
+      "ARARIA",
+      "Himachal Pradesh (Rajya Sabha Nodal District)",
+      "Jammu And Kashmir (Rajya Sabha Nodal District)"
+    ]
+  },
+  {
     "vendor_name": "SHRI GURU KRIPA NARSINGH ASSOCIATES",
     "constituencies_operated": 4,
     "monopolies_controlled": 1,
-    "total_funds_captured": 184833512.0,
+    "total_funds_captured": 192213752.0,
     "risk_score": 25.0,
     "regions": [
       "ALIGARH",
@@ -52,7 +90,7 @@
     "vendor_name": "COMPUTER SOLUTIONS",
     "constituencies_operated": 3,
     "monopolies_controlled": 1,
-    "total_funds_captured": 67797000.0,
+    "total_funds_captured": 73386000.0,
     "risk_score": 33.33,
     "regions": [
       "Jammu And Kashmir (Rajya Sabha Nodal District)",
@@ -70,6 +108,19 @@
       "SOUTH GOA",
       "Goa (Rajya Sabha Nodal District)",
       "RAVER"
+    ]
+  },
+  {
+    "vendor_name": "ARJUN SINGH",
+    "constituencies_operated": 4,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 1247074.0,
+    "risk_score": 25.0,
+    "regions": [
+      "ARARIA",
+      "AJMER",
+      "NAINITAL UDHAM SINGH NAG.",
+      "DAMAN and DIU"
     ]
   },
   {
@@ -201,6 +252,88 @@
     "risk_score": 100.0,
     "regions": [
       "LADAKH"
+    ]
+  },
+  {
+    "vendor_name": "AARTI BISHT",
+    "constituencies_operated": 2,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 24738.0,
+    "risk_score": 50.0,
+    "regions": [
+      "DAMAN and DIU",
+      "NAINITAL UDHAM SINGH NAG."
+    ]
+  },
+  {
+    "vendor_name": "AARTI BISH",
+    "constituencies_operated": 2,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 24738.0,
+    "risk_score": 50.0,
+    "regions": [
+      "NAINITAL UDHAM SINGH NAG.",
+      "DAMAN and DIU"
+    ]
+  },
+  {
+    "vendor_name": "MEENA SANGA",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 16758.0,
+    "risk_score": 100.0,
+    "regions": [
+      "DAMAN and DIU"
+    ]
+  },
+  {
+    "vendor_name": "MUKUL SINGH SANGA",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 16758.0,
+    "risk_score": 100.0,
+    "regions": [
+      "DAMAN and DIU"
+    ]
+  },
+  {
+    "vendor_name": "MOHAN SINGH SANGA",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 16758.0,
+    "risk_score": 100.0,
+    "regions": [
+      "DAMAN and DIU"
+    ]
+  },
+  {
+    "vendor_name": "BABITA SANGA",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 16758.0,
+    "risk_score": 100.0,
+    "regions": [
+      "DAMAN and DIU"
+    ]
+  },
+  {
+    "vendor_name": "NEERAJ TIWARI",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 16758.0,
+    "risk_score": 100.0,
+    "regions": [
+      "DAMAN and DIU"
+    ]
+  },
+  {
+    "vendor_name": "MANOJ SINGH SANGA",
+    "constituencies_operated": 1,
+    "monopolies_controlled": 1,
+    "total_funds_captured": 15936.0,
+    "risk_score": 100.0,
+    "regions": [
+      "DAMAN and DIU"
     ]
   },
   {
