@@ -229,3 +229,134 @@ button:active, .btn-teal:active, .btn-outline-dark:active {
 .section-padding {
   padding: 6rem 0;
 }
+
+/* Global Responsive & Mobile Utilities */
+html, body, #root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Tablet & Mobile Media Queries */
+@media (max-width: 991px) {
+  .section-padding {
+    padding: 4.5rem 0;
+  }
+  .container {
+    padding: 0 1.25rem;
+  }
+  .card-light {
+    padding: 1.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-padding {
+    padding: 3.5rem 0;
+  }
+  .container {
+    padding: 0 1rem;
+  }
+  .card-light {
+    padding: 1.35rem;
+    border-radius: var(--radius-md);
+  }
+  h1 {
+    font-size: clamp(1.85rem, 6.5vw, 2.5rem);
+  }
+  h2 {
+    font-size: clamp(1.5rem, 5vw, 2.1rem);
+  }
+  h3 {
+    font-size: clamp(1.2rem, 4vw, 1.6rem);
+  }
+  .btn-teal, .btn-outline-dark {
+    padding: 0.65rem 1.35rem;
+    font-size: 0.88rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-padding {
+    padding: 2.75rem 0;
+  }
+  .container {
+    padding: 0 0.85rem;
+  }
+  .card-light {
+    padding: 1.15rem;
+  }
+  h1 {
+    font-size: clamp(1.75rem, 7.5vw, 2.2rem);
+  }
+  h2 {
+    font-size: clamp(1.35rem, 6vw, 1.8rem);
+  }
+  h3 {
+    font-size: clamp(1.15rem, 5vw, 1.45rem);
+  }
+  .btn-teal, .btn-outline-dark {
+    padding: 0.6rem 1.15rem;
+    font-size: 0.84rem;
+  }
+}
+
+/* High-Risk Registry Smooth Expand Animation */
+.registry-row-animate {
+  animation: registryRowFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes registryRowFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .registry-table-desktop {
+    display: none !important;
+  }
+  .registry-cards-mobile {
+    display: flex !important;
+  }
+}
+
+/* Unified Analysis Strict 3-Column Models Grid (3 cols on desktop, 2 on tablet, 1 on mobile) */
+.unified-models-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+  align-items: stretch;
+}
+
+@media (max-width: 1024px) and (min-width: 641px) {
+  .unified-models-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .unified-models-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+

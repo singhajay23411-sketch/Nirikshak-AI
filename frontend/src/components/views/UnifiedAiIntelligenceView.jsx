@@ -1018,7 +1018,7 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))',
             gap: '0.85rem',
             background: '#FAF8F3',
             padding: '1rem 1.25rem',
@@ -1492,14 +1492,8 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
               </span>
             </div>
 
-            {/* 8 Individual Cards Grid */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-                gap: '1.25rem'
-              }}
-            >
+            {/* 8 Individual Cards Grid (Strict 3-Column Desktop Layout: 3 cards in Row 1, 3 in Row 2) */}
+            <div className="unified-models-grid">
               {modelsList.map((mod) => {
                 const Icon = mod.icon;
                 const state = modelsState[mod.id] || { status: 'idle' };
@@ -1530,10 +1524,12 @@ ${isHi ? 'निरीक्षक एआई - सार्वजनिक प�
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
-                      gap: '1rem'
+                      gap: '1rem',
+                      height: '100%',
+                      boxSizing: 'border-box'
                     }}
                   >
-                    <div>
+                    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                       {/* Card Header */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.65rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>

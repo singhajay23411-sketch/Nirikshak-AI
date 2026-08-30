@@ -49,9 +49,9 @@ const Footer = ({ onLoginClick, hideCTAButtons = false }) => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: '3.5rem',
-            marginBottom: '4.5rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
+            gap: 'clamp(2rem, 4vw, 3.5rem)',
+            marginBottom: '3.5rem',
             alignItems: 'start'
           }}
         >

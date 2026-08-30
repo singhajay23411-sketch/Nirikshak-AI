@@ -251,7 +251,7 @@ const BrowseMpsView = () => {
       </div>
 
       {/* ─── 4. PERFORMANCE CLASSIFICATION (3 HORIZONTAL CARDS) ─── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '1.25rem' }}>
         {/* High Performers */}
         <div
           onClick={() => setSelectedTier(selectedTier === 'high' ? 'all' : 'high')}
@@ -610,7 +610,7 @@ const BrowseMpsView = () => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 270px), 1fr))',
             gap: '1.25rem'
           }}
         >
@@ -813,7 +813,7 @@ const BrowseMpsView = () => {
                 }}
               >
                 {/* Left Profile */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '280px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: 'min(100%, 260px)' }}>
                   <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#1A73E8', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <User size={22} />
                   </div>

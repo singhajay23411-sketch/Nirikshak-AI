@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   ArrowLeft, Shield, AlertTriangle, CheckCircle, Database, TrendingUp, 
   MapPin, Clock, FileText, Search, Filter, Download, ExternalLink, 
-  Layers, Camera, ChevronRight, Eye, RefreshCw, BarChart3, AlertCircle,
-  FileCheck, Users, Send, CheckSquare, Copy
+  Layers, Camera, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, Eye, RefreshCw, BarChart3, AlertCircle,
+  FileCheck, Users, Send, CheckSquare, Copy, X
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
@@ -49,6 +49,81 @@ const MOCK_ANOMALY_PROJECTS = [
     recommendedAction: 'Conduct physical inspection and verify measurement books, bills and UC filings.'
   },
   {
+    id: 'MPLADS-2026-6109',
+    title: 'Widening of Rural Link Road with Concrete Drainage Culverts',
+    category: 'Roads & Pathways',
+    state: 'Maharashtra',
+    district: 'Pune',
+    constituency: 'Baramati Lok Sabha',
+    sanctionedCost: '₹52,00,000',
+    expenditure: '₹49,40,000',
+    expenditurePct: 95,
+    physicalProgress: 35,
+    delayMonths: 14,
+    costDeviationPct: 52,
+    riskScore: 89,
+    riskBand: 'Critical',
+    confidenceScore: 96,
+    agency: 'Maharashtra State Rural Roads Corp',
+    agencyPriorFlags: 4,
+    reasons: [
+      'Disbursed ₹49.4 Lakhs against only 35% physical surface paving complete',
+      '14-month construction delay past contractual completion deadline',
+      'Material cost escalation +52% unsupported by district schedule of rates'
+    ],
+    recommendedAction: 'Issue immediate halt notice and mandate third-party quality and measurement verification.'
+  },
+  {
+    id: 'MPLADS-2026-4428',
+    title: 'Construction of Multi-Purpose Rural Gymnasium & Sports Shed',
+    category: 'Sports & Youth Affairs',
+    state: 'Rajasthan',
+    district: 'Jaipur',
+    constituency: 'Jaipur Rural Lok Sabha',
+    sanctionedCost: '₹35,50,000',
+    expenditure: '₹31,95,000',
+    expenditurePct: 90,
+    physicalProgress: 42,
+    delayMonths: 9,
+    costDeviationPct: 38,
+    riskScore: 85,
+    riskBand: 'Critical',
+    confidenceScore: 92,
+    agency: 'Marwar Sports Infrastructure Ltd',
+    agencyPriorFlags: 2,
+    reasons: [
+      'Substantial funds released with structure unfinished beyond foundation pillar stage',
+      'Equipment procurement invoices submitted prior to roof civil work completion',
+      'Cost per square meter exceeds state ceiling by 38%'
+    ],
+    recommendedAction: 'Dispatch district sports officer for on-site asset and inventory audit.'
+  },
+  {
+    id: 'MPLADS-2026-7831',
+    title: 'Installation of Solar Street Lighting & Micro-Grid in 15 Gram Panchayats',
+    category: 'Renewable Energy',
+    state: 'Karnataka',
+    district: 'Mysuru',
+    constituency: 'Mysore Lok Sabha',
+    sanctionedCost: '₹41,00,000',
+    expenditure: '₹36,90,000',
+    expenditurePct: 90,
+    physicalProgress: 50,
+    delayMonths: 8,
+    costDeviationPct: 28,
+    riskScore: 83,
+    riskBand: 'Critical',
+    confidenceScore: 90,
+    agency: 'Deccan Solar Clean Energy Systems',
+    agencyPriorFlags: 2,
+    reasons: [
+      'Battery storage units not commissioned despite complete vendor disbursal',
+      'Vendor invoices lack valid GST verification checksums',
+      'Over 8 months delay in micro-grid grid tie-in'
+    ],
+    recommendedAction: 'Verify physical installation with geotagged camera feeds and electrical test reports.'
+  },
+  {
     id: 'MPLADS-2026-3302',
     title: 'Installation of Solar High-Mast Lights in 12 Village Squares',
     category: 'Renewable Energy / Civic',
@@ -72,6 +147,31 @@ const MOCK_ANOMALY_PROJECTS = [
       'Physical inspection pending for over 180 days'
     ],
     recommendedAction: 'Perform biometric vendor verification and audit electrical test certificates.'
+  },
+  {
+    id: 'MPLADS-2025-5590',
+    title: 'Construction of Primary Health Center Diagnostic Wing & Maternity Ward',
+    category: 'Healthcare & Sanitation',
+    state: 'West Bengal',
+    district: 'Murshidabad',
+    constituency: 'Murshidabad Lok Sabha',
+    sanctionedCost: '₹68,00,000',
+    expenditure: '₹57,80,000',
+    expenditurePct: 85,
+    physicalProgress: 48,
+    delayMonths: 10,
+    costDeviationPct: 33,
+    riskScore: 81,
+    riskBand: 'Critical',
+    confidenceScore: 89,
+    agency: 'Bengal Health Infrastructure PWD',
+    agencyPriorFlags: 3,
+    reasons: [
+      'Structural civil work stalled for 7 months due to contractor abandonment',
+      'High expenditure to progress divergence (+37% gap)',
+      'Delayed UC submissions over 220 days'
+    ],
+    recommendedAction: 'Initiate contract re-tender process and recover unutilized advance funds.'
   },
   {
     id: 'MPLADS-2025-7219',
@@ -99,6 +199,56 @@ const MOCK_ANOMALY_PROJECTS = [
     recommendedAction: 'On-site geotagged photographic audit with fresh timestamp verification.'
   },
   {
+    id: 'MPLADS-2026-2187',
+    title: 'Upgradation of Municipal Primary School with Smart Computer Classes',
+    category: 'Education & Schools',
+    state: 'Tamil Nadu',
+    district: 'Madurai',
+    constituency: 'Madurai Lok Sabha',
+    sanctionedCost: '₹28,00,000',
+    expenditure: '₹25,20,000',
+    expenditurePct: 90,
+    physicalProgress: 52,
+    delayMonths: 6,
+    costDeviationPct: 24,
+    riskScore: 78,
+    riskBand: 'High',
+    confidenceScore: 87,
+    agency: 'Southern Digital EdTech Ltd',
+    agencyPriorFlags: 1,
+    reasons: [
+      'Hardware serial numbers match previously delivered items under state quota',
+      'Smart classrooms locked and non-operational despite disbursement',
+      'Pending principal certification'
+    ],
+    recommendedAction: 'Cross-check IT asset hardware serials with central procurement master database.'
+  },
+  {
+    id: 'MPLADS-2026-9402',
+    title: 'Piped Clean Drinking Water Network with Elevated Water Reservoir',
+    category: 'Drinking Water',
+    state: 'Gujarat',
+    district: 'Rajkot',
+    constituency: 'Rajkot Lok Sabha',
+    sanctionedCost: '₹46,50,000',
+    expenditure: '₹37,20,000',
+    expenditurePct: 80,
+    physicalProgress: 45,
+    delayMonths: 7,
+    costDeviationPct: 26,
+    riskScore: 77,
+    riskBand: 'High',
+    confidenceScore: 88,
+    agency: 'Saurashtra Water Supply Division',
+    agencyPriorFlags: 2,
+    reasons: [
+      'Pipeline laying reported complete without hydro-pressure testing certificate',
+      'Overhead tank RCC curing period violated',
+      'Progress reporting delayed by 210 days'
+    ],
+    recommendedAction: 'Require district water quality laboratory testing and pressure seal certification.'
+  },
+  {
     id: 'MPLADS-2026-1544',
     title: 'Deep Borewell and Overhead Tank Construction at Gram Panchayat',
     category: 'Drinking Water & Sanitation',
@@ -124,6 +274,56 @@ const MOCK_ANOMALY_PROJECTS = [
     recommendedAction: 'Issue reminder notice to District Authority for UC submission and water yield test.'
   },
   {
+    id: 'MPLADS-2025-3814',
+    title: 'Construction of Farmer Produce Storage Godown & Weighing Shed',
+    category: 'Community Infrastructure',
+    state: 'Odisha',
+    district: 'Cuttack',
+    constituency: 'Cuttack Lok Sabha',
+    sanctionedCost: '₹38,00,000',
+    expenditure: '₹30,40,000',
+    expenditurePct: 80,
+    physicalProgress: 50,
+    delayMonths: 6,
+    costDeviationPct: 22,
+    riskScore: 75,
+    riskBand: 'High',
+    confidenceScore: 85,
+    agency: 'Odisha Agri-Warehousing Infra Ltd',
+    agencyPriorFlags: 1,
+    reasons: [
+      'Roof truss fabrication delayed by 6 months',
+      'Progress disbursements exceeded milestone verification limits',
+      'Structural safety certificate pending'
+    ],
+    recommendedAction: 'Conduct structural audit and expedite steel fabrication inspection.'
+  },
+  {
+    id: 'MPLADS-2026-1175',
+    title: 'Installation of High-Capacity Stormwater Drainage Pump Station',
+    category: 'Sanitation & Drainage',
+    state: 'Assam',
+    district: 'Kamrup',
+    constituency: 'Gauhati Lok Sabha',
+    sanctionedCost: '₹55,00,000',
+    expenditure: '₹44,00,000',
+    expenditurePct: 80,
+    physicalProgress: 55,
+    delayMonths: 5,
+    costDeviationPct: 20,
+    riskScore: 74,
+    riskBand: 'High',
+    confidenceScore: 86,
+    agency: 'Brahmaputra Flood Control & Drainage PWD',
+    agencyPriorFlags: 2,
+    reasons: [
+      'Pump machinery imported without customs duty exemptions documentation',
+      'Foundation civil work cracked during monsoon flooding',
+      'Delayed progress reporting'
+    ],
+    recommendedAction: 'Civil foundation soil mechanics test and pump trial run inspection.'
+  },
+  {
     id: 'MPLADS-2025-9001',
     title: 'Modern Science Laboratory Equipment in Government Higher Secondary School',
     category: 'Education & Schools',
@@ -146,6 +346,174 @@ const MOCK_ANOMALY_PROJECTS = [
       'Payment burst of 85% disbursed in a single 48-hour window'
     ],
     recommendedAction: 'Physical asset verification and school principal asset stock register check.'
+  },
+  {
+    id: 'MPLADS-2026-8033',
+    title: 'Concrete Interlocking Road from Market Yard to Main Bus Stand',
+    category: 'Roads & Pathways',
+    state: 'Andhra Pradesh',
+    district: 'Guntur',
+    constituency: 'Guntur Lok Sabha',
+    sanctionedCost: '₹31,00,000',
+    expenditure: '₹26,35,000',
+    expenditurePct: 85,
+    physicalProgress: 58,
+    delayMonths: 5,
+    costDeviationPct: 18,
+    riskScore: 72,
+    riskBand: 'High',
+    confidenceScore: 84,
+    agency: 'Guntur Urban Roads Buildcon',
+    agencyPriorFlags: 1,
+    reasons: [
+      'Wearing course thickness below tender specifications (50mm vs 80mm required)',
+      'Final payment submitted without core cutting lab report'
+    ],
+    recommendedAction: 'Perform core test thickness sampling and withhold retention payment.'
+  },
+  {
+    id: 'MPLADS-2025-6629',
+    title: 'Construction of Veterinary Dispensary and Animal Care Center',
+    category: 'Healthcare & Animal Welfare',
+    state: 'Punjab',
+    district: 'Ludhiana',
+    constituency: 'Ludhiana Lok Sabha',
+    sanctionedCost: '₹22,50,000',
+    expenditure: '₹18,00,000',
+    expenditurePct: 80,
+    physicalProgress: 60,
+    delayMonths: 4,
+    costDeviationPct: 16,
+    riskScore: 71,
+    riskBand: 'High',
+    confidenceScore: 83,
+    agency: 'Punjab Rural Animal Husbandry Board',
+    agencyPriorFlags: 1,
+    reasons: [
+      'Delayed electrical wiring and water sanitation hookups',
+      'Expenditure front-loaded before roof plastering complete'
+    ],
+    recommendedAction: 'Mandate sub-divisional officer physical verification before final disbursal.'
+  },
+  {
+    id: 'MPLADS-2026-5082',
+    title: 'Installation of Solar Rooftop Systems in 8 Government Dispensaries',
+    category: 'Renewable Energy',
+    state: 'Kerala',
+    district: 'Thrissur',
+    constituency: 'Thrissur Lok Sabha',
+    sanctionedCost: '₹34,00,000',
+    expenditure: '₹27,20,000',
+    expenditurePct: 80,
+    physicalProgress: 62,
+    delayMonths: 4,
+    costDeviationPct: 15,
+    riskScore: 70,
+    riskBand: 'High',
+    confidenceScore: 85,
+    agency: 'Kerala Green Energy Development Agency',
+    agencyPriorFlags: 0,
+    reasons: [
+      'Inverter units delayed in transit for 110 days',
+      'Net-metering connection pending from state electricity board'
+    ],
+    recommendedAction: 'Expedite DISCOM net-metering clearance and verify solar panel serial numbers.'
+  },
+  {
+    id: 'MPLADS-2026-7294',
+    title: 'Construction of Community Toilet Complex & Biogas Plant',
+    category: 'Healthcare & Sanitation',
+    state: 'Haryana',
+    district: 'Karnal',
+    constituency: 'Karnal Lok Sabha',
+    sanctionedCost: '₹26,00,000',
+    expenditure: '₹20,80,000',
+    expenditurePct: 80,
+    physicalProgress: 64,
+    delayMonths: 3,
+    costDeviationPct: 14,
+    riskScore: 69,
+    riskBand: 'High',
+    confidenceScore: 84,
+    agency: 'Haryana Swachhata Infra Corp',
+    agencyPriorFlags: 1,
+    reasons: [
+      'Biogas digester pit excavation unlined creating groundwater seepage risk',
+      'Water pipe connection delayed by local municipal authority'
+    ],
+    recommendedAction: 'Inspect digester lining waterproofing and complete water supply connection.'
+  },
+  {
+    id: 'MPLADS-2025-4103',
+    title: 'Upgradation of District Library and Digital Reading Hall',
+    category: 'Education & Culture',
+    state: 'Jharkhand',
+    district: 'Ranchi',
+    constituency: 'Ranchi Lok Sabha',
+    sanctionedCost: '₹29,00,000',
+    expenditure: '₹21,75,000',
+    expenditurePct: 75,
+    physicalProgress: 60,
+    delayMonths: 4,
+    costDeviationPct: 15,
+    riskScore: 68,
+    riskBand: 'High',
+    confidenceScore: 82,
+    agency: 'Chotanagpur Educational Projects Trust',
+    agencyPriorFlags: 1,
+    reasons: [
+      'Digital e-library subscriptions billed without active server installation',
+      'Furniture supply delayed by 90 days'
+    ],
+    recommendedAction: 'Perform digital system audit and verify server hardware delivery.'
+  },
+  {
+    id: 'MPLADS-2026-8517',
+    title: 'Paving of Bypass Approach Road & Stormwater Drains at Mandi',
+    category: 'Roads & Pathways',
+    state: 'Chhattisgarh',
+    district: 'Raipur',
+    constituency: 'Raipur Lok Sabha',
+    sanctionedCost: '₹39,50,000',
+    expenditure: '₹29,62,500',
+    expenditurePct: 75,
+    physicalProgress: 62,
+    delayMonths: 3,
+    costDeviationPct: 12,
+    riskScore: 67,
+    riskBand: 'High',
+    confidenceScore: 81,
+    agency: 'Raipur Mandi Board Engineering Division',
+    agencyPriorFlags: 0,
+    reasons: [
+      'Drainage precast slabs broken during installation and unreplaced',
+      'Bituminous layer laid during unseasonal rain'
+    ],
+    recommendedAction: 'Sample road core for moisture damage and replace broken precast drainage slabs.'
+  },
+  {
+    id: 'MPLADS-2026-3641',
+    title: 'Solar Micro-Irrigation Channel & Pump Shed for Marginal Farmers',
+    category: 'Irrigation & Agriculture',
+    state: 'Telangana',
+    district: 'Warangal',
+    constituency: 'Warangal Lok Sabha',
+    sanctionedCost: '₹33,00,000',
+    expenditure: '₹24,75,000',
+    expenditurePct: 75,
+    physicalProgress: 65,
+    delayMonths: 2,
+    costDeviationPct: 10,
+    riskScore: 66,
+    riskBand: 'High',
+    confidenceScore: 80,
+    agency: 'Telangana Rythu Seva Society',
+    agencyPriorFlags: 1,
+    reasons: [
+      'Drip lateral pipes delivered are below ISI certified micron thickness',
+      'Pump shed roof not anchored against high winds'
+    ],
+    recommendedAction: 'Verify ISI quality certification of lateral pipes and reinforce shed structure.'
   }
 ];
 
@@ -2405,6 +2773,12 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
 
   const [anomalyProjects, setAnomalyProjects] = useState(MOCK_ANOMALY_PROJECTS);
   const [selectedProject, setSelectedProject] = useState(MOCK_ANOMALY_PROJECTS[0]);
+  const [registryCurrentPage, setRegistryCurrentPage] = useState(1);
+
+  // Reset pagination to page 1 whenever search query or filter changes
+  useEffect(() => {
+    setRegistryCurrentPage(1);
+  }, [searchQuery, selectedFilter]);
 
   const [delayRiskData, setDelayRiskData] = useState(null);
   const [delayRiskLoading, setDelayRiskLoading] = useState(false);
@@ -2671,7 +3045,20 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
   const renderDossierDetail = () => {
     if (!selectedProject) return null;
     return (
-      <div style={{ background: '#FFFFFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-lg)', padding: '1.75rem', boxShadow: '3px 4px 0px #1D1E22' }}>
+      <div
+        style={{
+          background: '#FFFFFF',
+          border: '1.5px solid #1D1E22',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1.75rem',
+          boxShadow: '3px 4px 0px #1D1E22',
+          position: 'sticky',
+          top: '1.5rem',
+          alignSelf: 'start',
+          maxHeight: 'calc(100vh - 3rem)',
+          overflowY: 'auto'
+        }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', borderBottom: '1px solid #EAEAEA', paddingBottom: '1rem' }}>
           <div>
             <span className="badge" style={{ background: '#FEF2F2', color: '#D9534F', border: '1px solid #D9534F', marginBottom: '0.3rem' }}>
@@ -3007,26 +3394,8 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                 </p>
               </div>
 
-              {/* Search & Export Controls */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
-                <div style={{ position: 'relative', width: '280px' }}>
-                  <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={isHi ? 'परियोजना ID, सांसद, या जिला खोजें...' : 'Search project ID, MP, district...'}
-                    style={{
-                      width: '100%',
-                      padding: '0.55rem 0.85rem 0.55rem 2.4rem',
-                      border: '1.5px solid #1D1E22',
-                      borderRadius: 'var(--radius-md)',
-                      fontSize: '0.84rem',
-                      background: '#FFFFFF',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
+              {/* Top Action Controls */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
                 <button
                   type="button"
                   onClick={() => alert(isHi ? 'डेटा निर्यात हो रहा है...' : 'Exporting MPLADS Dataset (Parquet/CSV)...')}
@@ -3226,72 +3595,496 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
                 ))}
               </div>
             </div>
-            {/* High-Risk Projects Registry Table */}
-            <div style={{ display: 'grid', gridTemplateColumns: selectedProject ? '1fr minmax(380px, 1.2fr)' : '1fr', gap: '1.5rem', alignItems: 'start' }}>
-              <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: '3px 4px 0px #1D1E22' }}>
-                <div style={{ padding: '1.15rem 1.5rem', background: '#F3EFE6', borderBottom: '1px solid #1D1E22', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.25rem', color: '#1D1E22', margin: 0 }}>
-                    {isHi ? 'उच्च जोखिम परियोजनाएं' : 'High-Risk Projects Registry'}
-                  </h3>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-muted)' }}>
-                    Prioritized for Physical Field Inspection
-                  </span>
-                </div>
+            {/* High-Risk Projects Registry with Direct Toolbar & Data-Driven Pagination (10 per page) */}
+            {(() => {
+              const q = searchQuery.toLowerCase().trim();
+              const filteredAnomalyProjects = anomalyProjects.filter(p => {
+                const matchesSearch = !q || (
+                  p.id.toLowerCase().includes(q) ||
+                  p.title.toLowerCase().includes(q) ||
+                  p.district.toLowerCase().includes(q) ||
+                  p.state.toLowerCase().includes(q) ||
+                  p.category.toLowerCase().includes(q) ||
+                  (p.constituency && p.constituency.toLowerCase().includes(q)) ||
+                  (p.agency && p.agency.toLowerCase().includes(q))
+                );
+                const matchesFilter = selectedFilter === 'ALL' || p.riskBand.toUpperCase() === selectedFilter.toUpperCase();
+                return matchesSearch && matchesFilter;
+              });
 
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.84rem' }}>
-                    <thead>
-                      <tr style={{ background: '#FAFAFA', borderBottom: '1px solid #EAEAEA', textAlign: 'left' }}>
-                        <th style={{ padding: '0.85rem 1.15rem' }}>Work ID</th>
-                        <th style={{ padding: '0.85rem 1.15rem' }}>Project Title & Category</th>
-                        <th style={{ padding: '0.85rem 1.15rem' }}>District & State</th>
-                        <th style={{ padding: '0.85rem 1.15rem' }}>Sanctioned Amount</th>
-                        <th style={{ padding: '0.85rem 1.15rem' }}>Spent / Progress</th>
-                        <th style={{ padding: '0.85rem 1.15rem' }}>Risk Score</th>
-                        <th style={{ padding: '0.85rem 1.15rem', textAlign: 'right' }}>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {anomalyProjects.map((project) => (
-                        <tr key={project.id} style={{ borderBottom: '1px solid #F0F0F0' }}>
-                          <td style={{ padding: '0.85rem 1.15rem', fontFamily: 'monospace', fontWeight: 700 }}>{project.id}</td>
-                          <td style={{ padding: '0.85rem 1.15rem', maxWidth: '280px' }}>
-                            <div style={{ fontWeight: 700, color: '#1D1E22', marginBottom: '0.15rem' }}>{project.title.substring(0, 80)}...</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{project.category}</div>
-                          </td>
-                          <td style={{ padding: '0.85rem 1.15rem' }}>{project.district}, {project.state}</td>
-                          <td style={{ padding: '0.85rem 1.15rem', fontWeight: 700 }}>{project.sanctionedCost}</td>
-                          <td style={{ padding: '0.85rem 1.15rem' }}>
-                            <span style={{ color: '#D9534F', fontWeight: 700 }}>{project.expenditurePct}% spent</span> / <span style={{ color: 'var(--color-accent-teal-hover)', fontWeight: 700 }}>{project.physicalProgress}% done</span>
-                          </td>
-                          <td style={{ padding: '0.85rem 1.15rem' }}>
-                            <span style={{
-                              padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.76rem', fontWeight: 800,
-                              background: project.riskScore > 80 ? '#FEF2F2' : '#FFF8E1',
-                              color: project.riskScore > 80 ? '#D9534F' : '#E5B842',
-                              border: `1px solid ${project.riskScore > 80 ? '#D9534F' : '#E5B842'}`
-                            }}>
-                              {project.riskScore}/100 ({project.riskBand})
-                            </span>
-                          </td>
-                          <td style={{ padding: '0.85rem 1.15rem', textAlign: 'right' }}>
-                            <button
-                              type="button"
-                              onClick={() => setSelectedProject(project)}
-                              className="btn-outline-dark"
-                              style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem' }}
+              const pageSize = 10;
+              const totalProjects = filteredAnomalyProjects.length;
+              const totalPages = Math.max(1, Math.ceil(totalProjects / pageSize));
+              const safePage = Math.min(Math.max(1, registryCurrentPage), totalPages);
+
+              const startIndex = (safePage - 1) * pageSize;
+              const endIndex = Math.min(startIndex + pageSize, totalProjects);
+              const displayedRegistryProjects = filteredAnomalyProjects.slice(startIndex, endIndex);
+
+              // Generate page numbers array with smart windowing if many pages
+              const getPageNumbers = () => {
+                if (totalPages <= 5) {
+                  return Array.from({ length: totalPages }, (_, i) => i + 1);
+                }
+                if (safePage <= 3) {
+                  return [1, 2, 3, 4, '...', totalPages];
+                }
+                if (safePage >= totalPages - 2) {
+                  return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                }
+                return [1, '...', safePage - 1, safePage, safePage + 1, '...', totalPages];
+              };
+
+              return (
+                <div style={{ width: '100%' }}>
+                  {/* Search & Filter Toolbar Directly Above Registry */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '1rem',
+                      flexWrap: 'wrap',
+                      marginBottom: '1rem',
+                      background: '#FAF8F3',
+                      border: '1.5px solid #1D1E22',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: '0.85rem 1.25rem',
+                      boxShadow: '2px 3px 0px #1D1E22'
+                    }}
+                  >
+                    {/* Wide Prominent Search Input */}
+                    <div style={{ position: 'relative', flex: '1 1 340px', minWidth: '240px' }}>
+                      <Search
+                        size={18}
+                        style={{
+                          position: 'absolute',
+                          left: '1rem',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          color: '#1D1E22'
+                        }}
+                      />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder={
+                          isHi
+                            ? 'परियोजना ID, शीर्षक, जिला, राज्य, श्रेणी या एजेंसी खोजें...'
+                            : 'Search projects by ID, title, district, state, category, agency...'
+                        }
+                        style={{
+                          width: '100%',
+                          padding: '0.65rem 2.4rem 0.65rem 2.75rem',
+                          border: '1.5px solid #1D1E22',
+                          borderRadius: 'var(--radius-md)',
+                          fontSize: '0.88rem',
+                          fontWeight: 600,
+                          color: '#1D1E22',
+                          background: '#FFFFFF',
+                          boxSizing: 'border-box',
+                          outline: 'none',
+                          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
+                        }}
+                      />
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchQuery('')}
+                          style={{
+                            position: 'absolute',
+                            right: '0.75rem',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '0.2rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            color: 'var(--color-text-muted)'
+                          }}
+                          title="Clear search"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Filter Buttons */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', marginRight: '0.25rem', letterSpacing: '0.04em' }}>
+                        <Filter size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.25rem' }} />
+                        {isHi ? 'जोखिम फ़िल्टर:' : 'Filter:'}
+                      </span>
+                      {[
+                        { id: 'ALL', labelEn: 'All Works', labelHi: 'सभी' },
+                        { id: 'CRITICAL', labelEn: 'Critical Risk', labelHi: 'गंभीर जोखिम' },
+                        { id: 'HIGH', labelEn: 'High Risk', labelHi: 'उच्च जोखिम' }
+                      ].map((f) => {
+                        const isSelected = selectedFilter === f.id;
+                        const count = f.id === 'ALL'
+                          ? anomalyProjects.length
+                          : anomalyProjects.filter(p => p.riskBand.toUpperCase() === f.id).length;
+
+                        return (
+                          <button
+                            key={f.id}
+                            type="button"
+                            onClick={() => setSelectedFilter(f.id)}
+                            style={{
+                              padding: '0.45rem 0.95rem',
+                              fontSize: '0.82rem',
+                              fontWeight: isSelected ? 800 : 700,
+                              borderRadius: 'var(--radius-sm)',
+                              border: isSelected ? '1.5px solid #1D1E22' : '1px solid rgba(29,30,34,0.3)',
+                              background: isSelected ? (f.id === 'CRITICAL' ? '#FEF2F2' : f.id === 'HIGH' ? '#FFF8E1' : 'var(--color-accent-teal)') : '#FFFFFF',
+                              color: isSelected ? (f.id === 'CRITICAL' ? '#D9534F' : f.id === 'HIGH' ? '#B8860B' : '#1D1E22') : '#1D1E22',
+                              cursor: 'pointer',
+                              boxShadow: isSelected ? '1.5px 2px 0px #1D1E22' : 'none',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            <span>{isHi ? f.labelHi : f.labelEn}</span>
+                            <span
+                              style={{
+                                padding: '0.05rem 0.4rem',
+                                borderRadius: 'var(--radius-full)',
+                                fontSize: '0.7rem',
+                                fontWeight: 800,
+                                background: isSelected ? 'rgba(0,0,0,0.08)' : '#FAF8F3',
+                                border: '1px solid rgba(0,0,0,0.1)'
+                              }}
                             >
-                              View Dossier
+                              {count}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#FFF', border: '1.5px solid #1D1E22', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: '3px 4px 0px #1D1E22', width: '100%' }}>
+                    {/* Registry Table Header */}
+                    <div style={{ padding: '1.25rem 1.75rem', background: '#F3EFE6', borderBottom: '1.5px solid #1D1E22', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                      <div>
+                        <h3 style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.35rem', color: '#1D1E22', margin: 0, fontWeight: 800 }}>
+                          {isHi ? 'उच्च जोखिम परियोजनाएं' : 'High-Risk Projects Registry'}
+                        </h3>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', fontWeight: 500, marginTop: '0.2rem', display: 'block' }}>
+                          {isHi ? 'भौतिक क्षेत्र सत्यापन एवं ऑडिट के लिए प्राथमिकता दी गई' : 'Prioritized for Physical Field Inspection & Verification'}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                        <span style={{
+                          fontSize: '0.76rem',
+                          fontWeight: 800,
+                          padding: '0.25rem 0.75rem',
+                          background: '#FAF8F3',
+                          border: '1px solid #1D1E22',
+                          borderRadius: 'var(--radius-full)',
+                          color: '#0A2458'
+                        }}>
+                          {isHi ? `पेज ${safePage} / ${totalPages}` : `Page ${safePage} of ${totalPages}`}
+                        </span>
+                        <span style={{
+                          fontSize: '0.76rem',
+                          fontWeight: 700,
+                          padding: '0.25rem 0.75rem',
+                          background: '#FEF2F2',
+                          color: '#D9534F',
+                          border: '1px solid #D9534F',
+                          borderRadius: 'var(--radius-full)'
+                        }}>
+                          {totalProjects} {isHi ? 'कुल परियोजनाएं' : 'Total Flagged'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Desktop & Tablet Table View (Full width, no horizontal scroll) */}
+                    <div className="registry-table-desktop" style={{ width: '100%' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.86rem', tableLayout: 'auto' }}>
+                        <thead>
+                          <tr style={{ background: '#FAFAFA', borderBottom: '1.5px solid #1D1E22', textAlign: 'left' }}>
+                            <th style={{ padding: '0.95rem 1.25rem', width: '14%', fontWeight: 800, color: '#1D1E22' }}>Work ID</th>
+                            <th style={{ padding: '0.95rem 1.25rem', width: '32%', fontWeight: 800, color: '#1D1E22' }}>Project Title & Category</th>
+                            <th style={{ padding: '0.95rem 1.25rem', width: '16%', fontWeight: 800, color: '#1D1E22' }}>District & State</th>
+                            <th style={{ padding: '0.95rem 1.25rem', width: '13%', fontWeight: 800, color: '#1D1E22' }}>Sanctioned Amount</th>
+                            <th style={{ padding: '0.95rem 1.25rem', width: '13%', fontWeight: 800, color: '#1D1E22' }}>Spent / Progress</th>
+                            <th style={{ padding: '0.95rem 1.25rem', width: '12%', textAlign: 'right', fontWeight: 800, color: '#1D1E22' }}>Risk Assessment</th>
+                          </tr>
+                        </thead>
+                        <tbody key={`page-${safePage}`}>
+                          {displayedRegistryProjects.length === 0 ? (
+                            <tr>
+                              <td colSpan={6} style={{ padding: '3rem 1.5rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
+                                {isHi ? 'कोई मेल खाती उच्च जोखिम परियोजना नहीं मिली' : 'No matching high-risk projects found.'}
+                              </td>
+                            </tr>
+                          ) : (
+                            displayedRegistryProjects.map((project, idx) => (
+                              <tr
+                                key={project.id}
+                                className="registry-row-animate"
+                                style={{
+                                  borderBottom: '1px solid #F0F0F0',
+                                  background: idx % 2 === 0 ? '#FFFFFF' : '#FDFCF9',
+                                  transition: 'background-color 0.15s ease'
+                                }}
+                              >
+                                <td style={{ padding: '1rem 1.25rem', fontFamily: 'monospace', fontWeight: 800, color: '#0A2458', verticalAlign: 'top' }}>
+                                  {project.id}
+                                </td>
+                                <td style={{ padding: '1rem 1.25rem', verticalAlign: 'top' }}>
+                                  <div style={{ fontWeight: 700, color: '#1D1E22', marginBottom: '0.3rem', lineHeight: 1.4, wordBreak: 'break-word' }}>
+                                    {project.title}
+                                  </div>
+                                  <div style={{ fontSize: '0.76rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                                    {project.category}
+                                  </div>
+                                  {project.reasons && project.reasons.length > 0 && (
+                                    <div style={{ fontSize: '0.75rem', color: '#854D0E', background: '#FEF9C3', padding: '0.25rem 0.5rem', borderRadius: '4px', marginTop: '0.4rem', border: '1px solid #FDE047', lineHeight: 1.35 }}>
+                                      <strong>{isHi ? 'कारण:' : 'Flag:'}</strong> {project.reasons[0]}
+                                    </div>
+                                  )}
+                                </td>
+                                <td style={{ padding: '1rem 1.25rem', verticalAlign: 'top', color: '#1D1E22' }}>
+                                  <div style={{ fontWeight: 700 }}>{project.district}</div>
+                                  <div style={{ fontSize: '0.76rem', color: 'var(--color-text-secondary)', marginTop: '0.15rem' }}>{project.state}</div>
+                                </td>
+                                <td style={{ padding: '1rem 1.25rem', fontWeight: 800, color: '#1D1E22', verticalAlign: 'top' }}>
+                                  {project.sanctionedCost}
+                                </td>
+                                <td style={{ padding: '1rem 1.25rem', verticalAlign: 'top' }}>
+                                  <div style={{ color: '#D9534F', fontWeight: 800, fontSize: '0.88rem' }}>
+                                    {project.expenditurePct}% spent
+                                  </div>
+                                  <div style={{ color: 'var(--color-accent-teal-hover)', fontWeight: 700, fontSize: '0.8rem', marginTop: '0.15rem' }}>
+                                    {project.physicalProgress}% completed
+                                  </div>
+                                </td>
+                                <td style={{ padding: '1rem 1.25rem', textAlign: 'right', verticalAlign: 'top' }}>
+                                  <span style={{
+                                    display: 'inline-block',
+                                    padding: '0.3rem 0.65rem',
+                                    borderRadius: '4px',
+                                    fontSize: '0.78rem',
+                                    fontWeight: 800,
+                                    background: project.riskScore > 80 ? '#FEF2F2' : '#FFF8E1',
+                                    color: project.riskScore > 80 ? '#D9534F' : '#B8860B',
+                                    border: `1px solid ${project.riskScore > 80 ? '#D9534F' : '#E5B842'}`,
+                                    whiteSpace: 'nowrap'
+                                  }}>
+                                    {project.riskScore}/100 • {project.riskBand}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile Card List View (<768px, zero horizontal overflow) */}
+                    <div className="registry-cards-mobile" style={{ display: 'none', padding: '1rem', flexDirection: 'column', gap: '0.85rem' }}>
+                      {displayedRegistryProjects.length === 0 ? (
+                        <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+                          {isHi ? 'कोई मेल खाती उच्च जोखिम परियोजना नहीं मिली' : 'No matching high-risk projects found.'}
+                        </div>
+                      ) : (
+                        displayedRegistryProjects.map((project) => (
+                          <div
+                            key={project.id}
+                            style={{
+                              background: '#FFFFFF',
+                              border: '1.5px solid #1D1E22',
+                              borderRadius: 'var(--radius-md)',
+                              padding: '1.15rem',
+                              boxShadow: '2px 3px 0px #1D1E22',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '0.65rem'
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem' }}>
+                              <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '0.84rem', color: '#0A2458' }}>
+                                {project.id}
+                              </span>
+                              <span style={{
+                                padding: '0.2rem 0.55rem',
+                                borderRadius: '4px',
+                                fontSize: '0.74rem',
+                                fontWeight: 800,
+                                background: project.riskScore > 80 ? '#FEF2F2' : '#FFF8E1',
+                                color: project.riskScore > 80 ? '#D9534F' : '#B8860B',
+                                border: `1px solid ${project.riskScore > 80 ? '#D9534F' : '#E5B842'}`
+                              }}>
+                                {project.riskScore}/100 • {project.riskBand}
+                              </span>
+                            </div>
+
+                            <div style={{ fontWeight: 700, fontSize: '0.94rem', color: '#1D1E22', lineHeight: 1.35, wordBreak: 'break-word' }}>
+                              {project.title}
+                            </div>
+
+                            <div style={{ fontSize: '0.78rem', color: 'var(--color-text-secondary)' }}>
+                              <strong>{project.category}</strong> • {project.district}, {project.state}
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FAF8F3', padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(29, 30, 34, 0.12)' }}>
+                              <div>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>SANCTIONED</div>
+                                <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#1D1E22' }}>{project.sanctionedCost}</div>
+                              </div>
+                              <div style={{ textAlign: 'right' }}>
+                                <div style={{ fontSize: '0.72rem', color: '#D9534F', fontWeight: 800 }}>{project.expenditurePct}% SPENT</div>
+                                <div style={{ fontSize: '0.78rem', color: 'var(--color-accent-teal-hover)', fontWeight: 800 }}>{project.physicalProgress}% PROGRESS</div>
+                              </div>
+                            </div>
+
+                            {project.reasons && project.reasons.length > 0 && (
+                              <div style={{ fontSize: '0.76rem', color: '#854D0E', background: '#FEF9C3', padding: '0.35rem 0.6rem', borderRadius: '4px', border: '1px solid #FDE047', lineHeight: 1.35 }}>
+                                <strong>{isHi ? 'कारण:' : 'Flag:'}</strong> {project.reasons[0]}
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* True Data-Driven Pagination Bar (10 items per page) */}
+                    <div
+                      style={{
+                        padding: '0.95rem 1.75rem',
+                        background: '#FAF8F3',
+                        borderTop: '1.5px solid #1D1E22',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: '0.85rem'
+                      }}
+                    >
+                      {/* Range / Count Indicator */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.84rem', color: '#1D1E22', fontWeight: 600 }}>
+                        <span style={{
+                          padding: '0.15rem 0.55rem',
+                          borderRadius: 'var(--radius-full)',
+                          background: '#FFFFFF',
+                          border: '1px solid #1D1E22',
+                          fontSize: '0.76rem',
+                          fontWeight: 800,
+                          color: '#0A2458'
+                        }}>
+                          {totalProjects === 0 ? 0 : startIndex + 1}–{endIndex}
+                        </span>
+                        <span>
+                          {isHi
+                            ? `कुल ${totalProjects} में से ${totalProjects === 0 ? 0 : startIndex + 1}–${endIndex} परियोजनाएं`
+                            : `Showing ${totalProjects === 0 ? 0 : startIndex + 1}–${endIndex} of ${totalProjects} projects`}
+                        </span>
+                      </div>
+
+                      {/* Pagination Controls */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        {/* Previous Button */}
+                        <button
+                          type="button"
+                          onClick={() => setRegistryCurrentPage(p => Math.max(1, p - 1))}
+                          disabled={safePage <= 1}
+                          className="btn-outline-dark"
+                          style={{
+                            padding: '0.4rem 0.85rem',
+                            fontSize: '0.82rem',
+                            fontWeight: 700,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            background: '#FFFFFF',
+                            cursor: safePage <= 1 ? 'not-allowed' : 'pointer',
+                            opacity: safePage <= 1 ? 0.45 : 1,
+                            boxShadow: safePage <= 1 ? 'none' : '1.5px 2px 0px #1D1E22'
+                          }}
+                        >
+                          <ChevronLeft size={14} strokeWidth={2.4} />
+                          <span>{isHi ? 'पिछला' : 'Previous'}</span>
+                        </button>
+
+                        {/* Page Numbers */}
+                        {getPageNumbers().map((pageNum, idx) => {
+                          if (pageNum === '...') {
+                            return (
+                              <span
+                                key={`ellipsis-${idx}`}
+                                style={{
+                                  padding: '0.35rem 0.5rem',
+                                  fontSize: '0.84rem',
+                                  fontWeight: 700,
+                                  color: 'var(--color-text-muted)'
+                                }}
+                              >
+                                …
+                              </span>
+                            );
+                          }
+                          const isCurrent = pageNum === safePage;
+                          return (
+                            <button
+                              key={`page-${pageNum}`}
+                              type="button"
+                              onClick={() => setRegistryCurrentPage(pageNum)}
+                              style={{
+                                minWidth: '34px',
+                                height: '34px',
+                                padding: '0 0.45rem',
+                                fontSize: '0.84rem',
+                                fontWeight: 800,
+                                borderRadius: 'var(--radius-sm)',
+                                border: '1.5px solid #1D1E22',
+                                background: isCurrent ? 'var(--color-accent-teal)' : '#FFFFFF',
+                                color: '#1D1E22',
+                                cursor: 'pointer',
+                                boxShadow: isCurrent ? '1.5px 2px 0px #1D1E22' : 'none',
+                                transition: 'all 0.15s ease'
+                              }}
+                            >
+                              {pageNum}
                             </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          );
+                        })}
+
+                        {/* Next Button */}
+                        <button
+                          type="button"
+                          onClick={() => setRegistryCurrentPage(p => Math.min(totalPages, p + 1))}
+                          disabled={safePage >= totalPages || totalProjects === 0}
+                          className="btn-outline-dark"
+                          style={{
+                            padding: '0.4rem 0.85rem',
+                            fontSize: '0.82rem',
+                            fontWeight: 700,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            background: '#FFFFFF',
+                            cursor: (safePage >= totalPages || totalProjects === 0) ? 'not-allowed' : 'pointer',
+                            opacity: (safePage >= totalPages || totalProjects === 0) ? 0.45 : 1,
+                            boxShadow: (safePage >= totalPages || totalProjects === 0) ? 'none' : '1.5px 2px 0px #1D1E22'
+                          }}
+                        >
+                          <span>{isHi ? 'अगला' : 'Next'}</span>
+                          <ChevronRight size={14} strokeWidth={2.4} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              {selectedProject && renderDossierDetail()}
-            </div>
+              );
+            })()}
 
             {/* Reusing Landing Page Footer at the bottom with CTA buttons hidden */}
             <Footer hideCTAButtons={true} />
@@ -3655,21 +4448,23 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
           top: 0,
           background: '#FAF8F3',
           borderBottom: '1.5px solid #1D1E22',
-          padding: '0.85rem 2rem',
+          padding: '0.75rem clamp(0.75rem, 2.5vw, 2rem)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '0.75rem',
           zIndex: 100
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(0.75rem, 2vw, 1.5rem)', flexWrap: 'wrap' }}>
           <button
             type="button"
             onClick={handleBack}
             className="btn-outline-dark"
             style={{
-              padding: '0.5rem 1.15rem',
-              fontSize: '0.84rem',
+              padding: '0.45rem 0.95rem',
+              fontSize: '0.82rem',
               gap: '0.45rem',
               color: '#1D1E22 !important',
               background: '#FFFFFF',
@@ -3678,14 +4473,14 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
             }}
           >
             <ArrowLeft size={15} />
-            <span>{isHi ? 'मुख्य पोर्टल पर वापस' : 'Back to Portal'}</span>
+            <span>{isHi ? 'मुख्य पोर्टल' : 'Back to Portal'}</span>
           </button>
 
           <div>
-            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0A2458', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-              NIRIKSHΛK ΛI • MPLADS INTELLIGENCE
+            <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#0A2458', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+              NIRIKSHΛK ΛI • MPLADS
             </div>
-            <div style={{ fontFamily: 'var(--font-serif-primary)', fontSize: '1.25rem', fontWeight: 700, color: '#1D1E22' }}>
+            <div style={{ fontFamily: 'var(--font-serif-primary)', fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', fontWeight: 700, color: '#1D1E22' }}>
               {featureId === 'findProject' || featureId === 'findProjects'
                 ? (isHi ? 'परियोजनाएं खोजें' : 'FIND PROJECTS')
                 : featureId === 'browseState' || featureId === 'browseStates' || featureId === 'states'
@@ -3712,7 +4507,7 @@ const FeatureView = ({ featureId: propFeatureId, onBack }) => {
       </header>
 
       {/* Main Feature Content Container */}
-      <main style={{ flex: 1, padding: '2rem clamp(1.25rem, 3vw, 3.5rem)', maxWidth: '1400px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+      <main style={{ flex: 1, padding: 'clamp(1rem, 2.5vw, 2rem) clamp(0.65rem, 2.5vw, 2.5rem)', maxWidth: '1400px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
         {renderFeatureContent()}
       </main>
     </div>

@@ -70,8 +70,9 @@ const NirikshakLogo = () => {
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 650 200"
         style={{
-          height: '80px',
+          height: 'clamp(44px, 7.5vw, 76px)',
           width: 'auto',
+          maxWidth: 'min(220px, 48vw)',
           display: 'block'
         }}
       >
@@ -637,10 +638,10 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
           {/* Language Switcher */}
           <LanguageSwitcher />
 
-          {/* Explore Dashboard Button - Locked Fixed Dimensions */}
+          {/* Explore Dashboard Button - Desktop Only */}
           <button
             onClick={() => handleNavClick('risk-scoring')}
-            className="btn-teal"
+            className="btn-teal header-explore-btn"
             style={{
               padding: '0.65rem 1.4rem',
               fontSize: '0.88rem',
@@ -698,7 +699,7 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
             padding: '1.25rem 1.5rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.5rem',
+            gap: '0.75rem',
             boxShadow: 'var(--shadow-card)',
             maxHeight: 'calc(100vh - 90px)',
             overflowY: 'auto'
@@ -708,6 +709,26 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
             <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#5A5A5A' }}>{t('header.switchLanguage')}</span>
             <LanguageSwitcher isMobile={true} />
           </div>
+
+          {/* Mobile Explore Dashboard CTA */}
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              handleNavClick('risk-scoring');
+            }}
+            className="btn-teal"
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              fontSize: '0.92rem',
+              fontWeight: 700,
+              justifyContent: 'center',
+              marginBottom: '0.25rem'
+            }}
+          >
+            <span>{t('common.exploreDashboard')}</span>
+            <ArrowRight size={16} />
+          </button>
 
           {navGroups.map((group) => {
             const isExpanded = mobileExpandedGroup === group.id;
@@ -721,19 +742,28 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
                     padding: '0.65rem 0',
                     cursor: 'pointer'
                   }}
-                  onClick={() => setMobileExpandedGroup(isExpanded ? null : group.id)}
+                  onClick={() => {
+                    if (group.id === 'aiIntelligence') {
+                      setMobileMenuOpen(false);
+                      navigate('/features/aiIntelligence');
+                      return;
+                    }
+                    setMobileExpandedGroup(isExpanded ? null : group.id);
+                  }}
                 >
                   <span style={{ fontSize: '1rem', fontWeight: 700, color: '#1D1E22' }}>
                     {group.label}
                   </span>
-                  <ChevronDown
-                    size={18}
-                    style={{
-                      transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                      transition: 'transform 0.2s ease',
-                      color: 'var(--color-text-muted)'
-                    }}
-                  />
+                  {group.id !== 'aiIntelligence' && (
+                    <ChevronDown
+                      size={18}
+                      style={{
+                        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease',
+                        color: 'var(--color-text-muted)'
+                      }}
+                    />
+                  )}
                 </div>
 
                 {isExpanded && (
@@ -742,7 +772,10 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
                     {!group.isGrouped && group.items && group.items.map((item) => (
                       <div
                         key={item.id}
-                        onClick={() => handleDrawerItemClick(item)}
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          handleDrawerItemClick(item);
+                        }}
                         style={{
                           fontSize: '0.88rem',
                           fontWeight: 500,
@@ -764,7 +797,10 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
                         {sg.items.map((item) => (
                           <div
                             key={item.id}
-                            onClick={() => handleDrawerItemClick(item)}
+                            onClick={() => {
+                              setMobileMenuOpen(false);
+                              handleDrawerItemClick(item);
+                            }}
                             style={{
                               fontSize: '0.86rem',
                               fontWeight: 500,
@@ -888,6 +924,12 @@ const Header = ({ activeSection, setActiveSection, onFeatureSelect }) => {
         @media (min-width: 992px) {
           .desktop-nav { display: flex !important; }
           .mobile-toggle { display: none !important; }
+          .header-explore-btn { display: inline-flex !important; }
+        }
+        @media (max-width: 991px) {
+          .desktop-nav { display: none !important; }
+          .mobile-toggle { display: flex !important; }
+          .header-explore-btn { display: none !important; }
         }
       `}</style>
     </header>

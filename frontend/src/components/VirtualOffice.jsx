@@ -62,7 +62,7 @@ const VirtualOffice = () => {
               background: 'var(--color-bg-card)',
               border: '2px solid var(--color-border-dark)',
               borderRadius: 'var(--radius-lg)',
-              padding: '3rem 2.5rem',
+              padding: 'clamp(1.25rem, 4vw, 3rem) clamp(1rem, 3.5vw, 2.5rem)',
               boxShadow: 'var(--shadow-card)'
             }}
           >
@@ -117,7 +117,7 @@ const VirtualOffice = () => {
                 {t('riskScoring.dossier.irregularitiesHeading')}
               </h4>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.9rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '0.9rem' }}>
                 {irregularitiesList.map((item, idx) => (
                   <div
                     key={idx}

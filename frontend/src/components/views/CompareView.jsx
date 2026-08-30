@@ -190,7 +190,7 @@ const CompareView = () => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))',
             gap: '1rem',
             alignItems: 'stretch'
           }}
@@ -303,7 +303,8 @@ const CompareView = () => {
                     top: 'calc(100% + 8px)',
                     left: 0,
                     width: '100%',
-                    minWidth: '320px',
+                    minWidth: 'min(100%, 300px)',
+                    maxWidth: 'calc(100vw - 32px)',
                     background: '#FFFFFF',
                     border: '1.5px solid #1D1E22',
                     borderRadius: 'var(--radius-md)',
@@ -427,7 +428,7 @@ const CompareView = () => {
                 boxShadow: '3px 4px 0px #1D1E22',
                 padding: '1.5rem',
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))',
                 gap: '1.25rem'
               }}
             >

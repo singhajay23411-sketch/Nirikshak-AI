@@ -25124,7 +25124,17 @@ export const mpToSlug = (name) => {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 };
 
-export const getMpBySlug = (slug) => ALL_MPS_DATA.find(m => m.slug === slug);
+export const getMpBySlug = (slug) => {
+  if (!slug) return null;
+  const cleanSlug = slug.toLowerCase().replace(/^mp-/, '');
+  return ALL_MPS_DATA.find(m => 
+    m.slug === slug || 
+    m.slug === `mp-${slug}` ||
+    m.slug.replace(/^mp-/, '') === cleanSlug ||
+    mpToSlug(m.name) === cleanSlug ||
+    mpToSlug(m.name) === slug.toLowerCase()
+  ) || ALL_MPS_DATA.find(m => m.name.toLowerCase().includes(cleanSlug.replace(/-/g, ' '))) || null;
+};
 
 export const getMpsSummaryStats = (mps) => {
   const list = mps || ALL_MPS_DATA;
