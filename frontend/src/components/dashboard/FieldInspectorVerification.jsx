@@ -5,9 +5,9 @@ import { useAuth } from '../../context/AuthContext';
 
 // Fallback shown while API loads or if no inspections are assigned yet
 const FALLBACK_PROJECTS = [
-  { id: 'MPLADS-2026-8871', name: 'Primary School Construction', nameHi: 'प्राथमिक विद्यालय निर्माण', location: 'Jabalpur, MP', status: 'in_progress', completion: 45 },
-  { id: 'MPLADS-2026-4420', name: 'Community Health Center Renovation', nameHi: 'सामुदायिक स्वास्थ्य केंद्र नवीकरण', location: 'Jabalpur, MP', status: 'pending_verification', completion: 82 },
-  { id: 'MPLADS-2025-1122', name: 'Village Road Widening', nameHi: 'ग्राम सड़क चौड़ीकरण', location: 'Jabalpur, MP', status: 'verified', completion: 100 },
+  { id: 'MPLADS-MA-M02260', name: 'Covered Drainage Construction, Kishanpur', nameHi: 'ढकी हुई जल निकासी निर्माण, किशनपुर', location: 'Jabalpur, MP', status: 'in_progress', completion: 65 },
+  { id: 'MPLADS-MA-M02264', name: 'Interlocking CC Road, Harijan Basti', nameHi: 'इंटरलॉकिंग सीसी रोड, हरिजन बस्ती', location: 'Jabalpur, MP', status: 'pending_verification', completion: 40 },
+  { id: 'MPLADS-MA-M02265', name: 'Solar High-Mast Lighting, Block HQ', nameHi: 'सोलर हाई-मास्ट लाइटिंग, ब्लॉक मुख्यालय', location: 'Jabalpur, MP', status: 'verified', completion: 100 },
 ];
 
 const CHECKLIST_ITEMS = [
@@ -21,7 +21,7 @@ const CHECKLIST_ITEMS = [
 
 const FieldInspectorVerification = ({ activeTab }) => {
   const { language } = useLanguage();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const isHi = language === 'hi';
 
   const [assignedProjects, setAssignedProjects] = useState(FALLBACK_PROJECTS);
@@ -37,27 +37,33 @@ const FieldInspectorVerification = ({ activeTab }) => {
   // Fetch real inspections from the backend with dataset fallback
   useEffect(() => {
     setProjectsLoading(true);
-    const token = localStorage.getItem('nirikshak_token') || 'sih-2026-demo-superuser-token';
+    const authToken = token || localStorage.getItem('nirikshak_token');
     
     fetch('/api/inspections', {
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
     })
       .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
       .then(data => {
         if (data.inspections && data.inspections.length > 0) {
-          const mapped = data.inspections.map(ins => ({
-            id: ins.project_id,
-            inspectionId: ins.id,
-            name: ins.project_id,
-            nameHi: ins.project_id,
-            location: ins.inspector_name || 'N/A',
-            status: ins.status === 'completed' ? 'verified'
-                  : ins.status === 'in_progress' ? 'in_progress'
-                  : 'pending_verification',
-            completion: ins.status === 'completed' ? 100
-                      : ins.status === 'in_progress' ? 50 : 0,
-            existingNotes: ins.notes || '',
-          }));
+          const mapped = data.inspections.map(ins => {
+            let checklistObj = {};
+            try { checklistObj = JSON.parse(ins.checklist_data || '{}'); } catch(e) {}
+            return {
+              id: ins.project_id,
+              inspectionId: ins.id,
+              name: checklistObj.work_title || ins.project_id,
+              nameHi: checklistObj.work_title || ins.project_id,
+              location: 'Jabalpur Division, Madhya Pradesh',
+              status: ins.status === 'verified' ? 'verified'
+                    : ins.status === 'in_progress' ? 'in_progress'
+                    : 'pending_verification',
+              completion: checklistObj.completion_pct || (ins.status === 'verified' ? 100 : 50),
+              existingNotes: ins.notes || '',
+              geoLat: checklistObj.geo_lat,
+              geoLng: checklistObj.geo_lng,
+              milestone: checklistObj.milestone,
+            };
+          });
           setAssignedProjects(mapped);
         } else {
           // Fallback to real unified project evaluations

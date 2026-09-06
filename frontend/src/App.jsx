@@ -11,11 +11,13 @@ import PreFooter from './components/PreFooter';
 import Footer from './components/Footer';
 import FloatingWidgets from './components/FloatingWidgets';
 import LoginView from './components/auth/LoginView';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import RoleDashboardLayout from './components/dashboard/RoleDashboardLayout';
 import FeatureView from './components/views/FeatureView';
 import StateDetailView from './components/views/StateDetailView';
 import MpDetailView from './components/views/MpDetailView';
 import QrDemoView from './components/views/QrDemoView';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import { useAuth } from './context/AuthContext';
 
 // Helper component to scroll to top on route change
@@ -137,6 +139,12 @@ function LandingPage() {
 // ─── Login View Wrapper ───
 function LoginPage() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+
+  // If already authenticated, redirect to dashboard
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <LoginView
@@ -181,7 +189,7 @@ function MpDetailPage() {
 // ─── Main App Router Layout ───
 function App() {
   return (
-    <>
+    <ErrorBoundary>
       <ScrollToTop />
       <Routes>
         {/* Public Landing Page */}
@@ -194,8 +202,15 @@ function App() {
         <Route path="/demo" element={<QrDemoView />} />
         <Route path="/qr" element={<QrDemoView />} />
 
-        {/* Authenticated Dashboard */}
-        <Route path="/dashboard" element={<DashboardPage />} />
+        {/* Authenticated Dashboard — Protected */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Dedicated State Detail Route */}
         <Route path="/states/:stateSlug" element={<StateDetailPage />} />
@@ -209,7 +224,7 @@ function App() {
         {/* Direct Feature Aliases (e.g., /overview, /keyMetrics, /financialAnomaly, /states, /mps) */}
         <Route path="/:featureId" element={<FeaturePage />} />
       </Routes>
-    </>
+    </ErrorBoundary>
   );
 }
 

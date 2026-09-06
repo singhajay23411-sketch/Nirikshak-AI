@@ -7,13 +7,14 @@ import LanguageSwitcher from '../LanguageSwitcher';
 import bgImage from '../../assets/image.png';
 
 const DEMO_ACCOUNTS = [
-  { label: 'Admin', labelHi: 'प्रशासक', email: 'admin@nirikshak.gov.in', password: 'nirikshak@2026' },
-  { label: 'MoSPI Officer', labelHi: 'MoSPI अधिकारी', email: 'mospi.officer@nirikshak.gov.in', password: 'nirikshak@2026' },
-  { label: 'State Officer', labelHi: 'राज्य अधिकारी', email: 'state.up@nirikshak.gov.in', password: 'nirikshak@2026' },
-  { label: 'District Officer', labelHi: 'जिला अधिकारी', email: 'district.jabalpur@nirikshak.gov.in', password: 'nirikshak@2026' },
-  { label: "Hon'ble MP", labelHi: 'माननीय सांसद', email: 'mp.loksabha@nirikshak.gov.in', password: 'nirikshak@2026' },
-  { label: 'Field Inspector', labelHi: 'क्षेत्र निरीक्षक', email: 'inspector@nirikshak.gov.in', password: 'nirikshak@2026' },
-  { label: 'Analyst', labelHi: 'विश्लेषक', email: 'analyst@nirikshak.gov.in', password: 'nirikshak@2026' },
+  { label: 'Admin (NIC MoSPI)', labelHi: 'प्रशासक (NIC MoSPI)', email: 'admin@nirikshak.gov.in', password: 'nirikshak@2026', sub: 'System oversight & security registry' },
+  { label: 'MoSPI National Officer', labelHi: 'MoSPI राष्ट्रीय अधिकारी', email: 'mospi.officer@nirikshak.gov.in', password: 'nirikshak@2026', sub: 'Dr. Ramesh Sharma, DDG (All-India)' },
+  { label: 'State Nodal Officer (UP)', labelHi: 'राज्य नोडल अधिकारी (उ.प्र.)', email: 'state.up@nirikshak.gov.in', password: 'nirikshak@2026', sub: 'Shri Anand Verma, IAS (Uttar Pradesh)' },
+  { label: 'District Authority (Jabalpur)', labelHi: 'जिला प्राधिकरण (जबलपुर)', email: 'district.jabalpur@nirikshak.gov.in', password: 'nirikshak@2026', sub: 'Smt. G. Srijana, IAS (Collector & DM)' },
+  { label: "Hon'ble MP (Varanasi)", labelHi: 'माननीय सांसद (वाराणसी)', email: 'mp.loksabha@nirikshak.gov.in', password: 'nirikshak@2026', sub: 'Shri Narendra Modi (Lok Sabha)' },
+  { label: 'Field Quality Inspector', labelHi: 'क्षेत्रीय गुणवत्ता निरीक्षक', email: 'inspector@nirikshak.gov.in', password: 'nirikshak@2026', sub: 'Er. Rajesh Kumar (Jabalpur Division)' },
+  { label: 'AI Forensic Analyst', labelHi: 'एआई जोखिम विश्लेषक', email: 'analyst@nirikshak.gov.in', password: 'nirikshak@2026', sub: 'Priya Sundaram (Risk Models & SHAP)' },
+  { label: 'Citizen Transparency Portal', labelHi: 'नागरिक पारदर्शिता पोर्टल', email: 'viewer@nirikshak.gov.in', password: 'nirikshak@2026', sub: 'Open public works & asset directory' },
 ];
 
 const LoginView = ({ onBack, onLoginSuccess }) => {

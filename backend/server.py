@@ -23,6 +23,9 @@ from backend.auth.routes import router as auth_router
 from backend.works_routes import router as works_router
 from backend.analytics_routes import router as analytics_router
 from backend.assistant.routes import router as assistant_router
+from backend.dashboard_routes import router as dashboard_router
+from backend.investigation_routes import router as investigation_router
+from backend.evidence_routes import router as evidence_router
 from backend.auth.database import init_database
 
 # ─── Logging Setup ───
@@ -67,6 +70,9 @@ app.include_router(auth_router)
 app.include_router(works_router)
 app.include_router(analytics_router)
 app.include_router(assistant_router)
+app.include_router(dashboard_router)
+app.include_router(investigation_router)
+app.include_router(evidence_router)
 
 
 

@@ -2,7 +2,7 @@
 Nirikshak AI — Auth API Routes
 ================================
 FastAPI router for authentication, session management, and admin user operations.
-All authorization is enforced server-side.
+All authorization is enforced server-side with canonical role names.
 """
 
 import json
@@ -10,8 +10,16 @@ import logging
 from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
 
-from .models import RoleCode, ROLE_PERMISSIONS, ROLE_SCOPE, ROLE_LABELS
-from .security import verify_password, create_jwt, verify_jwt, check_permission, needs_rehash, hash_password
+from .models import (
+    RoleCode, ROLE_PERMISSIONS, ROLE_SCOPE, ROLE_LABELS,
+    InvestigationStatus, VALID_STATUS_TRANSITIONS, RESOLUTION_ROLES,
+    resolve_role,
+)
+from .security import (
+    verify_password, create_jwt, verify_jwt, check_permission,
+    check_scope, needs_rehash, hash_password, build_user_scope,
+    build_jwt_claims,
+)
 from .database import (
     get_user_by_email, get_user_by_username, get_user_by_id,
     get_all_users, create_user, update_user, delete_user,
@@ -50,6 +58,9 @@ async def get_current_user(request: Request) -> dict:
     if not user.get("is_active"):
         raise HTTPException(status_code=403, detail="Account is disabled")
 
+    # Resolve legacy role names
+    user["role"] = resolve_role(user.get("role", "PUBLIC_VIEWER"))
+
     return user
 
 
@@ -66,13 +77,57 @@ def require_permission(permission: str):
     return _check
 
 
-def require_admin():
-    """Dependency: require ADMIN role."""
+def require_roles(*roles):
+    """Dependency factory: enforce that the user has one of the specified roles."""
     async def _check(user: dict = Depends(get_current_user)):
-        if user["role"] != RoleCode.ADMIN:
+        if user["role"] not in roles:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Access restricted to roles: {', '.join(roles)}"
+            )
+        return user
+    return _check
+
+
+def require_admin():
+    """Dependency: require SYSTEM_ADMIN role."""
+    async def _check(user: dict = Depends(get_current_user)):
+        if user["role"] != RoleCode.SYSTEM_ADMIN:
             raise HTTPException(status_code=403, detail="Admin access required")
         return user
     return _check
+
+
+def _build_user_response(user: dict) -> dict:
+    """Build a standardized user response dict."""
+    role = resolve_role(user.get("role", "PUBLIC_VIEWER"))
+    permissions = ROLE_PERMISSIONS.get(role, [])
+    scope_type = ROLE_SCOPE.get(role, "NATIONAL")
+    role_label = ROLE_LABELS.get(role, {"en": role, "hi": role})
+
+    scope = build_user_scope(user)
+
+    return {
+        "id": user["id"],
+        "email": user["email"],
+        "username": user["username"],
+        "fullName": user["full_name"],
+        "role": role,
+        "roleLabel": role_label,
+        "permissions": permissions,
+        "scope": scope,
+        "jurisdictionType": scope_type,
+        "jurisdictionId": (
+            user.get("constituency") or user.get("district") or user.get("state")
+        ),
+        "state": user.get("state"),
+        "district": user.get("district"),
+        "constituency": user.get("constituency"),
+        "houseType": user.get("house_type", "BOTH"),
+        "tenure": user.get("tenure", "ALL"),
+        "isActive": bool(user.get("is_active")),
+        "lastLogin": user.get("last_login"),
+    }
 
 
 # ─── Public: Login ───
@@ -119,25 +174,12 @@ async def login(request: Request):
     # Update last login
     update_last_login(user["id"])
 
-    # Build permissions and scope
-    role = user["role"]
-    permissions = ROLE_PERMISSIONS.get(role, [])
-    scope_type = ROLE_SCOPE.get(role, "NATIONAL")
-    role_label = ROLE_LABELS.get(role, {"en": role, "hi": role})
+    # Resolve role
+    user["role"] = resolve_role(user.get("role", "PUBLIC_VIEWER"))
 
-    scope = {
-        "type": scope_type,
-        "state": user.get("state"),
-        "district": user.get("district"),
-        "project_ids": user.get("project_ids", "").split(",") if user.get("project_ids") else [],
-    }
-
-    # Create JWT
-    token = create_jwt({
-        "user_id": user["id"],
-        "role": role,
-        "scope_type": scope_type,
-    })
+    # Create JWT with full claims
+    jwt_claims = build_jwt_claims(user)
+    token = create_jwt(jwt_claims)
 
     # Audit log
     client_ip = request.client.host if request.client else "unknown"
@@ -145,19 +187,7 @@ async def login(request: Request):
 
     return {
         "token": token,
-        "user": {
-            "id": user["id"],
-            "email": user["email"],
-            "username": user["username"],
-            "fullName": user["full_name"],
-            "role": role,
-            "roleLabel": role_label,
-            "permissions": permissions,
-            "scope": scope,
-            "state": user.get("state"),
-            "district": user.get("district"),
-            "lastLogin": user.get("last_login"),
-        },
+        "user": _build_user_response(user),
     }
 
 
@@ -166,31 +196,8 @@ async def login(request: Request):
 @router.get("/auth/me")
 async def get_me(user: dict = Depends(get_current_user)):
     """Return the current authenticated user's profile and permissions."""
-    role = user["role"]
-    permissions = ROLE_PERMISSIONS.get(role, [])
-    scope_type = ROLE_SCOPE.get(role, "NATIONAL")
-    role_label = ROLE_LABELS.get(role, {"en": role, "hi": role})
-
     return {
-        "user": {
-            "id": user["id"],
-            "email": user["email"],
-            "username": user["username"],
-            "fullName": user["full_name"],
-            "role": role,
-            "roleLabel": role_label,
-            "permissions": permissions,
-            "scope": {
-                "type": scope_type,
-                "state": user.get("state"),
-                "district": user.get("district"),
-                "project_ids": user.get("project_ids", "").split(",") if user.get("project_ids") else [],
-            },
-            "state": user.get("state"),
-            "district": user.get("district"),
-            "isActive": bool(user.get("is_active")),
-            "lastLogin": user.get("last_login"),
-        },
+        "user": _build_user_response(user),
     }
 
 
@@ -210,7 +217,7 @@ async def list_users(admin: dict = Depends(require_admin())):
     users = get_all_users()
     result = []
     for u in users:
-        role = u["role"]
+        role = resolve_role(u.get("role", "PUBLIC_VIEWER"))
         result.append({
             "id": u["id"],
             "email": u["email"],
@@ -220,6 +227,9 @@ async def list_users(admin: dict = Depends(require_admin())):
             "roleLabel": ROLE_LABELS.get(role, {"en": role, "hi": role}),
             "state": u.get("state"),
             "district": u.get("district"),
+            "constituency": u.get("constituency"),
+            "houseType": u.get("house_type"),
+            "tenure": u.get("tenure"),
             "projectIds": u.get("project_ids"),
             "isActive": bool(u.get("is_active")),
             "createdAt": u.get("created_at"),
@@ -238,9 +248,9 @@ async def create_new_user(request: Request, admin: dict = Depends(require_admin(
         if not body.get(field):
             raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
 
-    role = body["role"]
+    role = resolve_role(body["role"])
     if role not in RoleCode.ALL:
-        raise HTTPException(status_code=400, detail=f"Invalid role: {role}")
+        raise HTTPException(status_code=400, detail=f"Invalid role: {body['role']}")
 
     try:
         user = create_user(
@@ -251,6 +261,9 @@ async def create_new_user(request: Request, admin: dict = Depends(require_admin(
             role=role,
             state=body.get("state"),
             district=body.get("district"),
+            constituency=body.get("constituency"),
+            house_type=body.get("houseType"),
+            tenure=body.get("tenure"),
             project_ids=body.get("projectIds"),
         )
     except Exception as e:
@@ -272,13 +285,20 @@ async def update_existing_user(user_id: int, request: Request,
     if "fullName" in body:
         allowed_updates["full_name"] = body["fullName"]
     if "role" in body:
-        if body["role"] not in RoleCode.ALL:
+        role = resolve_role(body["role"])
+        if role not in RoleCode.ALL:
             raise HTTPException(status_code=400, detail=f"Invalid role: {body['role']}")
-        allowed_updates["role"] = body["role"]
+        allowed_updates["role"] = role
     if "state" in body:
         allowed_updates["state"] = body["state"]
     if "district" in body:
         allowed_updates["district"] = body["district"]
+    if "constituency" in body:
+        allowed_updates["constituency"] = body["constituency"]
+    if "houseType" in body:
+        allowed_updates["house_type"] = body["houseType"]
+    if "tenure" in body:
+        allowed_updates["tenure"] = body["tenure"]
     if "projectIds" in body:
         allowed_updates["project_ids"] = body["projectIds"]
     if "isActive" in body:
@@ -349,7 +369,7 @@ async def list_inspections(user: dict = Depends(get_current_user)):
     """
     from .database import get_db
     with get_db() as conn:
-        if user["role"] == "FIELD_INSPECTOR":
+        if user["role"] == RoleCode.FIELD_INSPECTOR:
             rows = conn.execute(
                 """SELECT i.*, u.full_name AS inspector_name
                    FROM inspections i
@@ -448,7 +468,7 @@ async def update_inspection(
             raise HTTPException(status_code=404, detail="Inspection not found")
 
         row = dict(row)
-        if user["role"] == "FIELD_INSPECTOR" and row["inspector_id"] != user["id"]:
+        if user["role"] == RoleCode.FIELD_INSPECTOR and row["inspector_id"] != user["id"]:
             raise HTTPException(status_code=403, detail="Not authorised to update this inspection")
 
         updates = {}

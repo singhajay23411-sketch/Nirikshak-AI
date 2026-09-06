@@ -4,14 +4,14 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 
 const ROLES = [
-  { code: 'ADMIN', en: 'Administrator', hi: 'प्रशासक' },
-  { code: 'MOSPI_OFFICER', en: 'MoSPI Officer', hi: 'MoSPI अधिकारी' },
-  { code: 'STATE_OFFICER', en: 'State Officer', hi: 'राज्य अधिकारी' },
-  { code: 'DISTRICT_OFFICER', en: 'District Officer', hi: 'जिला अधिकारी' },
-  { code: 'MP', en: "Hon'ble MP", hi: 'माननीय सांसद' },
+  { code: 'SYSTEM_ADMIN', en: 'System Administrator', hi: 'प्रणाली प्रशासक' },
+  { code: 'MOSPI_NATIONAL_OFFICER', en: 'MoSPI National Officer', hi: 'MoSPI राष्ट्रीय अधिकारी' },
+  { code: 'STATE_NODAL_OFFICER', en: 'State Nodal Officer', hi: 'राज्य नोडल अधिकारी' },
+  { code: 'DISTRICT_AUTHORITY', en: 'District Authority', hi: 'जिला प्राधिकरण' },
+  { code: 'MEMBER_OF_PARLIAMENT', en: "Hon'ble MP", hi: 'माननीय सांसद' },
   { code: 'FIELD_INSPECTOR', en: 'Field Inspector', hi: 'क्षेत्र निरीक्षक' },
-  { code: 'ANALYST', en: 'Analyst', hi: 'विश्लेषक' },
-  { code: 'VIEWER', en: 'Viewer', hi: 'दर्शक' },
+  { code: 'AI_RISK_ANALYST', en: 'AI Risk Analyst', hi: 'AI जोखिम विश्लेषक' },
+  { code: 'PUBLIC_VIEWER', en: 'Public Citizen Viewer', hi: 'नागरिक दर्शक' },
 ];
 
 const API_BASE = '/api';
@@ -30,20 +30,22 @@ const AdminUserManagement = () => {
 
   // Form state
   const [formData, setFormData] = useState({
-    email: '', username: '', fullName: '', password: '', role: 'VIEWER',
+    email: '', username: '', fullName: '', password: '', role: 'PUBLIC_VIEWER',
     state: '', district: '', projectIds: '',
   });
 
   const authHeaders = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-const DEFAULT_DEMO_USERS = [
-  { id: 1, email: 'admin@nirikshak.gov.in', username: 'admin', fullName: 'National Nodal Administrator', role: 'ADMIN', state: null, district: null, is_active: true, created_at: '2026-01-15' },
-  { id: 2, email: 'mospi.nodal@nirikshak.gov.in', username: 'mospi_officer', fullName: 'Dr. Ramesh Sharma (MoSPI)', role: 'MOSPI_OFFICER', state: null, district: null, is_active: true, created_at: '2026-02-01' },
-  { id: 3, email: 'state.bihar@nirikshak.gov.in', username: 'state_bihar', fullName: 'Shri Anand Verma (State Nodal Bihar)', role: 'STATE_OFFICER', state: 'Bihar', district: null, is_active: true, created_at: '2026-02-10' },
-  { id: 4, email: 'dc.kurnool@nirikshak.gov.in', username: 'dc_kurnool', fullName: 'Smt. G. Srijana IAS (District Collector)', role: 'DISTRICT_OFFICER', state: 'Andhra Pradesh', district: 'Kurnool', is_active: true, created_at: '2026-02-15' },
-  { id: 5, email: 'inspector.north@nirikshak.gov.in', username: 'inspector_north', fullName: 'Er. Rajesh Kumar (Site Inspector)', role: 'FIELD_INSPECTOR', state: 'Bihar', district: 'Patna', is_active: true, created_at: '2026-03-01' },
-  { id: 6, email: 'analyst.ai@nirikshak.gov.in', username: 'analyst_ai', fullName: 'Priya Sundaram (Lead AI Risk Analyst)', role: 'ANALYST', state: null, district: null, is_active: true, created_at: '2026-03-05' },
-];
+  const DEFAULT_DEMO_USERS = [
+    { id: 1, email: 'admin@nirikshak.gov.in', username: 'admin', fullName: 'System Administrator (NIC MoSPI)', role: 'SYSTEM_ADMIN', state: null, district: null, is_active: true, created_at: '2026-01-15' },
+    { id: 2, email: 'mospi.officer@nirikshak.gov.in', username: 'mospi.officer', fullName: 'Dr. Ramesh Sharma, DDG (MPLADS Division, MoSPI)', role: 'MOSPI_NATIONAL_OFFICER', state: null, district: null, is_active: true, created_at: '2026-02-01' },
+    { id: 3, email: 'state.up@nirikshak.gov.in', username: 'state.officer.up', fullName: 'Shri Anand Verma, IAS (State Nodal Officer, UP)', role: 'STATE_NODAL_OFFICER', state: 'Uttar Pradesh', district: null, is_active: true, created_at: '2026-02-10' },
+    { id: 4, email: 'district.jabalpur@nirikshak.gov.in', username: 'district.officer.jabalpur', fullName: 'Smt. G. Srijana, IAS (Collector & DM, Jabalpur)', role: 'DISTRICT_AUTHORITY', state: 'Madhya Pradesh', district: 'Jabalpur', is_active: true, created_at: '2026-02-15' },
+    { id: 5, email: 'mp.loksabha@nirikshak.gov.in', username: 'mp.varanasi', fullName: 'Shri Narendra Modi (Hon\'ble MP, Varanasi)', role: 'MEMBER_OF_PARLIAMENT', state: 'Uttar Pradesh', district: 'Varanasi', is_active: true, created_at: '2026-02-20' },
+    { id: 6, email: 'inspector@nirikshak.gov.in', username: 'field.inspector', fullName: 'Er. Rajesh Kumar (Quality Inspector, Jabalpur)', role: 'FIELD_INSPECTOR', state: 'Madhya Pradesh', district: 'Jabalpur', is_active: true, created_at: '2026-03-01' },
+    { id: 7, email: 'analyst@nirikshak.gov.in', username: 'analyst', fullName: 'Priya Sundaram (Lead AI Risk & Forensic Analyst)', role: 'AI_RISK_ANALYST', state: null, district: null, is_active: true, created_at: '2026-03-05' },
+    { id: 8, email: 'viewer@nirikshak.gov.in', username: 'viewer', fullName: 'Citizen Transparency Portal (Public Access)', role: 'PUBLIC_VIEWER', state: null, district: null, is_active: true, created_at: '2026-03-06' },
+  ];
 
   const fetchUsers = async () => {
     setLoading(true);

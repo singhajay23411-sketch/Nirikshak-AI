@@ -1,5 +1,65 @@
 [
   {
+    "mp_id": 3000001,
+    "mp_name": "Narendra Modi",
+    "state_name": "Uttar Pradesh",
+    "const_name": "VARANASI",
+    "utilization_rate": 0.944,
+    "completion_delay_days": 42.0,
+    "is_anomaly": 0,
+    "total_works": 38,
+    "composite_integrity_score": 96.2,
+    "risk_tier": "LOW_RISK"
+  },
+  {
+    "mp_id": 3000002,
+    "mp_name": "Ashish Dubey",
+    "state_name": "Madhya Pradesh",
+    "const_name": "JABALPUR",
+    "utilization_rate": 0.936,
+    "completion_delay_days": 65.0,
+    "is_anomaly": 0,
+    "total_works": 32,
+    "composite_integrity_score": 92.5,
+    "risk_tier": "LOW_RISK"
+  },
+  {
+    "mp_id": 3000003,
+    "mp_name": "Rajnath Singh",
+    "state_name": "Uttar Pradesh",
+    "const_name": "LUCKNOW",
+    "utilization_rate": 0.985,
+    "completion_delay_days": 35.0,
+    "is_anomaly": 0,
+    "total_works": 42,
+    "composite_integrity_score": 95.8,
+    "risk_tier": "LOW_RISK"
+  },
+  {
+    "mp_id": 3000004,
+    "mp_name": "Supriya Sule",
+    "state_name": "Maharashtra",
+    "const_name": "BARAMATI",
+    "utilization_rate": 0.961,
+    "completion_delay_days": 55.0,
+    "is_anomaly": 0,
+    "total_works": 36,
+    "composite_integrity_score": 94.1,
+    "risk_tier": "LOW_RISK"
+  },
+  {
+    "mp_id": 3000005,
+    "mp_name": "Rahul Gandhi",
+    "state_name": "Uttar Pradesh",
+    "const_name": "RAE BARELI",
+    "utilization_rate": 0.928,
+    "completion_delay_days": 58.0,
+    "is_anomaly": 0,
+    "total_works": 35,
+    "composite_integrity_score": 93.0,
+    "risk_tier": "LOW_RISK"
+  },
+  {
     "mp_id": 3017167,
     "mp_name": "Maddila Gurumoorthy",
     "state_name": "Andhra Pradesh",

@@ -1,125 +1,149 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, User, ChevronDown, Shield, BarChart3, Map, FileText, Search, Users, Database, Activity, Cpu, Eye, ClipboardCheck, Camera, Settings } from 'lucide-react';
+import { 
+  LogOut, User, ChevronDown, Shield, BarChart3, Map, 
+  FileText, Search, Users, Database, Activity, Cpu, 
+  Eye, ClipboardCheck, Camera, Sparkles 
+} from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, ROLES } from '../../context/AuthContext';
 import LanguageSwitcher from '../LanguageSwitcher';
-import AdminUserManagement from './AdminUserManagement';
-import FieldInspectorVerification from './FieldInspectorVerification';
-import RoleOverviewPanels from './RoleOverviewPanels';
+import ScopeContextBar from './ScopeContextBar';
 
+// Import dedicated role dashboards
+import MospiNationalDashboard from './roles/MospiNationalDashboard';
+import StateNodalDashboard from './roles/StateNodalDashboard';
+import DistrictAuthorityDashboard from './roles/DistrictAuthorityDashboard';
+import MemberOfParliamentDashboard from './roles/MemberOfParliamentDashboard';
+import FieldInspectorDashboard from './roles/FieldInspectorDashboard';
+import AiRiskAnalystDashboard from './roles/AiRiskAnalystDashboard';
+import SystemAdminDashboard from './roles/SystemAdminDashboard';
+import PublicViewerDashboard from './roles/PublicViewerDashboard';
+
+// Canonical role navigation configs
 const ROLE_NAV_CONFIG = {
-  ADMIN: [
-    { id: 'overview', icon: BarChart3, en: 'Overview', hi: 'अवलोकन' },
+  [ROLES.SYSTEM_ADMIN]: [
+    { id: 'overview', icon: BarChart3, en: 'System Overview', hi: 'प्रणाली अवलोकन' },
     { id: 'users', icon: Users, en: 'User Management', hi: 'उपयोगकर्ता प्रबंधन' },
-    { id: 'projects', icon: Database, en: 'Projects', hi: 'परियोजनाएं' },
-    { id: 'risk', icon: Shield, en: 'Risk Engine', hi: 'जोखिम इंजन' },
-    { id: 'map', icon: Map, en: 'Geospatial', hi: 'भू-स्थानिक' },
-    { id: 'reports', icon: FileText, en: 'Reports', hi: 'रिपोर्ट' },
-    { id: 'audit', icon: Eye, en: 'Audit Logs', hi: 'ऑडिट लॉग' },
+    { id: 'audit', icon: Shield, en: 'Audit Registry', hi: 'ऑडिट रजिस्ट्री' },
+    { id: 'models', icon: Cpu, en: 'Model Pipeline', hi: 'मॉडल पाइपलाइन' },
   ],
-  MOSPI_OFFICER: [
+  [ROLES.MOSPI_NATIONAL_OFFICER]: [
     { id: 'overview', icon: BarChart3, en: 'National Overview', hi: 'राष्ट्रीय अवलोकन' },
-    { id: 'states', icon: Map, en: 'State Comparisons', hi: 'राज्य तुलना' },
-    { id: 'risk', icon: Shield, en: 'Risk Intelligence', hi: 'जोखिम खुफिया' },
-    { id: 'investigation', icon: Search, en: 'Investigations', hi: 'जांच' },
-    { id: 'reports', icon: FileText, en: 'Reports', hi: 'रिपोर्ट' },
+    { id: 'states', icon: Map, en: 'State Watchlist', hi: 'राज्य निगरानी' },
+    { id: 'risk', icon: Shield, en: 'Risk Engine', hi: 'जोखिम इंजन' },
+    { id: 'reports', icon: FileText, en: 'Audit Reports', hi: 'ऑडिट रिपोर्ट' },
   ],
-  STATE_OFFICER: [
+  [ROLES.STATE_NODAL_OFFICER]: [
     { id: 'overview', icon: BarChart3, en: 'State Overview', hi: 'राज्य अवलोकन' },
-    { id: 'districts', icon: Map, en: 'District Breakdown', hi: 'जिला विश्लेषण' },
-    { id: 'finance', icon: Activity, en: 'Financial Utilization', hi: 'वित्तीय उपयोग' },
+    { id: 'districts', icon: Map, en: 'District Progress', hi: 'जिला प्रगति' },
     { id: 'evidence', icon: Camera, en: 'Evidence Queue', hi: 'साक्ष्य कतार' },
     { id: 'reports', icon: FileText, en: 'Reports', hi: 'रिपोर्ट' },
   ],
-  DISTRICT_OFFICER: [
+  [ROLES.DISTRICT_AUTHORITY]: [
     { id: 'overview', icon: BarChart3, en: 'District Projects', hi: 'जिला परियोजनाएं' },
-    { id: 'delayed', icon: Activity, en: 'Delayed Projects', hi: 'विलंबित परियोजनाएं' },
-    { id: 'verification', icon: ClipboardCheck, en: 'Verification Queue', hi: 'सत्यापन कतार' },
-    { id: 'cases', icon: Search, en: 'Case Management', hi: 'मामला प्रबंधन' },
+    { id: 'verification', icon: ClipboardCheck, en: 'Verification Roster', hi: 'सत्यापन रोस्टर' },
+    { id: 'cases', icon: Search, en: 'Inquiry Cases', hi: 'जांच मामले' },
     { id: 'reports', icon: FileText, en: 'Reports', hi: 'रिपोर्ट' },
   ],
-  MP: [
+  [ROLES.MEMBER_OF_PARLIAMENT]: [
     { id: 'overview', icon: BarChart3, en: 'MP Scorecard', hi: 'सांसद स्कोरकार्ड' },
-    { id: 'projects', icon: Database, en: 'My Constituency Projects', hi: 'मेरी निर्वाचन क्षेत्र परियोजनाएं' },
-    { id: 'finance', icon: Activity, en: 'Fund Utilization', hi: 'निधि उपयोग' },
-    { id: 'risk', icon: Shield, en: 'Risk Alerts', hi: 'जोखिम चेतावनी' },
-    { id: 'map', icon: Map, en: 'Geospatial', hi: 'भू-स्थानिक' },
-    { id: 'reports', icon: FileText, en: 'Reports', hi: 'रिपोर्ट' },
+    { id: 'projects', icon: Database, en: 'Constituency Works', hi: 'संसदीय कार्य' },
+    { id: 'finance', icon: Activity, en: 'Fund Velocity', hi: 'निधि प्रवाह' },
+    { id: 'reports', icon: FileText, en: 'Progress Report', hi: 'प्रगति रिपोर्ट' },
   ],
-  FIELD_INSPECTOR: [
-    { id: 'overview', icon: Database, en: 'My Projects', hi: 'मेरी परियोजनाएं' },
-    { id: 'verification', icon: ClipboardCheck, en: 'Site Verification', hi: 'स्थल सत्यापन' },
-    { id: 'evidence', icon: Camera, en: 'Photo Evidence', hi: 'फोटो साक्ष्य' },
-    { id: 'reports', icon: FileText, en: 'Inspection Reports', hi: 'निरीक्षण रिपोर्ट' },
+  [ROLES.FIELD_INSPECTOR]: [
+    { id: 'overview', icon: Database, en: 'Assigned Sites', hi: 'आवंटित स्थल' },
+    { id: 'verification', icon: ClipboardCheck, en: 'Site Checklist', hi: 'स्थल चेकलिस्ट' },
+    { id: 'evidence', icon: Camera, en: 'Geotag Photos', hi: 'जियो-टैग फोटो' },
   ],
-  ANALYST: [
-    { id: 'overview', icon: Cpu, en: 'AI Models', hi: 'AI मॉडल' },
-    { id: 'anomalies', icon: Shield, en: 'Anomaly Detection', hi: 'विसंगति पहचान' },
+  [ROLES.AI_RISK_ANALYST]: [
+    { id: 'overview', icon: Cpu, en: 'Model Diagnostics', hi: 'मॉडल डायग्नोस्टिक्स' },
+    { id: 'anomalies', icon: Shield, en: 'Anomaly Clusters', hi: 'विसंगति क्लस्टर' },
     { id: 'benchmarks', icon: BarChart3, en: 'Cost Benchmarks', hi: 'लागत मानदंड' },
-    { id: 'trends', icon: Activity, en: 'Trends', hi: 'रुझान' },
-    { id: 'reports', icon: FileText, en: 'Export', hi: 'निर्यात' },
   ],
-  VIEWER: [
-    { id: 'overview', icon: BarChart3, en: 'Dashboard', hi: 'डैशबोर्ड' },
-    { id: 'projects', icon: Database, en: 'Projects', hi: 'परियोजनाएं' },
-    { id: 'risk', icon: Shield, en: 'Risk Overview', hi: 'जोखिम अवलोकन' },
-    { id: 'map', icon: Map, en: 'Map', hi: 'मानचित्र' },
-    { id: 'reports', icon: FileText, en: 'Reports', hi: 'रिपोर्ट' },
+  [ROLES.PUBLIC_VIEWER]: [
+    { id: 'overview', icon: BarChart3, en: 'Civic Transparency', hi: 'नागरिक पारदर्शिता' },
+    { id: 'works', icon: Database, en: 'Public Works', hi: 'सार्वजनिक कार्य' },
   ],
 };
 
-const RoleDashboardLayout = ({ onLogout }) => {
+// Fallback legacy mapping
+const LEGACY_ROLE_MAP = {
+  ADMIN: ROLES.SYSTEM_ADMIN,
+  MOSPI_OFFICER: ROLES.MOSPI_NATIONAL_OFFICER,
+  STATE_OFFICER: ROLES.STATE_NODAL_OFFICER,
+  DISTRICT_OFFICER: ROLES.DISTRICT_AUTHORITY,
+  MP: ROLES.MEMBER_OF_PARLIAMENT,
+  VIEWER: ROLES.PUBLIC_VIEWER,
+  ANALYST: ROLES.AI_RISK_ANALYST,
+};
+
+export default function RoleDashboardLayout({ onLogout }) {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(user?.role || 'MOSPI_OFFICER');
+  const { user, logout, isRole } = useAuth();
 
   const isHi = language === 'hi';
-  const role = selectedRole;
-  const navItems = ROLE_NAV_CONFIG[role] || ROLE_NAV_CONFIG.MOSPI_OFFICER;
+  const isAdmin = typeof isRole === 'function' ? isRole(ROLES.SYSTEM_ADMIN) : false;
+
+  // Active role resolution
+  const userCanonicalRole = LEGACY_ROLE_MAP[user?.role] || user?.role || ROLES.MOSPI_NATIONAL_OFFICER;
+  const [activePreviewRole, setActivePreviewRole] = useState(userCanonicalRole);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  useEffect(() => {
+    if (userCanonicalRole) {
+      setActivePreviewRole(userCanonicalRole);
+    }
+  }, [userCanonicalRole]);
+
+  // Dynamic MP constituency state
+  const [selectedConstituency, setSelectedConstituency] = useState(user?.constituency || 'Varanasi');
+
+  // Effective role to display
+  const effectiveRole = isAdmin ? activePreviewRole : userCanonicalRole;
+  const navItems = ROLE_NAV_CONFIG[effectiveRole] || ROLE_NAV_CONFIG[ROLES.MOSPI_NATIONAL_OFFICER];
 
   const handleLogout = () => {
     logout();
-    if (onLogout) {
-      onLogout();
-    } else {
-      navigate('/');
-    }
+    if (onLogout) onLogout();
+    else navigate('/login');
   };
 
-  const ROLE_OPTIONS = [
-    { value: 'MOSPI_OFFICER', label: isHi ? 'राष्ट्रीय नोडल अधिकारी (MoSPI)' : 'MoSPI National Officer', scope: isHi ? 'राष्ट्रीय' : 'National' },
-    { value: 'STATE_OFFICER', label: isHi ? 'राज्य नोडल अधिकारी (बिहार)' : 'State Officer (Bihar)', scope: isHi ? 'बिहार' : 'Bihar' },
-    { value: 'DISTRICT_OFFICER', label: isHi ? 'जिला कलेक्टर (कुरनूल)' : 'District Collector (Kurnool)', scope: isHi ? 'कुरनूल, आंध्र प्रदेश' : 'Kurnool, AP' },
-    { value: 'MP', label: isHi ? 'सांसद स्कोरकार्ड' : 'Member of Parliament', scope: isHi ? 'संसद' : 'Parliament' },
-    { value: 'FIELD_INSPECTOR', label: isHi ? 'क्षेत्र निरीक्षक' : 'Field Inspector', scope: isHi ? 'भौतिक सत्यापन' : 'Site Verification' },
-    { value: 'ANALYST', label: isHi ? 'AI विश्लेषक' : 'AI Risk Analyst', scope: isHi ? 'मॉडल एवं विसंगति' : 'Analytics' },
-    { value: 'ADMIN', label: isHi ? 'प्रशासक' : 'System Admin', scope: isHi ? 'पूर्ण नियंत्रण' : 'Full Access' },
-    { value: 'VIEWER', label: isHi ? 'नागरिक दृश्य' : 'Public Transparency', scope: isHi ? 'सार्वजनिक' : 'Public' },
-  ];
-
-  const currentRoleOpt = ROLE_OPTIONS.find(o => o.value === role) || ROLE_OPTIONS[0];
-
-  const getRoleLabel = () => currentRoleOpt.label;
-  const getScopeLabel = () => currentRoleOpt.scope;
-
-  // Render active panel content
-  const renderContent = () => {
-    if (role === 'ADMIN' && activeTab === 'users') {
-      return <AdminUserManagement />;
+  // Render role-specific dashboard
+  const renderDashboardContent = () => {
+    switch (effectiveRole) {
+      case ROLES.SYSTEM_ADMIN:
+        return <SystemAdminDashboard activeTab={activeTab} />;
+      case ROLES.MOSPI_NATIONAL_OFFICER:
+        return <MospiNationalDashboard activeTab={activeTab} />;
+      case ROLES.STATE_NODAL_OFFICER:
+        return <StateNodalDashboard />;
+      case ROLES.DISTRICT_AUTHORITY:
+        return <DistrictAuthorityDashboard />;
+      case ROLES.MEMBER_OF_PARLIAMENT:
+        return (
+          <MemberOfParliamentDashboard
+            selectedConstituency={selectedConstituency}
+            onConstituencyChange={setSelectedConstituency}
+          />
+        );
+      case ROLES.FIELD_INSPECTOR:
+        return <FieldInspectorDashboard activeTab={activeTab} />;
+      case ROLES.AI_RISK_ANALYST:
+        return <AiRiskAnalystDashboard />;
+      case ROLES.PUBLIC_VIEWER:
+        return <PublicViewerDashboard />;
+      default:
+        return <MospiNationalDashboard activeTab={activeTab} />;
     }
-    if (role === 'FIELD_INSPECTOR' && (activeTab === 'verification' || activeTab === 'evidence')) {
-      return <FieldInspectorVerification activeTab={activeTab} />;
-    }
-    return <RoleOverviewPanels role={role} activeTab={activeTab} user={user || { fullName: 'SIH Evaluator', email: 'evaluator@nirikshak.gov.in', role }} />;
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-bg-light)', display: 'flex', flexDirection: 'column' }}>
-      {/* Dashboard Header */}
+    <div style={{ minHeight: '100vh', background: 'var(--color-bg-light, #FAF8F3)', display: 'flex', flexDirection: 'column' }}>
+      {/* Main Top Header */}
       <header style={{
         background: '#FFFFFF',
         borderBottom: '1.5px solid #1D1E22',
@@ -132,56 +156,73 @@ const RoleDashboardLayout = ({ onLogout }) => {
         top: 0,
         zIndex: 100,
       }}>
-        {/* Left: Brand + Interactive Role Selector */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Left: Brand Identity */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div
             onClick={() => navigate('/')}
             style={{
               fontFamily: 'system-ui, -apple-system, sans-serif',
-              fontSize: '1rem',
+              fontSize: '1.05rem',
               fontWeight: 900,
-              letterSpacing: '0.1em',
+              letterSpacing: '0.08em',
               color: '#1D1E22',
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
             }}
           >
-            NIRIKSHΛK ΛI
+            <Shield size={18} color="#0A2458" />
+            <span>NIRIKSHΛK ΛI</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', background: '#F4EFE6', padding: '0.2rem 0.4rem', borderRadius: '8px', border: '1px solid #1D1E22' }}>
-            <Shield size={14} color="#1D1E22" />
-            <select
-              value={role}
-              onChange={(e) => { setSelectedRole(e.target.value); setActiveTab('overview'); }}
-              aria-label="Select Role View"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                color: '#1D1E22',
-                fontFamily: 'inherit',
-                cursor: 'pointer',
-                outline: 'none',
-              }}
-            >
-              {ROLE_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
-
-          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>
-            {getScopeLabel()}
-          </span>
+          {/* Admin Persona Simulator / View Switcher (Only visible to SYSTEM_ADMIN) */}
+          {isAdmin && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              background: '#FFF3E0',
+              padding: '0.25rem 0.6rem',
+              borderRadius: '6px',
+              border: '1px solid #E65100',
+            }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#E65100', textTransform: 'uppercase' }}>
+                Admin Preview:
+              </span>
+              <select
+                value={activePreviewRole}
+                onChange={(e) => { setActivePreviewRole(e.target.value); setActiveTab('overview'); }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  color: '#1D1E22',
+                  cursor: 'pointer',
+                  outline: 'none',
+                }}
+              >
+                <option value={ROLES.SYSTEM_ADMIN}>System Administrator</option>
+                <option value={ROLES.MOSPI_NATIONAL_OFFICER}>MoSPI National Officer</option>
+                <option value={ROLES.STATE_NODAL_OFFICER}>State Nodal Officer</option>
+                <option value={ROLES.DISTRICT_AUTHORITY}>District Authority</option>
+                <option value={ROLES.MEMBER_OF_PARLIAMENT}>Member of Parliament</option>
+                <option value={ROLES.FIELD_INSPECTOR}>Field Inspector</option>
+                <option value={ROLES.AI_RISK_ANALYST}>AI Risk Analyst</option>
+                <option value={ROLES.PUBLIC_VIEWER}>Public Citizen</option>
+              </select>
+            </div>
+          )}
         </div>
 
-        {/* Center: Navigation Tabs */}
+        {/* Center: Dynamic Role Navigation Tabs */}
         <nav style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.25rem',
+          gap: '0.3rem',
           height: '100%',
+          overflowX: 'auto',
         }}>
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -195,23 +236,16 @@ const RoleDashboardLayout = ({ onLogout }) => {
                   alignItems: 'center',
                   gap: '0.35rem',
                   padding: '0.45rem 0.85rem',
-                  background: isActive ? 'var(--color-accent-teal)' : 'transparent',
-                  border: isActive ? '1px solid #1D1E22' : '1px solid transparent',
-                  borderRadius: 'var(--radius-full)',
+                  background: isActive ? 'var(--color-accent-teal, #52B79A)' : 'transparent',
+                  border: isActive ? '1.5px solid #1D1E22' : '1px solid transparent',
+                  borderRadius: '999px',
                   color: '#1D1E22',
                   fontSize: '0.8rem',
-                  fontWeight: isActive ? 700 : 500,
-                  fontFamily: 'var(--font-sans)',
+                  fontWeight: isActive ? 800 : 600,
                   cursor: 'pointer',
-                  transition: 'background 0.15s ease, border-color 0.15s ease',
+                  transition: 'background 0.15s ease',
                   whiteSpace: 'nowrap',
-                  boxShadow: isActive ? '1px 1.5px 0px #1D1E22' : 'none',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) e.currentTarget.style.background = 'var(--color-bg-card-sand)';
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) e.currentTarget.style.background = 'transparent';
+                  boxShadow: isActive ? '1.5px 2px 0px #1D1E22' : 'none',
                 }}
               >
                 <Icon size={14} />
@@ -221,7 +255,7 @@ const RoleDashboardLayout = ({ onLogout }) => {
           })}
         </nav>
 
-        {/* Right: Language + User Profile */}
+        {/* Right: Language + User Menu */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <LanguageSwitcher />
 
@@ -233,97 +267,93 @@ const RoleDashboardLayout = ({ onLogout }) => {
                 alignItems: 'center',
                 gap: '0.4rem',
                 padding: '0.4rem 0.8rem',
-                background: 'var(--color-bg-card-sand)',
-                border: '1px solid var(--color-border-subtle)',
-                borderRadius: 'var(--radius-full)',
+                background: '#FAF8F3',
+                border: '1.5px solid #1D1E22',
+                borderRadius: '999px',
                 cursor: 'pointer',
                 fontSize: '0.82rem',
-                fontWeight: 600,
+                fontWeight: 700,
                 color: '#1D1E22',
-                fontFamily: 'var(--font-sans)',
+                boxShadow: '1px 1.5px 0px #1D1E22',
               }}
             >
               <User size={15} />
-              <span>{user?.fullName?.split(' ')[0] || 'User'}</span>
+              <span>{user?.fullName?.split(' ')[0] || 'Official'}</span>
               <ChevronDown size={13} />
             </button>
 
+            {/* Dropdown Menu */}
             {showUserMenu && (
-              <>
-                <div
-                  onClick={() => setShowUserMenu(false)}
-                  style={{ position: 'fixed', inset: 0, zIndex: 99 }}
-                />
-                <div style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: 'calc(100% + 0.5rem)',
-                  background: '#FFFFFF',
-                  border: '1.5px solid #1D1E22',
-                  borderRadius: 'var(--radius-md)',
-                  boxShadow: '3px 4px 0px #1D1E22',
-                  width: '260px',
-                  padding: '1rem',
-                  zIndex: 100,
-                }}>
-                  <div style={{ marginBottom: '0.75rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--color-border-subtle)' }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1D1E22' }}>{user?.fullName}</div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginTop: '0.15rem' }}>{user?.email}</div>
-                    <div style={{
-                      marginTop: '0.4rem',
-                      padding: '0.2rem 0.5rem',
-                      background: 'var(--color-accent-teal)',
-                      borderRadius: 'var(--radius-full)',
-                      fontSize: '0.7rem',
-                      fontWeight: 700,
-                      display: 'inline-block',
-                      color: '#1D1E22',
-                    }}>
-                      {getRoleLabel()} — {getScopeLabel()}
-                    </div>
+              <div style={{
+                position: 'absolute',
+                top: 'calc(100% + 8px)',
+                right: 0,
+                background: '#FFFFFF',
+                border: '1.5px solid #1D1E22',
+                borderRadius: '8px',
+                boxShadow: '3px 4px 0px #1D1E22',
+                minWidth: '220px',
+                zIndex: 200,
+                overflow: 'hidden',
+              }}>
+                <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #EAE6DF', background: '#FAF8F3' }}>
+                  <div style={{ fontWeight: 800, fontSize: '0.82rem', color: '#1D1E22' }}>
+                    {user?.fullName || 'Logged In Official'}
                   </div>
+                  <div style={{ fontSize: '0.72rem', color: '#666', marginTop: '0.15rem' }}>
+                    {user?.email || 'official@nirikshak.gov.in'}
+                  </div>
+                  <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#0A2458', marginTop: '0.35rem' }}>
+                    Role: {userCanonicalRole}
+                  </div>
+                </div>
 
+                <div style={{ padding: '0.4rem' }}>
                   <button
                     onClick={handleLogout}
                     style={{
+                      width: '100%',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.4rem',
-                      width: '100%',
-                      padding: '0.55rem 0.75rem',
+                      gap: '0.5rem',
+                      padding: '0.5rem 0.75rem',
+                      border: 'none',
                       background: 'transparent',
-                      border: '1px solid var(--color-accent-red)',
-                      borderRadius: 'var(--radius-sm)',
-                      color: 'var(--color-accent-red)',
-                      fontSize: '0.82rem',
-                      fontWeight: 600,
+                      color: '#C62828',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
                       cursor: 'pointer',
-                      fontFamily: 'var(--font-sans)',
-                      transition: 'background 0.15s ease',
+                      borderRadius: '4px',
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#FEF2F2';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#FFEBEE'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
-                    <LogOut size={15} />
-                    {isHi ? 'लॉगआउट' : 'Sign Out'}
+                    <LogOut size={14} />
+                    <span>{isHi ? 'लॉग आउट' : 'Sign Out of Nirikshak'}</span>
                   </button>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
       </header>
 
-      {/* Dashboard Content */}
-      <main style={{ flex: 1, padding: '2rem', maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
-        {renderContent()}
+      {/* Scope Context Bar */}
+      <ScopeContextBar
+        selectedConstituency={selectedConstituency}
+        onConstituencyChange={setSelectedConstituency}
+      />
+
+      {/* Main Content Area */}
+      <main style={{
+        flex: 1,
+        maxWidth: '1440px',
+        width: '100%',
+        margin: '0 auto',
+        padding: '1.5rem',
+      }}>
+        {renderDashboardContent()}
       </main>
     </div>
   );
-};
-
-export default RoleDashboardLayout;
+}

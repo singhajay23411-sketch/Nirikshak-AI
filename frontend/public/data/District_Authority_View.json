@@ -1,5 +1,105 @@
 [
   {
+    "constituency_id": 457,
+    "constituency_name": "VARANASI",
+    "state_name": "Uttar Pradesh",
+    "total_projects": 38,
+    "high_risk_count": 2,
+    "avg_risk": 18.4,
+    "top_local_alerts": [
+      {
+        "work_id": "MPLADS-UT-M04574",
+        "activity_name": "Installation of Solar High-Mast Lights at public junctions in VARANASI Gopalpur",
+        "sanction_amount": 950000.0,
+        "total_disbursed": 475000.0,
+        "final_risk_score": 38.5,
+        "risk_tier": "MODERATE",
+        "project_summary": "Milestone review: Vendor delivered 6 of 8 high mast structures; 2 pending foundation concrete curing certificate.",
+        "anomaly_reasons": [
+          {
+            "score": 45.0,
+            "pillar": "delay_risk_score"
+          },
+          {
+            "score": 32.0,
+            "pillar": "progress_risk_score"
+          }
+        ],
+        "recommended_actions": [
+          "District Planning Officer to verify physical delivery of remaining 2 high-mast units.",
+          "Inspect battery bank storage and warranty certificates before sanctioning Stage-II payment."
+        ],
+        "agency_risk_score": 18.0,
+        "agency_risk_tier": "LOW"
+      }
+    ]
+  },
+  {
+    "constituency_id": 194,
+    "constituency_name": "JABALPUR",
+    "state_name": "Madhya Pradesh",
+    "total_projects": 32,
+    "high_risk_count": 3,
+    "avg_risk": 24.2,
+    "top_local_alerts": [
+      {
+        "work_id": "MPLADS-MA-M02260",
+        "activity_name": "Construction of covered drainage system from main chowk to canal at JABALPUR Kishanpur",
+        "sanction_amount": 1750000.0,
+        "total_disbursed": 1750000.0,
+        "final_risk_score": 68.5,
+        "risk_tier": "HIGH",
+        "project_summary": "100% funds disbursed while milestone progress report shows slab casting only 65% complete. Field inspection required.",
+        "anomaly_reasons": [
+          {
+            "score": 85.0,
+            "pillar": "progress_risk_score"
+          },
+          {
+            "score": 72.0,
+            "pillar": "cost_risk_score"
+          },
+          {
+            "score": 65.0,
+            "pillar": "delay_risk_score"
+          }
+        ],
+        "recommended_actions": [
+          "Order urgent on-site quality inspection by Executive Engineer Er. Rajesh Kumar.",
+          "Verify cross-section dimensions and geotagged evidence against approved engineering design.",
+          "Hold final contractor settlement pending physical completion certification."
+        ],
+        "agency_risk_score": 42.5,
+        "agency_risk_tier": "MODERATE"
+      },
+      {
+        "work_id": "MPLADS-MA-M02264",
+        "activity_name": "Construction of interlocking CC road from JABALPUR Main Market to JABALPUR Harijan Basti",
+        "sanction_amount": 1650000.0,
+        "total_disbursed": 825000.0,
+        "final_risk_score": 62.1,
+        "risk_tier": "HIGH",
+        "project_summary": "Stage-I advance disbursed; excavation completed 90 days ago but CC paving delayed. Contractor split-work flag.",
+        "anomaly_reasons": [
+          {
+            "score": 78.0,
+            "pillar": "delay_risk_score"
+          },
+          {
+            "score": 60.0,
+            "pillar": "progress_risk_score"
+          }
+        ],
+        "recommended_actions": [
+          "Issue administrative progress notice to implementing agency (RES Division Jabalpur).",
+          "Verify road sub-base compaction and curb edging before approving Stage-II material advance."
+        ],
+        "agency_risk_score": 38.0,
+        "agency_risk_tier": "MODERATE"
+      }
+    ]
+  },
+  {
     "constituency_id": -129,
     "constituency_name": "Telangana (Rajya Sabha Nodal District)",
     "state_name": "Telangana",

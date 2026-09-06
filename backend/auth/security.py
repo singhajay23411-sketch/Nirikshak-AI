@@ -2,7 +2,7 @@
 Nirikshak AI — Security Module
 ================================
 Password hashing (Argon2id primary, bcrypt fallback), JWT token management,
-and permission verification utilities.
+and permission/scope verification utilities.
 
 SECURITY POLICY:
 - Argon2id is the PRIMARY password hashing algorithm.
@@ -19,6 +19,8 @@ import time
 import secrets
 import os
 import logging
+
+from .models import RoleCode, ROLE_PERMISSIONS, ROLE_SCOPE, ScopeType, resolve_role
 
 log = logging.getLogger("nirikshak.auth.security")
 
@@ -59,24 +61,16 @@ def _init_hasher():
     except ImportError:
         log.warning("argon2-cffi not available, trying bcrypt fallback...")
 
-    # Fallback to bcrypt
-    try:
-        import bcrypt as _bcrypt_mod
-        _hasher = _bcrypt_mod
-        _hash_scheme = "bcrypt"
-        log.info("Password hashing: bcrypt initialized (fallback)")
-        return
-    except ImportError:
-        log.error("Neither argon2-cffi nor bcrypt is available!")
-        raise RuntimeError(
-            "No secure password hashing library available. "
-            "Install argon2-cffi (recommended) or bcrypt: "
-            "pip install argon2-cffi bcrypt"
-        )
+    # Fallback to standard library hashlib PBKDF2-HMAC-SHA256
+    import hashlib
+    import secrets
+    _hasher = hashlib
+    _hash_scheme = "pbkdf2_sha256"
+    log.info("Password hashing: standard library PBKDF2-HMAC-SHA256 initialized")
 
 
 def hash_password(plaintext: str) -> str:
-    """Hash a plaintext password using Argon2id (preferred) or bcrypt (fallback).
+    """Hash a plaintext password using Argon2id (preferred), bcrypt, or PBKDF2.
     Never stores or logs plaintext passwords."""
     _init_hasher()
 
@@ -85,16 +79,30 @@ def hash_password(plaintext: str) -> str:
     elif _hash_scheme == "bcrypt":
         salt = _hasher.gensalt(rounds=12)
         return _hasher.hashpw(plaintext.encode("utf-8"), salt).decode("utf-8")
+    elif _hash_scheme == "pbkdf2_sha256":
+        import hashlib, secrets
+        salt = secrets.token_hex(16)
+        h = hashlib.pbkdf2_hmac("sha256", plaintext.encode("utf-8"), salt.encode("utf-8"), 100000)
+        return f"pbkdf2:sha256:100000${salt}${h.hex()}"
     else:
         raise RuntimeError("No password hasher configured")
 
 
 def verify_password(plaintext: str, hashed: str) -> bool:
     """Verify a plaintext password against a stored hash.
-    Supports both Argon2id and bcrypt hashes for migration compatibility."""
+    Supports Argon2id, bcrypt, and PBKDF2 hashes for migration compatibility."""
     _init_hasher()
 
     try:
+        if hashed.startswith("pbkdf2:sha256:"):
+            import hashlib, hmac
+            parts = hashed.split("$")
+            if len(parts) == 3:
+                salt = parts[1]
+                expected = parts[2]
+                computed = hashlib.pbkdf2_hmac("sha256", plaintext.encode("utf-8"), salt.encode("utf-8"), 100000)
+                return hmac.compare_digest(computed.hex(), expected)
+
         if _hash_scheme == "argon2id":
             return _hasher.verify(hashed, plaintext)
         elif _hash_scheme == "bcrypt":
@@ -102,6 +110,16 @@ def verify_password(plaintext: str, hashed: str) -> bool:
                 plaintext.encode("utf-8"),
                 hashed.encode("utf-8")
             )
+        else:
+            # Check if it was hashed with pbkdf2
+            if "$" in hashed:
+                import hashlib, hmac
+                parts = hashed.split("$")
+                if len(parts) == 3:
+                    salt = parts[1]
+                    expected = parts[2]
+                    computed = hashlib.pbkdf2_hmac("sha256", plaintext.encode("utf-8"), salt.encode("utf-8"), 100000)
+                    return hmac.compare_digest(computed.hex(), expected)
     except Exception:
         return False
 
@@ -132,7 +150,8 @@ def _b64url_decode(s: str) -> bytes:
 
 
 def create_jwt(payload: dict, expiry_seconds: int = None) -> str:
-    """Create a signed JWT token with HMAC-SHA256."""
+    """Create a signed JWT token with HMAC-SHA256.
+    Includes full role, jurisdiction, and permission claims."""
     if expiry_seconds is None:
         expiry_seconds = JWT_EXPIRY_SECONDS
 
@@ -200,6 +219,8 @@ def check_permission(user_permissions: list, required: str) -> bool:
     for perm in user_permissions:
         if perm == required:
             return True
+        if perm == "*":
+            return True
         if perm.endswith(".*"):
             prefix = perm[:-2]
             if required.startswith(prefix + "."):
@@ -207,17 +228,22 @@ def check_permission(user_permissions: list, required: str) -> bool:
     return False
 
 
-def check_scope(user_scope: dict, target_state: str = None, target_district: str = None) -> bool:
-    """Check if a user's geographic scope allows access to a target location."""
+def check_scope(user_scope: dict, target_state: str = None,
+                target_district: str = None,
+                target_constituency: str = None) -> bool:
+    """Check if a user's geographic scope allows access to a target location.
+    Returns True if access is permitted, False otherwise."""
     scope_type = user_scope.get("type", "NATIONAL")
 
-    if scope_type == "NATIONAL":
+    if scope_type == ScopeType.NATIONAL:
         return True
-    elif scope_type == "STATE":
+
+    elif scope_type == ScopeType.STATE:
         if target_state and user_scope.get("state"):
             return target_state.lower() == user_scope["state"].lower()
         return True  # If no target specified, allow
-    elif scope_type == "DISTRICT":
+
+    elif scope_type == ScopeType.DISTRICT:
         state_match = True
         district_match = True
         if target_state and user_scope.get("state"):
@@ -225,7 +251,64 @@ def check_scope(user_scope: dict, target_state: str = None, target_district: str
         if target_district and user_scope.get("district"):
             district_match = target_district.lower() == user_scope["district"].lower()
         return state_match and district_match
-    elif scope_type == "PROJECT":
+
+    elif scope_type == ScopeType.CONSTITUENCY:
+        if target_constituency and user_scope.get("constituency"):
+            return target_constituency.lower() == user_scope["constituency"].lower()
+        # Also check state/district for constituency-scoped users
+        if target_state and user_scope.get("state"):
+            if target_state.lower() != user_scope["state"].lower():
+                return False
+        if target_district and user_scope.get("district"):
+            if target_district.lower() != user_scope["district"].lower():
+                return False
+        return True
+
+    elif scope_type == ScopeType.PROJECT:
         return True  # Project-level scoping is handled at query level
 
     return False
+
+
+def build_user_scope(user: dict) -> dict:
+    """Build a scope dictionary from a user record."""
+    role = resolve_role(user.get("role", "PUBLIC_VIEWER"))
+    scope_type = ROLE_SCOPE.get(role, ScopeType.NATIONAL)
+
+    return {
+        "type": scope_type,
+        "state": user.get("state"),
+        "district": user.get("district"),
+        "constituency": user.get("constituency"),
+        "project_ids": (
+            user.get("project_ids", "").split(",")
+            if user.get("project_ids")
+            else []
+        ),
+    }
+
+
+def build_jwt_claims(user: dict) -> dict:
+    """Build full JWT claims from a user record."""
+    role = resolve_role(user.get("role", "PUBLIC_VIEWER"))
+    scope_type = ROLE_SCOPE.get(role, ScopeType.NATIONAL)
+    permissions = ROLE_PERMISSIONS.get(role, [])
+
+    # Determine jurisdiction_id based on scope
+    jurisdiction_id = None
+    if scope_type == ScopeType.STATE:
+        jurisdiction_id = user.get("state")
+    elif scope_type == ScopeType.DISTRICT:
+        jurisdiction_id = user.get("district")
+    elif scope_type == ScopeType.CONSTITUENCY:
+        jurisdiction_id = user.get("constituency") or user.get("district")
+
+    return {
+        "user_id": user["id"],
+        "role": role,
+        "jurisdiction_type": scope_type,
+        "jurisdiction_id": jurisdiction_id,
+        "house_type": user.get("house_type", "BOTH"),
+        "tenure": user.get("tenure", "ALL"),
+        "permissions": permissions,
+    }
