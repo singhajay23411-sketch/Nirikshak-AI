@@ -268,6 +268,17 @@ button:active,
   will-change: transform, box-shadow;
 }
 
+/* Static Cards without Hover Effects */
+.card-static {
+  background: var(--color-bg-card);
+  border: 1.5px solid var(--color-border-dark);
+  border-radius: var(--radius-lg);
+  padding: 2.2rem;
+  box-shadow: 2px 3px 0px #1D1E22;
+  transition: none !important;
+  transform: none !important;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .card-light:hover,
   .landing-card:hover,
@@ -276,6 +287,16 @@ button:active,
     transform: translateY(-8px) scale(1.015);
     box-shadow: 4px 10px 0px #1D1E22, 0 16px 32px rgba(29, 30, 34, 0.08);
     border-color: var(--color-border-dark);
+  }
+
+  /* Disable hover effects on cards and non-interactive containers in investigation screens */
+  .investigation-screen .card-light:hover,
+  .investigation-screen .card-static:hover,
+  .investigation-screen [class*="card"]:hover,
+  .card-static:hover {
+    transform: none !important;
+    box-shadow: 2px 3px 0px #1D1E22 !important;
+    border-color: var(--color-border-dark) !important;
   }
 }
 
@@ -498,3 +519,218 @@ svg {
     transform: none !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   NIRIKSHAK AI — System Overview Video & Decision Support Card
+   ═══════════════════════════════════════════════════════════════ */
+
+.nirikshak-overview-card {
+  background: var(--color-bg-card-sand, #F7F4EC);
+  border: 1px solid rgba(29, 30, 34, 0.2);
+  border-radius: 20px;
+  padding: clamp(1.75rem, 3.5vw, 3rem);
+  box-shadow: 0 4px 20px rgba(29, 30, 34, 0.03);
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: clamp(2rem, 3.5vw, 3.5rem);
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 960px) {
+  .nirikshak-overview-card {
+    grid-template-columns: 1fr;
+    padding: clamp(1.35rem, 3vw, 2rem);
+    gap: 2rem;
+  }
+}
+
+.nirikshak-overview-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.nirikshak-overview-quote {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(1.08rem, 1.28vw, 1.25rem);
+  color: var(--color-text-primary, #1D1E22);
+  line-height: 1.75;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.nirikshak-overview-signature {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.85rem, 2.4vw, 2.35rem);
+  font-weight: 700;
+  color: var(--color-text-primary, #1D1E22);
+  line-height: 1.15;
+  margin-top: 1.5rem;
+  display: inline-block;
+}
+
+.nirikshak-video-column {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.nirikshak-video {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #17232b;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.16);
+  border: 1px solid rgba(29, 30, 34, 0.15);
+  position: relative;
+}
+
+.nirikshak-video__frame {
+  position: relative;
+  width: 100%;
+  padding-top: 42.86%;
+  overflow: hidden;
+}
+
+.nirikshak-video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none;
+}
+
+.nirikshak-video:focus-within {
+  outline: 2.5px solid var(--color-accent-teal, #52B79A);
+  outline-offset: 2px;
+}
+
+/* Polished Loading Skeleton */
+.nirikshak-video-skeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0E121A 0%, #171E28 50%, #0E121A 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.nirikshak-skeleton-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(82, 183, 154, 0.08) 50%,
+    transparent 100%
+  );
+  animation: nirikshak-shimmer 2.2s infinite ease-in-out;
+}
+
+@keyframes nirikshak-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.nirikshak-skeleton-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  z-index: 3;
+}
+
+.nirikshak-skeleton-pulse-ring {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(82, 183, 154, 0.25);
+  border-top-color: var(--color-accent-teal, #52B79A);
+  animation: nirikshak-spin 0.9s infinite linear;
+}
+
+@keyframes nirikshak-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.nirikshak-skeleton-text {
+  font-size: 0.88rem;
+  color: #9EA3B0;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Graceful Fallback Card */
+.nirikshak-video-fallback {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #10141D;
+  color: #FAF8F3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+  z-index: 3;
+  box-sizing: border-box;
+}
+
+.nirikshak-fallback-icon {
+  color: var(--color-accent-gold, #E5B842);
+  margin-bottom: 0.65rem;
+}
+
+.nirikshak-fallback-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #FAF8F3;
+  margin-bottom: 0.35rem;
+}
+
+.nirikshak-fallback-desc {
+  font-size: 0.84rem;
+  color: #9EA3B0;
+  margin-bottom: 1rem;
+  max-width: 300px;
+}
+
+.nirikshak-fallback-retry {
+  display: inline-flex;
+  align-items: center;
+  background: #1F2837;
+  color: #FAF8F3;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nirikshak-fallback-retry:hover {
+  background: var(--color-accent-teal, #52B79A);
+  color: #1D1E22;
+  border-color: var(--color-accent-teal, #52B79A);
+}

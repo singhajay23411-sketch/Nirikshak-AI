@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ArrowRight, Play, ShieldAlert, CheckCircle } from 'lucide-react';
+import { ArrowRight, ShieldAlert, CheckCircle } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import SystemOverviewVideo from './SystemOverviewVideo';
 
 import projectApprovalsImg from '../assets/Project Approvals.png';
 import financialExpenditureImg from '../assets/Financial Expenditure.png';
@@ -231,66 +232,7 @@ const Hero = ({ onExploreClick, onVirtualOfficeClick }) => {
         </div>
 
         {/* System Positioning & Overview Section */}
-        <div
-          style={{
-            background: 'var(--color-bg-card-sand)',
-            border: '1.5px solid var(--color-border-dark)',
-            borderRadius: 'var(--radius-lg)',
-            padding: '3rem',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '2.5rem',
-            alignItems: 'center'
-          }}
-        >
-          <div>
-            <p style={{ fontSize: '1.12rem', color: '#1D1E22', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-              {t('hero.quote')}
-            </p>
-
-            {/* Handwritten Signature Accent */}
-            <div className="handwritten">
-              {t('hero.signature')}
-            </div>
-          </div>
-
-          {/* Video Thumbnail Placeholder */}
-          <div
-            style={{
-              position: 'relative',
-              borderRadius: 'var(--radius-md)',
-              border: '1.5px solid #1D1E22',
-              overflow: 'hidden',
-              height: '220px',
-              background: 'linear-gradient(135deg, #1D1E22, #2B3A42)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer'
-            }}
-            onClick={() => alert(t('hero.videoAlert'))}
-          >
-            <div
-              style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                background: '#FAF8F3',
-                border: '1.5px solid #1D1E22',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: 'var(--shadow-button)'
-              }}
-            >
-              <Play size={24} color="#1D1E22" style={{ marginLeft: '3px' }} />
-            </div>
-
-            <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', color: '#FFFFFF', fontSize: '0.85rem', fontWeight: 600 }}>
-              {t('hero.watchVideoText')}
-            </div>
-          </div>
-        </div>
+        <SystemOverviewVideo />
 
       </div>
     </section>

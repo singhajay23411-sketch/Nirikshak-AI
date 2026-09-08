@@ -154,13 +154,30 @@ function LoginPage() {
   );
 }
 
-// ─── Dashboard View Wrapper ───
 function DashboardPage() {
   const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuth();
+
+  useEffect(() => {
+    const handlePageShow = (event) => {
+      if (event.persisted && !isAuthenticated) {
+        window.location.replace('/login');
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <RoleDashboardLayout
-      onLogout={() => navigate('/')}
+      onLogout={() => {
+        logout();
+        navigate('/login', { replace: true });
+      }}
     />
   );
 }
